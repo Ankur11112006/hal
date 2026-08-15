@@ -52,10 +52,11 @@ Last commit `22d1408`, working tree clean, everything pushed.
 | Model | trained, `artifacts/crop_model.tflite`, 1.98 MB float16 |
 | Backend | live on Render, all tests pass, Gemini verified against the real API |
 | App | runs on a device, most flows verified by hand (see §4) |
-| `dist/hal-arm64.apk` | **STALE.** Built before the last two commits. Rebuild before giving it to anyone |
-| Emulator APK | current for mobile code, but the last two backend fixes are server-side only |
+| `dist/hal-arm64.apk` | current, 51 MB, built 16 Aug 01:28 |
 
-**The first thing to do in a new session is rebuild the arm64 APK** (§3).
+Rebuild the APK after any change under `mobile/`. Backend changes deploy
+themselves on push, but **only when something under `backend/` changed**: Render
+uses `rootDir: backend` and skips the deploy otherwise.
 
 ---
 
@@ -130,14 +131,48 @@ Walked by hand on an x86_64 emulator, release build, with logcat open.
 - **Demo seed, home, camera, gallery picker, language screen, onboarding, settings** all render and work.
 - **Hindi and English** both complete, 238 keys each, `validate.py` fails on any mismatch.
 
-Not yet walked: symptom checker end to end, English mode on the device,
-notifications actually firing, `मेरा डेटा मिटाएँ` count, airplane-mode sync.
+- **Symptom checker end to end.** Gauri, "can't get up" + "calved recently" →
+  दूध बुख़ार (कैल्शियम की कमी), the "हमें पक्का पता नहीं" caveat, an urgent action,
+  a tappable 1962, and a row written to the ledger.
+- **English end to end.** Every label, the five tabs, and the advisory itself,
+  which correctly says a Hindi-entered record back in English.
+- **Sync, verified from both sides.** 34 events on the server, and
+  `/vaccine-due/demo-ramesh` agreeing with the home card down to the date.
+- **Re-sync after a server wipe**, seen in logcat: `server is new to us (null ->
+  43f79861e029), re-sending 32 events`.
+
+Not yet walked: notifications actually firing, `मेरा डेटा मिटाएँ` count,
+airplane-mode sync, adding a खेत or पशु by hand.
 
 ---
 
-## 5. Eight bugs found by running it, and the pattern
+## 5. Bugs found by running it, and the pattern
 
 Every one was invisible to the bundler, the test suites and APK inspection.
+
+### The one worth reading
+
+**The sync had never worked, and everything looked fine.** The home card said
+गौरी's FMD was 76 days overdue. The advisory, on the same screen, said no record
+existed. `/timeline` explained it: the server held the profile and **zero
+events**. Four causes, each hiding the next.
+
+- `/sync` wrote a batch as one transaction, so one refused row rolled back the
+  other forty and returned a bare 500.
+- The schema refused a scan with no plot, which the app creates on purpose:
+  photograph a leaf first, enter your fields later. So an ordinary scan poisoned
+  the queue permanently.
+- `App.js` swallowed the flush error in an empty `catch {}`.
+- The server DB is wiped on every Render deploy and the phone never re-offered
+  rows it had marked synced, so each deploy emptied the server for good.
+
+Fixes: per-row inserts that name what was rejected and why, a CHECK that allows
+parentless scans, a real error path into `api.lastError()`, and a `boot_id` in
+`/health` that makes the phone re-send when the server it is talking to is one
+it has not seen. **Ask the server, not the app.** `curl .../timeline/demo-ramesh`
+and `curl .../vaccine-due/demo-ramesh` would have shown this on day one.
+
+### The rest
 
 1. **Model never loaded in release.** `require()` of a `.tflite` works in dev (Metro serves over http) and fails in release (compiled into `res/`, resolves to a bare resource name): `MalformedURLException: no protocol: assets_crop_model`. Fixed with `expo-asset`.
 2. **`loadTensorflowModel` v3 needs a `delegates` argument** and exchanges ArrayBuffers, not typed arrays.
@@ -148,10 +183,21 @@ Every one was invisible to the bundler, the test suites and APK inspection.
 7. **"No internet" when the server answered in 0.5s.** The health check allowed 4s, less than a TLS handshake on a slow link.
 8. **Advisory named the wrong disease** (रतुआ instead of झुलसा) and called a no-record vaccine "overdue", because it was sent `overdue=true` and `status="koi record nahi"` together.
 
-> The pattern in all eight: **a `catch` that swallowed the reason, or a value
-> that contradicted itself.** Every fix included making the failure visible.
-> If something in this app appears to do nothing, assume an error is being
-> eaten and go find it, rather than guessing at the cause.
+9. **English mode was Hindi.** Three independent reasons: the Devanagari rule in
+   the prompt was unconditional, the vaccine notes built for the prompt were
+   Devanagari-only, and the app passed the literal string `'Hindi'` at its one
+   call site. The tab bar also stayed Hindi, because it lives inside the
+   navigator and React Navigation kept it mounted across the language change.
+10. **Due vaccines were trimmed out of the prompt.** They are appended after the
+    history and the line builder kept only the first twenty rows, so on a farm
+    with a real timeline the model never saw a single one.
+11. **The prompt named the words it was forbidding.** "na 'jaanch'" came back as
+    **"एक बार जाanch लें"**, and an ISO due date came back as "2026-05-31 को".
+
+> The pattern in nearly all of them: **a `catch` that swallowed the reason, or a
+> value that contradicted itself.** Every fix included making the failure
+> visible. If something in this app appears to do nothing, assume an error is
+> being eaten and go find it, rather than guessing at the cause.
 
 A related rule that keeps paying: **anything the model echoes must already be
 in the target script.** Sending it `"FMD"`, `overdue: true` and romanized status
@@ -162,9 +208,9 @@ whose entire premise is speaking the farmer's language.
 
 ## 6. Open, roughly in order
 
-1. **Rebuild `dist/hal-arm64.apk`.** It is two commits stale.
-2. Walk the symptom checker, English mode, and notifications on the device.
-3. Airplane-mode test: scan works, writes queue, then sync (`SPEC.md` 6.3).
+1. Walk notifications, `मेरा डेटा मिटाएँ`, and adding a खेत/पशु by hand.
+2. Airplane-mode test: scan works, writes queue, then sync (`SPEC.md` 6.3).
+3. Rehearse tier 3 with a leaf that genuinely lands under 0.60.
 4. Three files need a human before a farmer sees them, all carrying
    `_validated_by: null` and a warning:
    - `content/symptom_tree.json`: a district vet

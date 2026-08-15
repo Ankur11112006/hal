@@ -1,10 +1,21 @@
-# HAL — honest status
+# HAL: honest status
 
-*15 August 2026. Written to be useful before a demo, not to be flattering.*
+*15 August 2026, updated 16 August after two device-testing passes. Written to be
+useful before a demo, not to be flattering.*
 
-The short version: **the whole system is written and it compiles, but almost none
-of the app has ever run.** The model is real and measured. The backend is real and
-tested. The Android app has never been installed on a phone.
+The short version: **it runs on a device now, and running it is what found the
+bugs.** The model is real and measured. The backend is real, tested and
+deployed. The app has been walked by hand through scan, ledger, symptom check,
+advisory and both languages.
+
+The one that matters: **the sync had never worked and nothing said so.** The
+server held a profile and zero events for the entire build, so the advisory
+answered "koi record nahi mila" about a farm with two years of history while the
+home screen, two centimetres above it, showed that history. Four separate causes,
+each hiding the next. See §7.
+
+Everything in §3 that is still marked unproven is still unproven. Field accuracy
+is still 44.9%.
 
 ---
 
@@ -16,7 +27,7 @@ tested. The Android app has never been installed on a phone.
 | `backend/` FastAPI | 4 | 862 | runs, 9 assertions pass |
 | `mobile/` Expo app | 23 | 3,000 | compiles, **never executed** |
 | `content/` shared JSON | 4 | 759 | validated by script, **not by an expert** |
-| `artifacts/` trained model | 5 | — | 1.98 MB float16 TFLite |
+| `artifacts/` trained model | 5 | - | 1.98 MB float16 TFLite |
 
 Data on disk: 15 GB raw across 7 datasets, 686 MB prepared (35,055 images).
 
@@ -43,21 +54,25 @@ that the camera opens, or that TFLite loads on Android.
 
 ---
 
-## 3. Written but NEVER RUN — read this section twice
+## 3. What has run, and what still has not
 
-Nothing below has executed even once. Each is a plausible demo-day failure.
+Most of this table used to read "never executed". Two device passes changed it.
+What is still open is listed honestly, because that is the point of the file.
 
-| Thing | Risk | Why it is unproven |
+| Thing | State | Evidence |
 |---|---|---|
-| **Every app screen** | 🔴 high | No emulator, no device. 12 screens rendered zero times |
-| **TFLite on Android** | 🟡 **downgraded** | See §3b. The APK builds and the native libraries and the model are provably inside it. Still never *loaded* at runtime |
-| **jpeg-js → tensor path** | 🔴 high | `ml.js` decodes the photo in JS and builds a Float32Array. That code has never processed one image |
-| **Camera capture** | 🟡 med | `expo-camera` permission flow, shutter, `takePictureAsync` |
-| ~~Gemini advisory~~ | ✅ **now verified** | See §3a. Ran against the real API; the cross-domain answer works and is asserted by `backend/test_advise_live.py` |
-| ~~Open-Meteo weather~~ | ✅ **now verified** | Exercised by the same live run; the answer's timing line comes from the real forecast |
-| **Local notifications** | 🟡 med | `notify.js` schedules reminders; none has fired |
-| **expo-sqlite** | 🟡 med | Schema and queries are written against the SDK 57 async API but have not touched a real database. The identical SQL passes on the Python side |
-| **Backend on Render** | 🟡 med | Runs locally. Never deployed. `render.yaml` untested |
+| **App screens** | ✅ ran | Walked by hand on an emulator, release build: onboarding, home, camera, scan result, ledger, animal list and detail, symptom checker, advisory, settings, language |
+| **TFLite on Android** | ✅ ran | `[ml] model loaded from file:///...ExponentAsset-474b05a4....tflite`, hash matching `artifacts/crop_model.tflite` |
+| **jpeg-js → tensor path** | ✅ ran | A real maize-blight photo produced "शायद मक्का का झुलसा रोग", 67%, tier 2, case HL-8301 |
+| **Camera capture** | ✅ ran | Shutter and gallery picker both, with plot chips and crop conditioning |
+| **expo-sqlite** | ✅ ran | The whole demo seed, the merged ledger, and the vaccine calendar all read back correctly |
+| **Backend on Render** | ✅ ran | Live, and `render.yaml` deploys on push. It also wipes the database on every deploy, which is §7's headline bug |
+| **Sync** | ✅ ran, **after four fixes** | 34 events on the server; `/vaccine-due` agrees with the home card to the day |
+| ~~Gemini advisory~~ | ✅ verified | §3a, plus end to end from the phone in both languages |
+| ~~Open-Meteo weather~~ | ✅ verified | Same live run |
+| **Local notifications** | 🟡 open | The permission dialog appears and is granted. No reminder has been observed firing |
+| **Airplane-mode queue** | 🟡 open | Never tested. The retry path is now correct on paper and has never been watched offline |
+| **Add a खेत or पशु by hand** | 🟡 open | Only the seeded rows have been exercised |
 | **Voice / TTS** | 🟢 low | `expo-speech`, standard API |
 
 ---
@@ -158,7 +173,7 @@ Not bugs. Decisions, with the reason.
   worse than English, and I cannot validate Marwari disease names.
 - Mandi prices, schemes, outbreak map UI, milk logging, photo-assist for skin
   conditions, year-on-year comparison. All scoped out by the blueprint.
-- **`chilli`** — no public dataset exists. Every Kaggle result titled "chilli leaf
+- **`chilli`**: no public dataset exists. Every Kaggle result titled "chilli leaf
   disease" turned out to be PlantVillage **bell pepper** renamed.
 
 ---
@@ -204,7 +219,7 @@ times.** Validation accuracy across all three builds moved 93.2 → 93.9. Every
 number that mattered moved in the field column, and none of it was visible from
 validation.
 
-### Per crop — the most useful table in this document
+### Per crop, the most useful table in this document
 
 | crop | field accuracy | n |
 |---|---|---|
@@ -239,7 +254,7 @@ Each one was silent, and each would have survived to demo day.
    `cow`, so every cow silently got an empty vaccination plan. Caught by a test.
 5. **KB was romanized-only.** Bhashini ASR returns Devanagari; lexical retrieval
    matched nothing. Every doc now carries both scripts.
-6. **Sync never sent farmer, plot or animal rows** — only events. `/advise` would
+6. **Sync never sent farmer, plot or animal rows**, only events. `/advise` would
    have 404'd on the server and the cross-domain line would have died.
 7. **INT8 quantization changed 7 of 30 predictions.**
 8. **Metro does not bundle `.tflite`** without config, so the model would have been
@@ -294,12 +309,31 @@ points of tier-1 precision.
 
 ## 9. Next
 
-1. **EAS dev build and install on a real phone.** Everything still open in §3
-   resolves or breaks here, and nothing else can be trusted until it does.
-2. Deploy the backend, ping `/health` five minutes before the demo.
-3. Rehearse tier 3. It is the highest-scoring moment and it needs a leaf that
+1. Install `dist/hal-arm64.apk` on the actual demo phone. The emulator is
+   x86_64; nothing about arm64 has been run, only built.
+2. Ping `/health` five minutes before the demo. The free instance sleeps after
+   15 minutes idle and takes ~50 seconds to wake, and waking it also wipes its
+   database, so give the app a minute afterwards to re-send.
+3. Watch a notification actually fire, and run one airplane-mode round trip.
+4. Rehearse tier 3. It is the highest-scoring moment and it needs a leaf that
    actually lands under 0.60.
-4. Get the three files in §6 signed off.
+5. Get the three files in §6 signed off.
+
+### The lesson from both device passes
+
+Every bug in §7 was invisible to four green test suites and a clean build. Each
+was found by doing one of two things: **driving the app by hand**, or **asking
+the server the same question the app had just answered.** The second one is a
+30-second `curl` and it would have caught the biggest bug in the project on day
+one. Do it after every change to sync, the schema, or the prompt:
+
+```bash
+curl -s https://bahi-backend.onrender.com/timeline/demo-ramesh | head -c 300
+curl -s https://bahi-backend.onrender.com/vaccine-due/demo-ramesh
+```
+
+If those disagree with what the phone is showing, stop and find out why before
+building anything else.
 
 Each of the ten bugs in this document was found by **running** something, never by
 reading it. Eight came from the offline checks, two only appeared once the real

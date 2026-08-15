@@ -27,11 +27,13 @@ services:
 # Two things the free tier does NOT give you, both deliberate here:
 #
 # 1. No persistent disk. SQLite therefore lives on ephemeral storage and is
-#    wiped on every restart and redeploy. That is acceptable because the PHONE
-#    is the source of truth: SPEC.md E3 makes the event log append-only and
-#    local-first, and the server holds a synced copy plus the RAG corpus. The
-#    demo seed lives on the device, not here. Move to Postgres before any real
-#    farmer data exists.
+#    wiped on every restart and redeploy. Survivable only because the phone can
+#    be told to send it all again: /health returns a boot_id that changes on
+#    every restart, and a phone seeing an unfamiliar one re-sends its whole
+#    event log. Without that the wipe was permanent, since the phone had already
+#    marked those rows synced and would never offer them again, and the advisory
+#    answered "koi record nahi mila" about a farm with two years of history.
+#    Move to Postgres before any real farmer data exists.
 #
 # 2. The instance sleeps after 15 minutes idle and takes ~50s to wake. Ping
 #    /health five minutes before the demo, or run uvicorn on the presenting

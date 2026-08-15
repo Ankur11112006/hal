@@ -103,9 +103,12 @@ async function checkServerRestarted(health) {
   const seen = await AsyncStorage.getItem(BOOT_KEY);
   if (seen === id) return;
   await AsyncStorage.setItem(BOOT_KEY, id);
-  if (seen === null) return;              // first run: nothing was ever sent
+  // No exemption for the first run. A fresh install has nothing marked synced,
+  // so this costs an UPDATE that matches no rows; but an install upgrading from
+  // a build that had no boot_id is carrying exactly the rows the server lost,
+  // all of them marked synced, and skipping it would leave them stranded.
   const n = await resendAll();
-  console.warn(`[api] server restarted (${seen} -> ${id}), re-sending ${n} events`);
+  console.warn(`[api] server is new to us (${seen} -> ${id}), re-sending ${n} events`);
 }
 
 let lastOnlineError = null;

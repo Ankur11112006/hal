@@ -214,11 +214,23 @@ def ask(body: AskIn):
         # prompt: this is what makes the cross-domain answer possible at all
         events = events + [{
             "at": d["due_on"], "animal_name": d["animal_name"], "type": "vaccine_due",
-            "data": {"vaccine": d["vaccine"], "overdue": d["overdue"],
-                     "days_left": d["days_left"],
-                     "status": "koi record nahi" if d["no_record"] else
-                               (f"{abs(d['days_left'])} din se overdue" if d["overdue"]
-                                else f"{d['days_left']} din mein")}}
+            # For a vaccine with no record, `overdue` is deliberately omitted
+            # rather than sent as true. Sending both overdue=true and
+            # status="koi record nahi" is a contradiction, and the model picks
+            # the more emphatic half: it told the farmer a vaccine was overdue
+            # on the same screen where the app said no record existed.
+            # These status strings are written in Devanagari because the model
+            # echoes them verbatim. Romanized values here leaked straight into
+            # a Hindi answer as "एक बार jaanch lein" and "overdue".
+            # Everything here is Devanagari and nothing is a flag, because the
+            # model echoes whatever it is given. An `overdue: true` key came
+            # back as the English word "overdue" in a Hindi sentence, and the
+            # vaccine code "FMD" came back instead of खुरपका-मुँहपका. The status
+            # string alone carries the same information without leaking script.
+            "data": {"tika": (d["label"] or {}).get("hi") or d["vaccine"],
+                     "status": ("इस टीके का कोई रिकॉर्ड नहीं मिला" if d["no_record"]
+                                else f"{abs(d['days_left'])} दिन पहले लगना था" if d["overdue"]
+                                else f"{d['days_left']} दिन में लगना है")}}
             for d in due]
 
         ans = A.advise(body.question, events, weather, body.lang, gloss)

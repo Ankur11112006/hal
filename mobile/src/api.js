@@ -74,11 +74,24 @@ async function call(path, opts = {}, timeoutMs = 12000) {
 
 export async function online() {
   try {
-    await call('/health', {}, 4000);
+    // 4s was too tight. A cold Render instance takes ~50s to wake, and even a
+    // warm one over a slow rural link spends a second or two on the TLS
+    // handshake alone. Reporting that as "no internet" is the same mistake as
+    // the advisory sheet made: a timeout is not a verdict.
+    await call('/health', {}, 20000);
+    lastOnlineError = null;
     return true;
-  } catch {
+  } catch (e) {
+    lastOnlineError = `${e.offline ? 'unreachable' : e.status} ${e.message}`;
+    console.warn('[api] offline:', lastOnlineError, 'base=', BASE);
     return false;
   }
+}
+
+let lastOnlineError = null;
+/** Shown in Settings so a connectivity failure is diagnosable on the phone. */
+export function lastError() {
+  return lastOnlineError;
 }
 
 // Profile rows are small, mutable and few, so they are pushed wholesale rather

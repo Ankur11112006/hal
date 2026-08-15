@@ -121,8 +121,16 @@ export default function App() {
   }, []);
 
   // Reminders are rebuilt from local due dates, so they keep firing offline.
+  //
+  // Deliberately delayed. Requesting the notification permission during the
+  // first paint pops a system dialog that takes focus away from Home, which
+  // cancels its in-flight query and leaves "nothing urgent today" on screen
+  // over a farm that has three overdue vaccines. It also asks for permission
+  // before showing any reason to grant it, which is how you get denied.
   useEffect(() => {
-    if (farmer) syncReminders(farmer.id).catch(() => {});
+    if (!farmer) return;
+    const id = setTimeout(() => syncReminders(farmer.id).catch(() => {}), 2500);
+    return () => clearTimeout(id);
   }, [farmer?.id, tick]);
 
   // Drain the queue whenever we can reach the server. The UI never waits on it.

@@ -24,6 +24,7 @@ export default function Home({ navigation }) {
   const [due, setDue] = useState([]);
   const [recent, setRecent] = useState([]);
   const [weather, setWeather] = useState(null);
+  const [loaded, setLoaded] = useState(false);
 
   useFocusEffect(useCallback(() => {
     let alive = true;
@@ -34,6 +35,7 @@ export default function Home({ navigation }) {
       if (!alive) return;
       setDue(d.filter((x) => x.daysLeft <= 14));
       setRecent(r);
+      setLoaded(true);
       const p = plots.find((x) => x.lat);
       if (p && isOnline) {
         try { setWeather(await api.weather(p.lat, p.lng)); } catch {}
@@ -75,7 +77,9 @@ export default function Home({ navigation }) {
         )}
 
         <Text style={[T.label, { marginTop: 8, marginBottom: 8 }]}>{t('home.todayImportant')}</Text>
-        {due.length === 0 ? (
+        {!loaded ? (
+          <Card><Text style={T.bodySoft}>{t('common.loading')}</Text></Card>
+        ) : due.length === 0 ? (
           <Card><Text style={T.bodySoft}>{t('home.nothingUrgent')}</Text></Card>
         ) : (
           due.slice(0, 3).map((v) => {
@@ -107,7 +111,7 @@ export default function Home({ navigation }) {
         )}
 
         <Text style={[T.label, { marginTop: 16, marginBottom: 8 }]}>{t('home.recent')}</Text>
-        {recent.length === 0 ? (
+        {!loaded ? null : recent.length === 0 ? (
           <EmptyState text={t('records.emptyPast')} action={t('records.addOld')}
             onAction={() => navigation.navigate('Crop')} />
         ) : (

@@ -167,7 +167,12 @@ export async function flush(farmer) {
  * which the UI then reported as having no internet.
  */
 export async function advise(farmer_id, question, lang = 'Hindi', farmer = null) {
-  if (farmer) { try { await pushProfile(farmer); } catch {} }
+  // flush, not just pushProfile. The answer is only worth anything if the
+  // server has this farm's timeline, and waiting for the 30-second beat means
+  // the first question after a restart gets answered about an empty farm.
+  if (farmer) {
+    try { await flush(farmer); } catch (e) { noteSyncError(e); console.warn('[advise] sync first failed:', e.message); }
+  }
   return call('/advise', {
     method: 'POST',
     body: JSON.stringify({ farmer_id, question, lang }),

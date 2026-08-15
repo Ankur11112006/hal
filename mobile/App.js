@@ -1,0 +1,179 @@
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import {
+  useFonts,
+  NotoSansDevanagari_400Regular,
+  NotoSansDevanagari_600SemiBold,
+  NotoSansDevanagari_700Bold,
+} from '@expo-google-fonts/noto-sans-devanagari';
+
+import { C, T, D } from './src/theme';
+import { t } from './src/content';
+import * as db from './src/db';
+import * as api from './src/api';
+import * as ml from './src/ml';
+import { syncReminders } from './src/notify';
+import { Loading } from './src/components/ui';
+
+import FirstRun from './src/screens/Onboarding';
+import Home from './src/screens/Home';
+import Crop from './src/screens/Crop';
+import Livestock from './src/screens/Livestock';
+import Records from './src/screens/Records';
+import Camera from './src/screens/Camera';
+import ScanResult from './src/screens/ScanResult';
+import AnimalDetail from './src/screens/AnimalDetail';
+import SymptomChecker from './src/screens/SymptomChecker';
+import Advisory from './src/screens/Advisory';
+import Settings from './src/screens/Settings';
+
+const Stack = createNativeStackNavigator();
+const Tabs = createBottomTabNavigator();
+
+// ---------------------------------------------------------------- app state
+const Ctx = createContext(null);
+export const useApp = () => useContext(Ctx);
+
+function TabBar({ state, navigation }) {
+  const items = [
+    { key: 'Home', icon: '🏠', label: t('nav.home') },
+    { key: 'Crop', icon: '🌱', label: t('nav.crop') },
+    { key: '__scan', icon: '📷', label: t('nav.scan') },
+    { key: 'Livestock', icon: '🐄', label: t('nav.livestock') },
+    { key: 'Records', icon: '📖', label: t('nav.records') },
+  ];
+  return (
+    <SafeAreaView edges={['bottom']} style={{ backgroundColor: C.surface }}>
+      <View style={s.bar}>
+        {items.map((it) => {
+          if (it.key === '__scan') {
+            // Largest, brightest element on screen. Most-used action, and the
+            // demo's opening move.
+            return (
+              <Pressable key="scan" accessibilityLabel={it.label}
+                onPress={() => navigation.navigate('Camera')} style={s.fabWrap}>
+                <View style={s.fab}><Text style={{ fontSize: 30 }}>{it.icon}</Text></View>
+                <Text style={[T.caption, { color: C.scanOrange }]}>{it.label}</Text>
+              </Pressable>
+            );
+          }
+          const active = state.routes[state.index].name === it.key;
+          return (
+            <Pressable key={it.key} accessibilityLabel={it.label}
+              onPress={() => navigation.navigate(it.key)} style={s.tab}>
+              <Text style={{ fontSize: 24, opacity: active ? 1 : 0.55 }}>{it.icon}</Text>
+              <Text style={[T.caption, active && { color: C.green, fontWeight: '700' }]}>
+                {it.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </SafeAreaView>
+  );
+}
+
+function MainTabs() {
+  return (
+    <Tabs.Navigator screenOptions={{ headerShown: false }} tabBar={(p) => <TabBar {...p} />}>
+      <Tabs.Screen name="Home" component={Home} />
+      <Tabs.Screen name="Crop" component={Crop} />
+      <Tabs.Screen name="Livestock" component={Livestock} />
+      <Tabs.Screen name="Records" component={Records} />
+    </Tabs.Navigator>
+  );
+}
+
+export default function App() {
+  const [fonts] = useFonts({
+    NotoSansDevanagari_400Regular,
+    NotoSansDevanagari_600SemiBold,
+    NotoSansDevanagari_700Bold,
+  });
+  const [farmer, setFarmer] = useState(undefined);   // undefined = still loading
+  const [isOnline, setOnline] = useState(false);
+  const [tick, setTick] = useState(0);
+  const refresh = useCallback(() => setTick((n) => n + 1), []);
+
+  useEffect(() => {
+    (async () => {
+      await db.open();
+      ml.load();                                     // warm the interpreter early
+      setFarmer((await db.anyFarmer()) || null);
+    })();
+  }, []);
+
+  // Reminders are rebuilt from local due dates, so they keep firing offline.
+  useEffect(() => {
+    if (farmer) syncReminders(farmer.id).catch(() => {});
+  }, [farmer?.id, tick]);
+
+  // Drain the queue whenever we can reach the server. The UI never waits on it.
+  useEffect(() => {
+    let alive = true;
+    const beat = async () => {
+      const up = await api.online();
+      if (!alive) return;
+      setOnline(up);
+      if (up) { try { await api.flush(farmer); } catch {} }
+    };
+    beat();
+    const id = setInterval(beat, 30000);
+    return () => { alive = false; clearInterval(id); };
+  }, [tick, farmer?.id]);
+
+  if (!fonts || farmer === undefined) {
+    return (
+      <View style={{ flex: 1, backgroundColor: C.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: 44, color: C.green, fontWeight: '700' }}>बही</Text>
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaProvider>
+      <Ctx.Provider value={{ farmer, setFarmer, isOnline, refresh, tick }}>
+        <StatusBar style="dark" backgroundColor={C.bg} />
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
+            {!farmer ? (
+              <Stack.Screen name="FirstRun" component={FirstRun} />
+            ) : (
+              <>
+                <Stack.Screen name="Main" component={MainTabs} />
+                <Stack.Screen name="Camera" component={Camera} />
+                <Stack.Screen name="ScanResult" component={ScanResult} />
+                <Stack.Screen name="AnimalDetail" component={AnimalDetail} />
+                <Stack.Screen name="SymptomChecker" component={SymptomChecker} />
+                <Stack.Screen name="Settings" component={Settings} />
+                <Stack.Screen name="Advisory" component={Advisory}
+                  options={{ presentation: 'transparentModal', animation: 'slide_from_bottom' }} />
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </Ctx.Provider>
+    </SafeAreaProvider>
+  );
+}
+
+const s = StyleSheet.create({
+  bar: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around',
+    borderTopWidth: 1, borderTopColor: C.outline, backgroundColor: C.surface,
+    paddingTop: 6, paddingBottom: 4,
+  },
+  tab: { alignItems: 'center', minWidth: D.minTarget, minHeight: D.minTarget, justifyContent: 'center' },
+  fabWrap: { alignItems: 'center', marginTop: -26 },
+  fab: {
+    width: D.fab, height: D.fab, borderRadius: D.fab / 2, backgroundColor: C.scanOrange,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 6, shadowOffset: { width: 0, height: 3 },
+    elevation: 6, marginBottom: 2,
+  },
+});

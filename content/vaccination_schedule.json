@@ -1,0 +1,85 @@
+{
+  "_note": "SPEC.md B2. FMD/HS/BQ/Brucella timings and funding are from DAHD / NADCP-LHDCP. Deworming interval is common field practice and is marked as such. This file drives Day Zero (blueprint 4.1): adding one animal writes future events immediately, so the timeline is never empty.",
+  "_verify_before_demo": "Confirm intervals with the district veterinary officer. Wrong dates here are the one bug a vet judge will catch instantly.",
+  "_species_note": "One mechanism only: every species word an animal record can hold must appear in `aliases` and resolve to a key in `schedules`. There is deliberately no second species-group map, because two sources of truth is how 'cow' ended up resolving to nothing.",
+  "aliases": {
+    "cow": "cattle", "gaay": "cattle", "gai": "cattle", "bullock": "cattle",
+    "ox": "cattle", "bail": "cattle", "calf": "cattle", "bachhda": "cattle",
+    "cattle": "cattle",
+    "buffalo": "cattle", "bhains": "cattle", "murrah": "cattle"
+  },
+  "schedules": {
+    "cattle": [
+      {
+        "vaccine": "FMD",
+        "label": { "hi": "खुरपका-मुँहपका", "en": "Foot and Mouth Disease" },
+        "canonical_id": "disease.cattle.fmd",
+        "first_dose_days": 120,
+        "repeat_days": 180,
+        "lifetime_once": false,
+        "funding": { "hi": "पूरी तरह सरकारी, मुफ़्त", "en": "100% central government (NADCP)" },
+        "remind_before_days": 14,
+        "why": { "hi": "टीका मुफ़्त है, सरकार खुद लगाती है। दिक्कत सिर्फ़ तारीख़ याद रखने की है।", "en": "The vaccine is free and government-administered. Only the date is the barrier." }
+      },
+      {
+        "vaccine": "Brucellosis",
+        "label": { "hi": "ब्रुसेल्ला", "en": "Brucellosis" },
+        "canonical_id": "disease.cattle.brucella",
+        "first_dose_days": 120,
+        "eligible_until_days": 240,
+        "repeat_days": null,
+        "lifetime_once": true,
+        "females_only": true,
+        "funding": { "hi": "सरकारी", "en": "Government" },
+        "remind_before_days": 14,
+        "why": { "hi": "सिर्फ़ बछिया को, 4 से 8 महीने की उम्र में, ज़िंदगी में एक बार।", "en": "Female calves only, 4-8 months, once in a lifetime." }
+      },
+      {
+        "vaccine": "HS",
+        "label": { "hi": "गलघोंटू", "en": "Haemorrhagic Septicaemia" },
+        "canonical_id": "disease.cattle.hs",
+        "first_dose_days": 180,
+        "repeat_days": 365,
+        "preferred_month": 5,
+        "lifetime_once": false,
+        "funding": { "hi": "राज्य सरकार की मदद से", "en": "Government assistance to states" },
+        "remind_before_days": 21,
+        "why": { "hi": "बरसात से पहले लगवाएँ।", "en": "Give before the monsoon." }
+      },
+      {
+        "vaccine": "BQ",
+        "label": { "hi": "लंगड़ी बुख़ार", "en": "Black Quarter" },
+        "canonical_id": "disease.cattle.bq",
+        "first_dose_days": 180,
+        "repeat_days": 365,
+        "preferred_month": 5,
+        "lifetime_once": false,
+        "funding": { "hi": "राज्य सरकार की मदद से", "en": "Government assistance to states" },
+        "remind_before_days": 21,
+        "why": { "hi": "बरसात से पहले, गलघोंटू के साथ ही लग जाता है।", "en": "Before monsoon, usually given alongside HS." }
+      },
+      {
+        "vaccine": "Deworming",
+        "label": { "hi": "पेट के कीड़े की दवा", "en": "Deworming" },
+        "canonical_id": "practice.cattle.deworming",
+        "first_dose_days": 30,
+        "repeat_days": 120,
+        "lifetime_once": false,
+        "funding": { "hi": "किसान का ख़र्च, थोड़ा सा", "en": "Farmer cost, small" },
+        "remind_before_days": 7,
+        "local_practice": true,
+        "why": { "hi": "स्थानीय डॉक्टर की सलाह से बदल सकता है।", "en": "Varies with local veterinary practice." }
+      }
+    ]
+  },
+  "breeding": {
+    "_note": "SPEC.md B5. Plain date arithmetic on standard bovine constants.",
+    "heat_cycle_days": 21,
+    "gestation_days": 283,
+    "heat_window_hours": 18,
+    "ai_window": { "hi": "गर्मी दिखने के 12 से 18 घंटे के अंदर", "en": "12-18 hours after heat is observed" },
+    "dry_off_before_calving_days": 60,
+    "transition_feed_before_calving_days": 14,
+    "pd_check_after_ai_days": 60
+  }
+}

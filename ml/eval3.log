@@ -1,0 +1,304 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1786794420.790689   15260 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1786794422.709151   15260 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+Found 29530 files belonging to 30 classes.
+Found 4938 files belonging to 30 classes.
+WARNING:tensorflow:TensorFlow GPU support is not available on native Windows for TensorFlow >= 2.11. Even if CUDA/cuDNN are installed, GPU will not be used. Please use WSL2 or the TensorFlow-DirectML plugin.
+reusing D:\SIH AgriVision\artifacts\model.keras
+Found 226 files belonging to 18 classes.
+Found 361 files belonging to 18 classes.
+Saved artifact at 'D:\SIH AgriVision\artifacts\saved_model'. The following endpoints are available:
+
+* Endpoint 'serve'
+  args_0 (POSITIONAL_ONLY): TensorSpec(shape=(None, 224, 224, 3), dtype=tf.float32, name='keras_tensor_394')
+Output Type:
+  TensorSpec(shape=(None, 30), dtype=tf.float32, name=None)
+Captures:
+  2039083711184: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039083711952: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039083711760: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039083712144: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039083710992: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039083712336: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103012944: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103013328: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039083710800: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039083711376: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103013712: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103014672: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103014480: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103015056: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103014864: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103015248: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103014288: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103015440: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103013136: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103015632: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103016400: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103016208: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103016592: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103013904: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103015824: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103016976: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103016784: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103014096: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103017168: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103017936: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103018704: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103018512: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103018896: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103017360: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103018128: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103019664: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103019472: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103019856: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103017744: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103019088: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103020432: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103020240: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103019280: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103020624: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103021008: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103021584: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103021392: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103020048: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103021776: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103022160: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103022928: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103022736: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103023120: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103018320: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103022352: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103023888: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103023696: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103024080: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103021200: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103023312: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103025040: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103024848: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103025424: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103024272: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103025808: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103025616: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103026000: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103025232: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103026192: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103026960: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103026768: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103027152: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103024464: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103026384: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103027920: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103027728: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103028112: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103022544: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103027344: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103029072: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103028880: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103026576: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103028496: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103027536: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104160016: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103028304: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039103028688: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104160400: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104161168: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104160976: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104161360: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104159824: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104160592: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104162128: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104161936: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104162320: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104160208: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104161552: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104163280: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104163088: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104163664: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104163472: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104163856: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104162896: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104164048: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104160784: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104162512: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104164816: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104164624: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104165008: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104161744: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104164240: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104165776: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104165584: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104165968: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104162704: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104165200: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104166928: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104166736: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104167312: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104167120: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104167504: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104166544: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104167696: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104164432: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104166160: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104168464: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104168272: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104168656: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104165392: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104167888: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104169424: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104169232: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104169616: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104166352: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104168848: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104170576: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104170384: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104170960: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104170768: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104171152: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104170192: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104171344: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104168080: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104169808: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104172112: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104171920: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104172304: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104169040: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104171536: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104173072: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104172880: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104173264: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104170000: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104172496: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104174224: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104174032: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104174608: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104174416: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104174800: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104173840: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104174992: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104171728: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104173456: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104175760: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104175568: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104175952: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104172688: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104175184: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108600080: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108600272: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104175376: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039104173648: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108600656: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108601616: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108601424: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108602000: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108601808: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108602192: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108601232: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108602384: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108599888: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108600848: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108603152: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108602960: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108603344: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108600464: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108602576: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108604112: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108603920: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108604304: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108601040: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108603536: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108605264: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108605072: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108605648: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108605456: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108605840: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108604880: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108606032: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108602768: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108604496: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108606800: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108606608: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108606992: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108603728: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039083709840: TensorSpec(shape=(), dtype=tf.resource, name=None)
+  2039108607760: TensorSpec(shape=(), dtype=tf.resource, name=None)
+C:\Users\ankur\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\tensorflow\lite\python\interpreter.py:457: UserWarning:     Warning: tf.lite.Interpreter is deprecated and is scheduled for deletion in
+    TF 2.20. Please use the LiteRT interpreter from the ai_edge_litert package.
+    See the [migration guide](https://ai.google.dev/edge/litert/migration)
+    for details.
+    
+  warnings.warn(_INTERPRETER_DELETION_WARNING)
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+{
+  "temperature": 1.8000000000000012,
+  "temperature_fitted_on": "field_cal, 226 held-out field images",
+  "temperature_if_fitted_on_val": 1.1000000000000005,
+  "val_accuracy": 0.9392466585662211,
+  "val_ece_after_calibration": 0.0837106031594657,
+  "val_ece_before_calibration": 0.006613004993407423,
+  "img_size": 224,
+  "classes": 30,
+  "field_accuracy": 0.4487534626038781,
+  "field_n": 361,
+  "field_ece_after_calibration": 0.04481251781336819,
+  "field_ece_before_calibration": 0.22212748679427888,
+  "field_classes": [
+    "maize__common_rust",
+    "maize__fall_armyworm",
+    "maize__gray_leaf_spot",
+    "maize__healthy",
+    "maize__northern_leaf_blight",
+    "potato__early_blight",
+    "potato__late_blight",
+    "rice__bacterial_leaf_blight",
+    "rice__brown_spot",
+    "rice__healthy",
+    "tomato__bacterial_spot",
+    "tomato__early_blight",
+    "tomato__healthy",
+    "tomato__late_blight",
+    "tomato__leaf_mold",
+    "tomato__mosaic_virus",
+    "tomato__septoria_leaf_spot",
+    "tomato__yellow_leaf_curl"
+  ],
+  "field_note": "18 of 30 classes have in-the-wild test images (PlantDoc). Classes without field images are reported on the validation split only.",
+  "tier1_auto": {
+    "share": 0.09695290858725762,
+    "accuracy": 0.8285714285714286,
+    "n": 35
+  },
+  "tier2_vlae": {
+    "share": 0.2077562326869806,
+    "accuracy": 0.6533333333333333,
+    "n": 75
+  },
+  "tier3_expert": {
+    "share": 0.6952908587257618,
+    "accuracy": 0.3346613545816733,
+    "n": 251
+  },
+  "tier1_precision": 0.8285714285714286,
+  "tier1_false_positive_rate": 0.17142857142857137,
+  "field_treatment_accuracy": 0.5789473684210527,
+  "tier1_treatment_precision": 0.9714285714285714,
+  "field_accuracy_crop_conditioned": 0.5318559556786704,
+  "cc_tier1_auto": {
+    "share": 0.2077562326869806,
+    "accuracy": 0.7733333333333333
+  },
+  "cc_tier2_vlae": {
+    "share": 0.296398891966759,
+    "accuracy": 0.6822429906542056
+  },
+  "cc_tier3_expert": {
+    "share": 0.49584487534626037,
+    "accuracy": 0.3407821229050279
+  },
+  "tflite_bytes": 1976852,
+  "tflite_mb": 1.98,
+  "tflite_vs_float_agreement": 1.0,
+  "tflite_input_dtype": "float32",
+  "tflite_output_dtype": "float32"
+}

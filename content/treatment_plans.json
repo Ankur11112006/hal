@@ -1,0 +1,206 @@
+{
+  "_note": "Keyed by model label. Exactly the rows the Tier 1 card renders, so the card needs no logic. Doses are per litre of spray water; cost_inr and saves_inr are rough per-acre figures for one application, meant to make the advice actionable, not to be quoted as precise economics.",
+  "_WARNING": "NOT agronomist-validated. Same rule as symptom_tree.json: get a KVK plant-protection officer to sign each row and record the name in _validated_by before a real farmer sees a dose. A wrong dose costs money and can damage the crop.",
+  "_validated_by": null,
+  "_source_default": "ICAR Package of Practices",
+
+  "rice__blast": {
+    "name": { "hi": "धान का ब्लास्ट", "en": "Rice blast" },
+    "what": { "hi": "ट्राइसाइक्लाज़ोल 75% WP का छिड़काव", "en": "Spray Tricyclazole 75% WP" },
+    "dose": { "hi": "0.6 ग्राम प्रति लीटर पानी", "en": "0.6 g per litre" },
+    "when": { "hi": "शाम को छिड़कें। बारिश आने वाली हो तो पहले करें, वरना धुल जाएगा।", "en": "Spray in the evening; before rain, or it washes off." },
+    "also": { "hi": "खेत में पानी बनाए रखें और यूरिया अभी और न डालें, ज़्यादा नाइट्रोजन ब्लास्ट बढ़ाता है।", "en": "Keep standing water; do not add more urea, excess nitrogen worsens blast." },
+    "cost_inr": 420, "saves_inr": 4000
+  },
+  "rice__brown_spot": {
+    "name": { "hi": "धान का भूरा धब्बा", "en": "Rice brown spot" },
+    "what": { "hi": "मैंकोज़ेब 75% WP का छिड़काव", "en": "Spray Mancozeb 75% WP" },
+    "dose": { "hi": "2.5 ग्राम प्रति लीटर पानी", "en": "2.5 g per litre" },
+    "when": { "hi": "जैसे ही धब्बे दिखें, देर न करें।", "en": "As soon as spots appear." },
+    "also": { "hi": "यह अक्सर मिट्टी में पोटाश की कमी से होता है। मिट्टी जाँच करवाएँ।", "en": "Often a potash deficiency. Get the soil tested." },
+    "cost_inr": 350, "saves_inr": 2800
+  },
+  "rice__bacterial_leaf_blight": {
+    "name": { "hi": "धान का जीवाणु झुलसा", "en": "Bacterial leaf blight" },
+    "what": { "hi": "कॉपर ऑक्सीक्लोराइड का छिड़काव", "en": "Spray Copper oxychloride" },
+    "dose": { "hi": "3 ग्राम प्रति लीटर पानी", "en": "3 g per litre" },
+    "when": { "hi": "तुरंत। यह जीवाणु रोग है, फफूँदनाशक अकेले काम नहीं करेगा।", "en": "Immediately. Bacterial, so a fungicide alone will not work." },
+    "also": { "hi": "खेत का पानी निकाल दें और नाइट्रोजन खाद रोक दें। एक खेत से दूसरे में पानी न जाने दें।", "en": "Drain the field, stop nitrogen, and do not let water flow between fields." },
+    "cost_inr": 400, "saves_inr": 5000
+  },
+  "rice__tungro": {
+    "name": { "hi": "धान का टुंग्रो", "en": "Rice tungro" },
+    "what": { "hi": "बीमार पौधे उखाड़कर हटाएँ, और हरे फुदके (लीफ़होपर) को रोकें", "en": "Rogue out infected plants and control the green leafhopper" },
+    "dose": { "hi": "इमिडाक्लोप्रिड 17.8% SL, 0.3 मिली प्रति लीटर पानी", "en": "Imidacloprid 17.8% SL, 0.3 ml per litre" },
+    "when": { "hi": "आज ही। यह विषाणु रोग है, इसका सीधा इलाज नहीं है, सिर्फ़ फैलना रोका जा सकता है।", "en": "Today. It is a virus with no direct cure; only spread can be stopped." },
+    "also": { "hi": "पड़ोसी किसानों को भी बताएँ, यह कीट से फैलता है।", "en": "Tell neighbouring farmers, it spreads by insect." },
+    "cost_inr": 300, "saves_inr": 6000
+  },
+  "rice__sheath_blight": {
+    "name": { "hi": "धान का शीथ ब्लाइट", "en": "Rice sheath blight" },
+    "what": { "hi": "हेक्साकोनाज़ोल 5% EC का छिड़काव", "en": "Spray Hexaconazole 5% EC" },
+    "dose": { "hi": "2 मिली प्रति लीटर पानी", "en": "2 ml per litre" },
+    "when": { "hi": "तने के निचले हिस्से पर छिड़कें, सिर्फ़ ऊपर पत्तों पर नहीं। रोग पानी की सतह के पास से शुरू होता है।", "en": "Direct the spray at the lower stem, not just the canopy; the disease starts near the water line." },
+    "also": { "hi": "खेत में पानी का स्तर घटाएँ और नाइट्रोजन खाद रोक दें। घना रोपण इसे बढ़ाता है।", "en": "Lower the standing water and stop nitrogen. Dense planting makes it worse." },
+    "cost_inr": 480, "saves_inr": 4500
+  },
+  "rice__healthy": { "healthy": true, "name": { "hi": "धान ठीक है", "en": "Rice looks healthy" } },
+
+  "wheat__leaf_rust": {
+    "name": { "hi": "गेहूँ का भूरा रतुआ", "en": "Wheat leaf rust" },
+    "what": { "hi": "प्रोपिकोनाज़ोल 25% EC का छिड़काव", "en": "Spray Propiconazole 25% EC" },
+    "dose": { "hi": "1 मिली प्रति लीटर पानी", "en": "1 ml per litre" },
+    "when": { "hi": "पहले धब्बे दिखते ही। रतुआ तेज़ी से फैलता है, एक हफ़्ते की देरी महँगी पड़ती है।", "en": "At first pustules. Rust spreads fast; a week's delay is expensive." },
+    "cost_inr": 450, "saves_inr": 5500
+  },
+  "wheat__stripe_rust": {
+    "name": { "hi": "गेहूँ का पीला रतुआ", "en": "Wheat stripe rust" },
+    "what": { "hi": "प्रोपिकोनाज़ोल 25% EC का छिड़काव", "en": "Spray Propiconazole 25% EC" },
+    "dose": { "hi": "1 मिली प्रति लीटर पानी", "en": "1 ml per litre" },
+    "when": { "hi": "तुरंत, और 15 दिन बाद दोबारा। ठंडे नम मौसम में यह सबसे तेज़ फैलता है।", "en": "Now, and again after 15 days. Fastest spread in cool damp weather." },
+    "also": { "hi": "पत्तों पर पीली धारियाँ हाथ पर पीला पाउडर छोड़ती हैं, यही पहचान है।", "en": "Yellow stripes leaving powder on the hand is the identifying sign." },
+    "cost_inr": 450, "saves_inr": 7000
+  },
+  "wheat__septoria": {
+    "name": { "hi": "गेहूँ का सेप्टोरिया धब्बा", "en": "Wheat septoria" },
+    "what": { "hi": "प्रोपिकोनाज़ोल 25% EC का छिड़काव", "en": "Spray Propiconazole 25% EC" },
+    "dose": { "hi": "1 मिली प्रति लीटर पानी", "en": "1 ml per litre" },
+    "when": { "hi": "धब्बे ऊपर की पत्तियों तक पहुँचने से पहले।", "en": "Before lesions reach the upper leaves." },
+    "cost_inr": 450, "saves_inr": 3500
+  },
+  "wheat__powdery_mildew": {
+    "name": { "hi": "गेहूँ का चूर्णिल आसिता", "en": "Wheat powdery mildew" },
+    "what": { "hi": "घुलनशील गंधक (सल्फ़र) 80% WP का छिड़काव", "en": "Spray wettable Sulphur 80% WP" },
+    "dose": { "hi": "2 ग्राम प्रति लीटर पानी", "en": "2 g per litre" },
+    "when": { "hi": "सुबह या शाम। तेज़ धूप में गंधक न छिड़कें, पत्ती जल जाती है।", "en": "Morning or evening. Never spray sulphur in strong sun, it scorches." },
+    "cost_inr": 300, "saves_inr": 2500
+  },
+  "wheat__healthy": { "healthy": true, "name": { "hi": "गेहूँ ठीक है", "en": "Wheat looks healthy" } },
+
+  "maize__northern_leaf_blight": {
+    "name": { "hi": "मक्का का झुलसा रोग", "en": "Northern leaf blight" },
+    "what": { "hi": "मैंकोज़ेब 75% WP का छिड़काव", "en": "Spray Mancozeb 75% WP" },
+    "dose": { "hi": "2.5 ग्राम प्रति लीटर पानी", "en": "2.5 g per litre" },
+    "when": { "hi": "आज शाम 4 बजे के बाद। कल बारिश हो तो आज ही कर लें, वरना धुल जाएगा।", "en": "After 4pm today. If rain is due tomorrow, do it today or it washes off." },
+    "also": { "hi": "अगली बार इसी खेत में बुवाई से पहले बीज उपचार करें, यह रोग खेत में रह जाता है।", "en": "Treat seed before the next sowing in this plot; the pathogen survives in residue." },
+    "cost_inr": 380, "saves_inr": 3000
+  },
+  "maize__common_rust": {
+    "name": { "hi": "मक्का का रतुआ", "en": "Maize common rust" },
+    "what": { "hi": "प्रोपिकोनाज़ोल 25% EC का छिड़काव", "en": "Spray Propiconazole 25% EC" },
+    "dose": { "hi": "1 मिली प्रति लीटर पानी", "en": "1 ml per litre" },
+    "when": { "hi": "जब पत्तियों पर भूरे फफोले दिखें।", "en": "When brown pustules appear on the leaves." },
+    "cost_inr": 420, "saves_inr": 2800
+  },
+  "maize__gray_leaf_spot": {
+    "name": { "hi": "मक्का का धूसर धब्बा", "en": "Gray leaf spot" },
+    "what": { "hi": "मैंकोज़ेब 75% WP का छिड़काव", "en": "Spray Mancozeb 75% WP" },
+    "dose": { "hi": "2.5 ग्राम प्रति लीटर पानी", "en": "2.5 g per litre" },
+    "when": { "hi": "जल्दी करें। यह नीचे की पत्तियों से शुरू होकर ऊपर चढ़ता है।", "en": "Act early; it starts on lower leaves and climbs." },
+    "cost_inr": 380, "saves_inr": 3200
+  },
+  "maize__fall_armyworm": {
+    "name": { "hi": "फ़ॉल आर्मीवर्म (सैनिक कीट)", "en": "Fall armyworm" },
+    "what": { "hi": "इमामेक्टिन बेंज़ोएट 5% SG, सीधे पौधे की गोभ (सुराख़) में", "en": "Emamectin benzoate 5% SG, directed into the whorl" },
+    "dose": { "hi": "0.4 ग्राम प्रति लीटर पानी", "en": "0.4 g per litre" },
+    "when": { "hi": "सुबह जल्दी या शाम को, जब सुंडी बाहर निकलती है। गोभ में डालना ज़रूरी है, ऊपर से छिड़कने का फ़ायदा कम है।", "en": "Early morning or evening when larvae are active. It must reach the whorl; a surface spray does little." },
+    "also": { "hi": "बड़ी सुंडी हाथ से निकालकर मार दें, यह सबसे सस्ता तरीक़ा है।", "en": "Hand-pick large larvae, the cheapest control there is." },
+    "cost_inr": 550, "saves_inr": 8000
+  },
+  "maize__healthy": { "healthy": true, "name": { "hi": "मक्का ठीक है", "en": "Maize looks healthy" } },
+
+  "tomato__early_blight": {
+    "name": { "hi": "टमाटर का अगेती झुलसा", "en": "Tomato early blight" },
+    "what": { "hi": "मैंकोज़ेब 75% WP का छिड़काव", "en": "Spray Mancozeb 75% WP" },
+    "dose": { "hi": "2.5 ग्राम प्रति लीटर पानी", "en": "2.5 g per litre" },
+    "when": { "hi": "नीचे की पत्तियों पर छल्लेदार धब्बे दिखते ही।", "en": "At the first target-ring spots on lower leaves." },
+    "also": { "hi": "नीचे की बीमार पत्तियाँ तोड़कर खेत से बाहर फेंकें।", "en": "Remove and dispose of affected lower leaves." },
+    "cost_inr": 350, "saves_inr": 3000
+  },
+  "tomato__late_blight": {
+    "name": { "hi": "टमाटर का पछेती झुलसा", "en": "Tomato late blight" },
+    "what": { "hi": "मैंकोज़ेब + मेटालैक्सिल का छिड़काव", "en": "Spray Metalaxyl + Mancozeb" },
+    "dose": { "hi": "2 ग्राम प्रति लीटर पानी", "en": "2 g per litre" },
+    "when": { "hi": "आज ही। नम ठंडे मौसम में यह 3-4 दिन में पूरी फ़सल ले जाता है।", "en": "Today. In cool wet weather it can take the whole crop in 3-4 days." },
+    "cost_inr": 600, "saves_inr": 9000
+  },
+  "tomato__leaf_mold": {
+    "name": { "hi": "टमाटर का पत्ती फफूँद", "en": "Tomato leaf mold" },
+    "what": { "hi": "क्लोरोथैलोनिल 75% WP का छिड़काव", "en": "Spray Chlorothalonil 75% WP" },
+    "dose": { "hi": "2 ग्राम प्रति लीटर पानी", "en": "2 g per litre" },
+    "when": { "hi": "छिड़काव के साथ हवा का आना-जाना बढ़ाएँ, नमी घटाना ही असली इलाज है।", "en": "Along with the spray, improve airflow; reducing humidity is the real fix." },
+    "cost_inr": 400, "saves_inr": 2500
+  },
+  "tomato__septoria_leaf_spot": {
+    "name": { "hi": "टमाटर का सेप्टोरिया धब्बा", "en": "Septoria leaf spot" },
+    "what": { "hi": "मैंकोज़ेब 75% WP का छिड़काव", "en": "Spray Mancozeb 75% WP" },
+    "dose": { "hi": "2.5 ग्राम प्रति लीटर पानी", "en": "2.5 g per litre" },
+    "when": { "hi": "जल्दी। पानी नीचे से दें, ऊपर से छिड़काव करने पर यह और फैलता है।", "en": "Early. Water at the base; overhead watering spreads it." },
+    "cost_inr": 350, "saves_inr": 2800
+  },
+  "tomato__bacterial_spot": {
+    "name": { "hi": "टमाटर का जीवाणु धब्बा", "en": "Tomato bacterial spot" },
+    "what": { "hi": "कॉपर ऑक्सीक्लोराइड का छिड़काव", "en": "Spray Copper oxychloride" },
+    "dose": { "hi": "3 ग्राम प्रति लीटर पानी", "en": "3 g per litre" },
+    "when": { "hi": "तुरंत। गीले पौधों के बीच काम न करें, हाथ और औज़ार से भी फैलता है।", "en": "Immediately. Do not work among wet plants; hands and tools spread it." },
+    "cost_inr": 400, "saves_inr": 3500
+  },
+  "tomato__yellow_leaf_curl": {
+    "name": { "hi": "टमाटर का पत्ता मरोड़ विषाणु", "en": "Tomato yellow leaf curl virus" },
+    "what": { "hi": "बीमार पौधे उखाड़कर हटाएँ, और सफ़ेद मक्खी को रोकें", "en": "Rogue out infected plants and control whitefly" },
+    "dose": { "hi": "इमिडाक्लोप्रिड 17.8% SL, 0.3 मिली प्रति लीटर पानी", "en": "Imidacloprid 17.8% SL, 0.3 ml per litre" },
+    "when": { "hi": "आज ही। विषाणु का इलाज नहीं होता, सिर्फ़ फैलाने वाली मक्खी रोकी जा सकती है।", "en": "Today. The virus has no cure; only the whitefly vector can be controlled." },
+    "also": { "hi": "पीले चिपचिपे कार्ड खेत में लगाएँ, सस्ते हैं और मक्खी पकड़ते हैं।", "en": "Put up yellow sticky traps, cheap and effective against whitefly." },
+    "cost_inr": 320, "saves_inr": 6000
+  },
+  "tomato__mosaic_virus": {
+    "name": { "hi": "टमाटर का मोज़ेक विषाणु", "en": "Tomato mosaic virus" },
+    "what": { "hi": "बीमार पौधे उखाड़कर जला दें", "en": "Remove and destroy infected plants" },
+    "dose": { "hi": "कोई दवा नहीं। छूने से फैलता है।", "en": "No chemical control. It spreads by contact." },
+    "when": { "hi": "आज ही। खेत में काम करने से पहले और बाद में हाथ साबुन से धोएँ, तंबाकू खाकर पौधों को न छुएँ।", "en": "Today. Wash hands before and after handling plants; do not handle plants after using tobacco." },
+    "cost_inr": 0, "saves_inr": 4000
+  },
+  "tomato__spider_mites": {
+    "name": { "hi": "टमाटर का मकड़ी कीट", "en": "Two-spotted spider mites" },
+    "what": { "hi": "स्पाइरोमेसिफ़ेन 22.9% SC का छिड़काव", "en": "Spray Spiromesifen 22.9% SC" },
+    "dose": { "hi": "1 मिली प्रति लीटर पानी", "en": "1 ml per litre" },
+    "when": { "hi": "पत्तों के नीचे की तरफ़ छिड़कें, मकड़ी वहीं रहती है। सूखे गर्म मौसम में यह बढ़ती है।", "en": "Spray the underside of leaves where mites live. Worse in hot dry weather." },
+    "cost_inr": 500, "saves_inr": 3000
+  },
+  "tomato__healthy": { "healthy": true, "name": { "hi": "टमाटर ठीक है", "en": "Tomato looks healthy" } },
+
+  "potato__early_blight": {
+    "name": { "hi": "आलू का अगेती झुलसा", "en": "Potato early blight" },
+    "what": { "hi": "मैंकोज़ेब 75% WP का छिड़काव", "en": "Spray Mancozeb 75% WP" },
+    "dose": { "hi": "2.5 ग्राम प्रति लीटर पानी", "en": "2.5 g per litre" },
+    "when": { "hi": "पहले धब्बे दिखते ही, 10-12 दिन के अंतर पर दोहराएँ।", "en": "At first spots, repeat every 10-12 days." },
+    "cost_inr": 350, "saves_inr": 3000
+  },
+  "potato__late_blight": {
+    "name": { "hi": "आलू का पछेती झुलसा", "en": "Potato late blight" },
+    "what": { "hi": "मैंकोज़ेब + मेटालैक्सिल का छिड़काव", "en": "Spray Metalaxyl + Mancozeb" },
+    "dose": { "hi": "2 ग्राम प्रति लीटर पानी", "en": "2 g per litre" },
+    "when": { "hi": "आज ही, देर मत करें। यही वह रोग है जिसने आयरलैंड का अकाल लाया था, ठंडे नम मौसम में 4 दिन में खेत ख़त्म कर देता है।", "en": "Today, without delay. In cool wet weather it can destroy a field in four days." },
+    "also": { "hi": "मिट्टी चढ़ाएँ ताकि कंद तक बीजाणु न पहुँचें।", "en": "Earth up the ridges so spores cannot reach the tubers." },
+    "cost_inr": 600, "saves_inr": 12000
+  },
+  "potato__healthy": { "healthy": true, "name": { "hi": "आलू ठीक है", "en": "Potato looks healthy" } },
+
+  "cotton__bacterial_blight": {
+    "name": { "hi": "कपास का जीवाणु झुलसा", "en": "Cotton bacterial blight" },
+    "what": { "hi": "कॉपर ऑक्सीक्लोराइड का छिड़काव", "en": "Spray Copper oxychloride" },
+    "dose": { "hi": "3 ग्राम प्रति लीटर पानी", "en": "3 g per litre" },
+    "when": { "hi": "तुरंत। कोणदार पानी जैसे धब्बे इसकी पहचान हैं।", "en": "Immediately. Angular water-soaked lesions are the sign." },
+    "also": { "hi": "अगले साल इसी खेत में कपास न लगाएँ, और प्रमाणित उपचारित बीज लें।", "en": "Rotate out of cotton next season and use certified treated seed." },
+    "cost_inr": 450, "saves_inr": 5000
+  },
+  "cotton__leaf_curl_virus": {
+    "name": { "hi": "कपास का पत्ता मरोड़ विषाणु", "en": "Cotton leaf curl virus" },
+    "what": { "hi": "सफ़ेद मक्खी को रोकें, बीमार पौधे हटाएँ", "en": "Control whitefly and remove infected plants" },
+    "dose": { "hi": "डायफ़ेंथियूरॉन 50% WP, 1.2 ग्राम प्रति लीटर पानी", "en": "Diafenthiuron 50% WP, 1.2 g per litre" },
+    "when": { "hi": "आज ही। विषाणु का इलाज नहीं है, सिर्फ़ मक्खी रोकी जा सकती है।", "en": "Today. No cure for the virus; only the vector can be controlled." },
+    "also": { "hi": "खेत के किनारे की खरपतवार साफ़ करें, मक्खी वहीं पलती है।", "en": "Clear weeds at field margins where whitefly breeds." },
+    "cost_inr": 600, "saves_inr": 9000
+  },
+  "cotton__healthy": { "healthy": true, "name": { "hi": "कपास ठीक है", "en": "Cotton looks healthy" } }
+}

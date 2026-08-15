@@ -1,0 +1,8 @@
+# Light by design. Render's free tier has 512MB of RAM, which is why retrieval
+# is TF-IDF over ~35 short docs instead of sentence-transformers: that would
+# pull torch (~2.5GB) to rank a list this small.
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+google-genai==1.2.0
+httpx==0.28.1

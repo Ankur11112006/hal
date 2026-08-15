@@ -1,0 +1,72 @@
+{
+  "temperature": 1.8000000000000012,
+  "temperature_fitted_on": "field_cal, 226 held-out field images",
+  "temperature_if_fitted_on_val": 1.1000000000000005,
+  "val_accuracy": 0.9392466585662211,
+  "val_ece_after_calibration": 0.0837106031594657,
+  "val_ece_before_calibration": 0.006613004993407423,
+  "img_size": 224,
+  "classes": 30,
+  "field_accuracy": 0.4487534626038781,
+  "field_n": 361,
+  "field_ece_after_calibration": 0.04481251781336819,
+  "field_ece_before_calibration": 0.22212748679427888,
+  "field_classes": [
+    "maize__common_rust",
+    "maize__fall_armyworm",
+    "maize__gray_leaf_spot",
+    "maize__healthy",
+    "maize__northern_leaf_blight",
+    "potato__early_blight",
+    "potato__late_blight",
+    "rice__bacterial_leaf_blight",
+    "rice__brown_spot",
+    "rice__healthy",
+    "tomato__bacterial_spot",
+    "tomato__early_blight",
+    "tomato__healthy",
+    "tomato__late_blight",
+    "tomato__leaf_mold",
+    "tomato__mosaic_virus",
+    "tomato__septoria_leaf_spot",
+    "tomato__yellow_leaf_curl"
+  ],
+  "field_note": "18 of 30 classes have in-the-wild test images (PlantDoc). Classes without field images are reported on the validation split only.",
+  "tier1_auto": {
+    "share": 0.09695290858725762,
+    "accuracy": 0.8285714285714286,
+    "n": 35
+  },
+  "tier2_vlae": {
+    "share": 0.2077562326869806,
+    "accuracy": 0.6533333333333333,
+    "n": 75
+  },
+  "tier3_expert": {
+    "share": 0.6952908587257618,
+    "accuracy": 0.3346613545816733,
+    "n": 251
+  },
+  "tier1_precision": 0.8285714285714286,
+  "tier1_false_positive_rate": 0.17142857142857137,
+  "field_treatment_accuracy": 0.5789473684210527,
+  "tier1_treatment_precision": 0.9714285714285714,
+  "field_accuracy_crop_conditioned": 0.5318559556786704,
+  "cc_tier1_auto": {
+    "share": 0.2077562326869806,
+    "accuracy": 0.7733333333333333
+  },
+  "cc_tier2_vlae": {
+    "share": 0.296398891966759,
+    "accuracy": 0.6822429906542056
+  },
+  "cc_tier3_expert": {
+    "share": 0.49584487534626037,
+    "accuracy": 0.3407821229050279
+  },
+  "tflite_bytes": 1976852,
+  "tflite_mb": 1.98,
+  "tflite_vs_float_agreement": 1.0,
+  "tflite_input_dtype": "float32",
+  "tflite_output_dtype": "float32"
+}

@@ -1,0 +1,265 @@
+{
+  "_note": "SPEC.md B3. A rule-based decision tree, no ML. One image model covers one disease; this covers 20+ conditions, works without a camera, works offline, and is fully explainable. Every path terminates in a result with an urgency and a real escalation target.",
+  "_validated_by": null,
+  "_WARNING": "validated_by is null. This tree was authored from public veterinary triage references, NOT by a veterinarian. SPEC.md E1b's rule applies here too: a confidently wrong clinical answer is worse than none. Get a district vet or KVK animal-science officer to sign off on every node before this is shown to a real farmer, then put their name in _validated_by.",
+  "helplines": {
+    "vet": { "number": "1962", "label": { "hi": "पशु चिकित्सा हेल्पलाइन", "en": "Veterinary helpline" } },
+    "kcc": { "number": "1800-180-1551", "label": { "hi": "किसान कॉल सेंटर", "en": "Kisan Call Centre" } }
+  },
+  "root": "down",
+  "nodes": {
+    "down": {
+      "q": { "hi": "क्या पशु उठ नहीं पा रहा, बैठा ही रह गया है?", "en": "Is the animal unable to stand?" },
+      "yes": "recent_calving", "no": "fever"
+    },
+    "recent_calving": {
+      "q": { "hi": "क्या पिछले 3 दिन में बच्चा हुआ है?", "en": "Has it calved in the last 3 days?" },
+      "yes": "res_milk_fever", "no": "bloat"
+    },
+    "bloat": {
+      "q": { "hi": "क्या बाईं तरफ़ पेट फूला हुआ है, ढोल जैसा?", "en": "Is the left flank distended like a drum?" },
+      "yes": "res_bloat", "no": "res_down_unknown"
+    },
+
+    "fever": {
+      "q": { "hi": "क्या बुख़ार है? कान और सींग गरम, नाक सूखी", "en": "Fever? Warm ears and horns, dry muzzle" },
+      "yes": "mouth_lesion", "no": "udder"
+    },
+    "mouth_lesion": {
+      "q": { "hi": "मुँह में छाले हैं या लार टपक रही है?", "en": "Mouth blisters or drooling?" },
+      "yes": "foot_lesion", "no": "throat_swell"
+    },
+    "foot_lesion": {
+      "q": { "hi": "खुर के बीच भी घाव है, या लंगड़ा कर चल रही है?", "en": "Lesions between the hooves, or limping?" },
+      "yes": "res_fmd", "no": "res_mouth_other"
+    },
+    "throat_swell": {
+      "q": { "hi": "गले के नीचे सूजन है, साँस लेने में दिक़्क़त?", "en": "Swelling under the throat, laboured breathing?" },
+      "yes": "res_hs", "no": "skin_nodule"
+    },
+    "skin_nodule": {
+      "q": { "hi": "चमड़ी पर गोल गाँठें या उभार निकले हैं?", "en": "Round nodules or lumps on the skin?" },
+      "yes": "res_lsd", "no": "nasal"
+    },
+    "nasal": {
+      "q": { "hi": "नाक या आँख से पानी बह रहा है, खाँसी है?", "en": "Nasal or eye discharge, coughing?" },
+      "yes": "res_pneumonia", "no": "tick"
+    },
+    "tick": {
+      "q": { "hi": "शरीर पर चिचड़ी बहुत हैं, या पेशाब का रंग गहरा है?", "en": "Heavy tick load, or dark urine?" },
+      "yes": "res_tick_fever", "no": "res_fever_unknown"
+    },
+
+    "udder": {
+      "q": { "hi": "थन में सूजन, गर्मी या सख़्ती है?", "en": "Udder swollen, hot or hard?" },
+      "yes": "milk_abnormal", "no": "milk_drop"
+    },
+    "milk_abnormal": {
+      "q": { "hi": "दूध में गाँठ, पानी जैसा पतलापन या ख़ून दिख रहा है?", "en": "Clots, watery milk or blood?" },
+      "yes": "res_mastitis_clinical", "no": "res_mastitis_early"
+    },
+
+    "milk_drop": {
+      "q": { "hi": "दूध पहले से कम हो गया है?", "en": "Has milk yield dropped?" },
+      "yes": "off_feed", "no": "lame"
+    },
+    "off_feed": {
+      "q": { "hi": "खाना भी छोड़ दिया या कम कर दिया?", "en": "Off feed or eating less?" },
+      "yes": "calved_3wk", "no": "panting"
+    },
+    "calved_3wk": {
+      "q": { "hi": "पिछले 3 हफ़्ते में बच्चा हुआ है?", "en": "Calved in the last 3 weeks?" },
+      "yes": "res_ketosis", "no": "res_indigestion"
+    },
+    "panting": {
+      "q": { "hi": "छाँव में भी बहुत हाँफ रही है?", "en": "Panting heavily even in shade?" },
+      "yes": "res_heat_stress", "no": "res_feed_change"
+    },
+
+    "lame": {
+      "q": { "hi": "लंगड़ा कर चल रही है?", "en": "Walking with a limp?" },
+      "yes": "hoof_wound", "no": "skin_other"
+    },
+    "hoof_wound": {
+      "q": { "hi": "खुर के बीच घाव, बदबू या कीड़े हैं?", "en": "Wound, foul smell or maggots between the hooves?" },
+      "yes": "res_foot_rot", "no": "res_lameness_injury"
+    },
+
+    "skin_other": {
+      "q": { "hi": "चमड़ी पर घाव, खुजली या बाल झड़ रहे हैं?", "en": "Skin wounds, itching or hair loss?" },
+      "yes": "res_skin_condition", "no": "diarrhoea"
+    },
+
+    "diarrhoea": {
+      "q": { "hi": "दस्त लगे हैं या गोबर बहुत पतला है?", "en": "Diarrhoea or very loose dung?" },
+      "yes": "blood_dung", "no": "placenta"
+    },
+    "blood_dung": {
+      "q": { "hi": "गोबर में ख़ून है या ज़ोर लगा रही है?", "en": "Blood in dung, or straining?" },
+      "yes": "res_enteritis", "no": "res_worms"
+    },
+
+    "placenta": {
+      "q": { "hi": "बच्चा होने के बाद जेर 12 घंटे से ज़्यादा नहीं गिरी?", "en": "Placenta not dropped 12+ hours after calving?" },
+      "yes": "res_retained_placenta", "no": "no_heat"
+    },
+    "no_heat": {
+      "q": { "hi": "बहुत दिनों से गर्मी में नहीं आई?", "en": "Not come into heat for a long time?" },
+      "yes": "res_anoestrus", "no": "res_no_clear_sign"
+    }
+  },
+
+  "results": {
+    "res_milk_fever": {
+      "canonical_id": "condition.cattle.milk_fever",
+      "likely": { "hi": "दूध बुख़ार (कैल्शियम की कमी)", "en": "Milk fever (hypocalcaemia)" },
+      "action": { "hi": "अभी डॉक्टर बुलाएँ। कैल्शियम की सुई तुरंत चाहिए। इंतज़ार न करें, कुछ घंटों में जान जा सकती है।", "en": "Call the vet now. Needs IV calcium immediately." },
+      "urgency": "urgent", "needs_vet": true
+    },
+    "res_bloat": {
+      "canonical_id": "condition.cattle.bloat",
+      "likely": { "hi": "अफारा (पेट में गैस)", "en": "Bloat" },
+      "action": { "hi": "अभी डॉक्टर बुलाएँ। तब तक पशु को खड़ा रखें और आगे का हिस्सा ऊँचा रखें। ठंडा पानी या हरा चारा और न दें।", "en": "Call the vet now. Keep the animal standing with forequarters raised. Stop green fodder and cold water." },
+      "urgency": "urgent", "needs_vet": true
+    },
+    "res_down_unknown": {
+      "canonical_id": "condition.cattle.recumbent_unknown",
+      "likely": { "hi": "पक्का नहीं कह सकते", "en": "Cannot determine" },
+      "action": { "hi": "पशु का उठ न पाना हमेशा गंभीर होता है। हम अंदाज़ा नहीं लगाएँगे। तुरंत 1962 पर डॉक्टर से बात करें।", "en": "A recumbent animal is always serious. We will not guess. Call 1962 now." },
+      "urgency": "urgent", "needs_vet": true
+    },
+
+    "res_fmd": {
+      "canonical_id": "disease.cattle.fmd",
+      "likely": { "hi": "खुरपका-मुँहपका (FMD) की आशंका", "en": "Suspected Foot and Mouth Disease" },
+      "action": { "hi": "इस पशु को बाक़ी पशुओं से तुरंत अलग करें। 1962 पर ख़बर करें, यह फैलने वाली बीमारी है और इसकी सूचना देना ज़रूरी है। बाक़ी पशुओं का FMD टीका देख लें, वह मुफ़्त है।", "en": "Isolate immediately. Report on 1962, this is notifiable and spreads fast. Check FMD vaccination status of the rest of the herd, it is free." },
+      "urgency": "urgent", "needs_vet": true, "notifiable": true, "photo_assist": true
+    },
+    "res_mouth_other": {
+      "canonical_id": "condition.cattle.mouth_lesion",
+      "likely": { "hi": "मुँह में घाव, कारण साफ़ नहीं", "en": "Mouth lesion, cause unclear" },
+      "action": { "hi": "नरम चारा दें और डॉक्टर को दिखाएँ। अगर खुर में भी घाव दिखे तो तुरंत 1962 पर ख़बर करें।", "en": "Feed soft fodder and see a vet. If hoof lesions appear, report on 1962 immediately." },
+      "urgency": "soon", "needs_vet": true, "photo_assist": true
+    },
+    "res_hs": {
+      "canonical_id": "disease.cattle.hs",
+      "likely": { "hi": "गलघोंटू (HS) की आशंका", "en": "Suspected Haemorrhagic Septicaemia" },
+      "action": { "hi": "अभी डॉक्टर बुलाएँ। यह कुछ ही घंटों में जानलेवा हो सकती है। बाक़ी पशुओं को अलग रखें। HS का टीका हर साल बरसात से पहले लगता है।", "en": "Call the vet now, HS can kill within hours. Separate the rest of the herd. HS vaccine is annual, before monsoon." },
+      "urgency": "urgent", "needs_vet": true
+    },
+    "res_lsd": {
+      "canonical_id": "disease.cattle.lsd",
+      "likely": { "hi": "लंपी स्किन डिजीज़ की आशंका", "en": "Suspected Lumpy Skin Disease" },
+      "action": { "hi": "पशु को अलग करें और मक्खी-मच्छर से बचाएँ, यह उन्हीं से फैलती है। 1962 पर ख़बर करें।", "en": "Isolate and protect from biting flies, which spread it. Report on 1962." },
+      "urgency": "urgent", "needs_vet": true, "notifiable": true, "photo_assist": true
+    },
+    "res_pneumonia": {
+      "canonical_id": "condition.cattle.pneumonia",
+      "likely": { "hi": "निमोनिया या साँस की बीमारी", "en": "Pneumonia or respiratory infection" },
+      "action": { "hi": "सूखी, हवादार जगह पर रखें, ठंड और सीलन से बचाएँ। डॉक्टर को दिखाएँ, दवा की ज़रूरत पड़ेगी।", "en": "Keep in a dry, ventilated place away from cold and damp. See a vet, this needs medication." },
+      "urgency": "soon", "needs_vet": true
+    },
+    "res_tick_fever": {
+      "canonical_id": "condition.cattle.tick_fever",
+      "likely": { "hi": "चिचड़ी से होने वाला बुख़ार (बबेसिया/थीलेरिया)", "en": "Tick fever (babesiosis/theileriosis)" },
+      "action": { "hi": "अभी डॉक्टर बुलाएँ, गहरा पेशाब ख़तरे का निशान है। चिचड़ी की दवा भी लगवाएँ और बाड़े की सफ़ाई करें।", "en": "Call the vet now, dark urine is a danger sign. Treat for ticks and clean the shed." },
+      "urgency": "urgent", "needs_vet": true
+    },
+    "res_fever_unknown": {
+      "canonical_id": "condition.cattle.fever_unknown",
+      "likely": { "hi": "बुख़ार है, कारण साफ़ नहीं", "en": "Fever, cause unclear" },
+      "action": { "hi": "हम अंदाज़ा नहीं लगाएँगे। छाया और साफ़ पानी दें, और 1962 पर डॉक्टर से बात करें।", "en": "We will not guess. Provide shade and clean water, and call 1962." },
+      "urgency": "soon", "needs_vet": true
+    },
+
+    "res_mastitis_clinical": {
+      "canonical_id": "condition.cattle.mastitis_clinical",
+      "likely": { "hi": "थनैला (मैस्टाइटिस)", "en": "Clinical mastitis" },
+      "action": { "hi": "इस थन का दूध अलग निकालकर फेंक दें, बच्चे या घर में इस्तेमाल न करें। डॉक्टर को दिखाएँ, बिना जाँच के अपनी मर्ज़ी से एंटीबायोटिक न दें। दूध निकालने से पहले और बाद में थन साफ़ करें।", "en": "Strip and discard milk from that quarter, do not feed it to the calf or the household. See a vet; do not self-medicate antibiotics. Clean the udder before and after milking." },
+      "urgency": "urgent", "needs_vet": true, "photo_assist": true
+    },
+    "res_mastitis_early": {
+      "canonical_id": "condition.cattle.mastitis_early",
+      "likely": { "hi": "थनैला की शुरुआत हो सकती है", "en": "Possible early mastitis" },
+      "action": { "hi": "दूध निकालते समय सफ़ाई रखें, थन पूरा ख़ाली करें। 2 दिन में सूजन न घटे या दूध बदले तो डॉक्टर को दिखाएँ।", "en": "Keep milking hygiene, empty the udder fully. If swelling persists 2 days or the milk changes, see a vet." },
+      "urgency": "soon", "needs_vet": false, "photo_assist": true
+    },
+
+    "res_ketosis": {
+      "canonical_id": "condition.cattle.ketosis",
+      "likely": { "hi": "ब्याने के बाद ऊर्जा की कमी (कीटोसिस)", "en": "Post-calving energy deficit (ketosis)" },
+      "action": { "hi": "ब्याने के बाद ख़ुराक बढ़ानी पड़ती है। डॉक्टर से गुड़/ग्लूकोज़ और दवा के बारे में पूछें। साँस से मीठी गंध आए तो तुरंत दिखाएँ।", "en": "Feed intake must rise after calving. Ask the vet about jaggery/glucose supplementation. Sweet-smelling breath means see a vet now." },
+      "urgency": "soon", "needs_vet": true
+    },
+    "res_indigestion": {
+      "canonical_id": "condition.cattle.indigestion",
+      "likely": { "hi": "बदहज़मी या पेट के कीड़े", "en": "Indigestion or worms" },
+      "action": { "hi": "साफ़ पानी और सूखा चारा दें। पिछली बार कीड़े की दवा कब दी थी, बही में देखें। 2 दिन में सुधार न हो तो डॉक्टर को दिखाएँ।", "en": "Clean water and dry fodder. Check the ledger for the last deworming date. See a vet if no improvement in 2 days." },
+      "urgency": "soon", "needs_vet": false
+    },
+    "res_heat_stress": {
+      "canonical_id": "condition.cattle.heat_stress",
+      "likely": { "hi": "गर्मी का असर", "en": "Heat stress" },
+      "action": { "hi": "दोपहर में छाँव, ठंडा साफ़ पानी हर समय, और शरीर पर पानी छिड़कें। खिलाना सुबह जल्दी और शाम को करें। दूध अपने आप सुधर जाएगा।", "en": "Shade at midday, cool clean water at all times, sprinkle water on the body. Feed early morning and evening. Yield recovers on its own." },
+      "urgency": "monitor", "needs_vet": false
+    },
+    "res_feed_change": {
+      "canonical_id": "condition.cattle.nutrition",
+      "likely": { "hi": "चारे या रूटीन में बदलाव", "en": "Feed or routine change" },
+      "action": { "hi": "दूध घटना अकेले में बीमारी नहीं है। चारा, पानी और दुहने का समय पहले जैसा रखें। 3 दिन में न सुधरे, या बुख़ार/थन में सूजन दिखे, तो दोबारा जाँच करें।", "en": "A yield drop alone is not disease. Keep fodder, water and milking times steady. Re-check if no recovery in 3 days, or if fever or udder swelling appears." },
+      "urgency": "monitor", "needs_vet": false
+    },
+
+    "res_foot_rot": {
+      "canonical_id": "condition.cattle.foot_rot",
+      "likely": { "hi": "खुरपका सड़न (फुट रॉट)", "en": "Foot rot" },
+      "action": { "hi": "खुर को साफ़ पानी से धोएँ, बाड़ा सूखा रखें, कीचड़ से बचाएँ। डॉक्टर को दिखाएँ। कीड़े पड़ गए हों तो देर न करें।", "en": "Wash the hoof, keep the shed dry, avoid mud. See a vet. Do not delay if maggots are present." },
+      "urgency": "soon", "needs_vet": true, "photo_assist": true
+    },
+    "res_lameness_injury": {
+      "canonical_id": "condition.cattle.lameness",
+      "likely": { "hi": "चोट या पैर की तकलीफ़", "en": "Injury or limb problem" },
+      "action": { "hi": "पशु को नरम, सूखी जगह पर रखें और ज़्यादा चलने न दें। 2 दिन में ठीक न हो, या सूजन बढ़े, तो डॉक्टर को दिखाएँ।", "en": "Rest on soft dry ground, limit walking. See a vet if no improvement in 2 days or swelling increases." },
+      "urgency": "soon", "needs_vet": false
+    },
+
+    "res_skin_condition": {
+      "canonical_id": "condition.cattle.skin",
+      "likely": { "hi": "चमड़ी की बीमारी", "en": "Skin condition" },
+      "action": { "hi": "बाड़ा साफ़ रखें और दूसरे पशुओं से अलग रखें। डॉक्टर को दिखाएँ। अगर गोल गाँठें उभरें तो यह लंपी हो सकती है, तुरंत 1962 पर ख़बर करें।", "en": "Keep the shed clean and separate from other animals. See a vet. If round nodules appear it may be LSD, report on 1962 immediately." },
+      "urgency": "soon", "needs_vet": true, "photo_assist": true
+    },
+
+    "res_enteritis": {
+      "canonical_id": "condition.cattle.enteritis",
+      "likely": { "hi": "आँतों का गंभीर संक्रमण", "en": "Severe enteritis" },
+      "action": { "hi": "अभी डॉक्टर बुलाएँ। गोबर में ख़ून ख़तरे का निशान है। पानी की कमी सबसे बड़ा ख़तरा है, पानी पीने दें।", "en": "Call the vet now. Blood in dung is a danger sign. Dehydration is the main risk, allow free access to water." },
+      "urgency": "urgent", "needs_vet": true
+    },
+    "res_worms": {
+      "canonical_id": "condition.cattle.worms",
+      "likely": { "hi": "पेट के कीड़े या हल्की बदहज़मी", "en": "Worms or mild indigestion" },
+      "action": { "hi": "साफ़ पानी दें। कीड़े की दवा कब दी थी, बही में देखें। 2 दिन में न सुधरे तो डॉक्टर को दिखाएँ।", "en": "Clean water. Check the ledger for the last deworming date. See a vet if no improvement in 2 days." },
+      "urgency": "soon", "needs_vet": false
+    },
+
+    "res_retained_placenta": {
+      "canonical_id": "condition.cattle.retained_placenta",
+      "likely": { "hi": "जेर का न गिरना", "en": "Retained placenta" },
+      "action": { "hi": "अभी डॉक्टर बुलाएँ। जेर को हाथ से खींचें नहीं, इससे बच्चेदानी को नुक़सान होता है। 12 घंटे से ज़्यादा होने पर संक्रमण का ख़तरा बढ़ जाता है।", "en": "Call the vet now. Do not pull the placenta by hand, it damages the uterus. Infection risk rises sharply after 12 hours." },
+      "urgency": "urgent", "needs_vet": true
+    },
+    "res_anoestrus": {
+      "canonical_id": "condition.cattle.anoestrus",
+      "likely": { "hi": "गर्मी में न आना", "en": "Anoestrus" },
+      "action": { "hi": "यह अक्सर ख़ुराक की कमी से होता है। ख़ुराक और खनिज मिश्रण सुधारें, और डॉक्टर से जाँच कराएँ। एक गर्मी चूकने पर पूरा ब्यांत आगे खिसक जाता है।", "en": "Often a nutrition problem. Improve feed and mineral mixture, and get the animal examined. A missed heat pushes the whole calving interval back." },
+      "urgency": "soon", "needs_vet": true
+    },
+    "res_no_clear_sign": {
+      "canonical_id": "condition.cattle.none",
+      "likely": { "hi": "कोई साफ़ लक्षण नहीं मिला", "en": "No clear sign found" },
+      "action": { "hi": "अभी कोई साफ़ लक्षण नहीं दिखा, इसलिए हम कुछ बताएँगे नहीं। नज़र रखें। कुछ भी बदले तो दोबारा जाँच करें, या 1962 पर बात करें।", "en": "No clear sign, so we will not name a condition. Keep watching. Re-check if anything changes, or call 1962." },
+      "urgency": "monitor", "needs_vet": false
+    }
+  }
+}

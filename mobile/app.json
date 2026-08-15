@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "BAHI",
+    "slug": "bahi",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#FAF8F3"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "in.bahi.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#1B5E20"
+      },
+      "permissions": ["CAMERA", "ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "in.bahi.app"
+    },
+    "plugins": [
+      "expo-dev-client",
+      "react-native-fast-tflite",
+      ["expo-camera", { "cameraPermission": "पत्ते की फ़ोटो लेकर बीमारी पहचानने के लिए कैमरा चाहिए" }],
+      ["expo-location", { "locationWhenInUsePermission": "खेत की जगह दर्ज करने के लिए लोकेशन चाहिए" }]
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+# ONLY needed if this instance serves /predict, the cloud fallback for phones
+# where the bundled TFLite model failed to load. The common path never reaches
+# it: ~90% of scans run on the phone and never touch the network.
+#
+# Do not install this on a 512MB instance, it will not fit.
+-r requirements.txt
+tensorflow==2.21.0
+pillow==12.2.0
+numpy==2.2.1

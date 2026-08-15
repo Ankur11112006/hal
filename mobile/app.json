@@ -23,6 +23,13 @@
     "plugins": [
       "expo-dev-client",
       "react-native-fast-tflite",
+      [
+        "expo-build-properties",
+        {
+          "_comment": "Android 9+ blocks plain HTTP by default. Render serves HTTPS so the normal path is unaffected, but the demo fallback is running uvicorn on the presenting laptop over the LAN, which is http:// and would be blocked silently, with no error the farmer or the presenter could see. Remove this before any store build.",
+          "android": { "usesCleartextTraffic": true }
+        }
+      ],
       ["expo-camera", { "cameraPermission": "पत्ते की फ़ोटो लेकर बीमारी पहचानने के लिए कैमरा चाहिए" }],
       ["expo-location", { "locationWhenInUsePermission": "खेत की जगह दर्ज करने के लिए लोकेशन चाहिए" }]
     ]

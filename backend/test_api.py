@@ -118,6 +118,20 @@ def main_test():
     assert main.hindi_date("2026-01-05T10:00:00") == "5 जनवरी 2026"
     assert main.hindi_date("not-a-date") == "not-a-date", "a bad date must not 500 an answer"
 
+    # --- English mode must not be handed Hindi to echo ---
+    # The script rule sat under the language line and overrode it, so picking
+    # English got a Devanagari answer built from Devanagari vaccine notes.
+    d = {"label": {"hi": "खुरपका-मुँहपका", "en": "Foot and Mouth Disease"},
+         "vaccine": "FMD", "due_on": "2026-05-31", "days_left": -76,
+         "overdue": True, "no_record": False}
+    en, hi = main.vaccine_note(d, "English"), main.vaccine_note(d, "Hindi")
+    assert en == {"tika": "Foot and Mouth Disease",
+                  "status": "was due on 31 May 2026, 76 days ago"}, en
+    assert hi["tika"] == "खुरपका-मुँहपका" and "31 मई 2026" in hi["status"], hi
+    assert not any(ord(ch) > 0x900 for ch in en["status"]), \
+        f"English mode must not carry Devanagari into the prompt: {en}"
+    print("vaccine notes ok, both languages")
+
     # --- profile push: without it /advise has no plots, no animals, and the
     #     cross-domain line has nothing to reference ---
     prof = c.post("/profile", json={

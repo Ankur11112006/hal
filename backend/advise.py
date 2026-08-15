@@ -135,14 +135,16 @@ ADVISORY_SCHEMA = {
 }
 
 PROMPT = """Tu ek agriculture advisor hai. Farmer ko {lang} mein simple, chhote jawab de.
-POORA jawab Devanagari lipi mein likh. Dawa ke naam ke ilawa ek bhi roman ya
-English shabd mat likh. Ye instructions roman mein likhi hain par TERA JAWAB
-nahi honi chahiye: farmer ko mixed script padhne mein dikkat hoti hai. Number
-aur % theek hain, shabd nahi.
+{script_rule}
 
 Roman shabd yahan naam se mana NAHI kiye ja rahe, kyunki jo shabd yahan likha
 jayega wahi jawab mein chala jata hai: pichhli baar "jaanch" ko mana karne se
 jawab mein "जाanch" aaya tha.
+
+"source" mein us document ka naam likh jisse jawab aaya (jaise ICAR, DAHD).
+Agar jawab farmer ke apne record se aaya hai to {own_record} likh. Is prompt
+ke heading kabhi mat likh: ek baar "FARMER KA RECORD" hi source ban ke kisan
+ki screen par pahunch gaya tha.
 
 Sirf neeche diye SOURCES se jawab de. Agar source mein jawab nahi hai, escalate=true
 karke action mein likh de "iske liye Kisan Call Centre 1800-180-1551 pe baat karein". Bana mat.
@@ -177,7 +179,11 @@ _MONTHS = ["जनवरी", "फ़रवरी", "मार्च", "अप�
            "जुलाई", "अगस्त", "सितंबर", "अक्तूबर", "नवंबर", "दिसंबर"]
 
 
-def hindi_date(iso: str) -> str:
+_MONTHS_EN = ["January", "February", "March", "April", "May", "June",
+              "July", "August", "September", "October", "November", "December"]
+
+
+def hindi_date(iso: str, english: bool = False) -> str:
     """"2026-05-31" -> "31 मई 2026". The model repeats back whatever format it
     is handed, and it was being handed ISO strings, so a farmer was told his
     cow's vaccine "2026-05-31 ko due tha"."""
@@ -185,17 +191,18 @@ def hindi_date(iso: str) -> str:
         d = dt.date.fromisoformat(iso[:10])
     except ValueError:
         return iso[:10]
-    return f"{d.day} {_MONTHS[d.month - 1]} {d.year}"
+    months = _MONTHS_EN if english else _MONTHS
+    return f"{d.day} {months[d.month - 1]} {d.year}"
 
 
-def _timeline_lines(events: list[dict]) -> str:
+def _timeline_lines(events: list[dict], english: bool = False) -> str:
     out = []
     for e in events[:20]:
         who = e.get("plot_name") or e.get("animal_name") or "-"
         crop = f" ({e['current_crop']})" if e.get("current_crop") else ""
         detail = e.get("data") or {}
         bits = ", ".join(f"{k}={v}" for k, v in list(detail.items())[:4])
-        out.append(f"{hindi_date(e['at'])} | {who}{crop} | {e['type']} | {bits}")
+        out.append(f"{hindi_date(e['at'], english)} | {who}{crop} | {e['type']} | {bits}")
     return "\n".join(out) or "(koi record nahi)"
 
 
@@ -234,8 +241,21 @@ def advise(question: str, events: list[dict], weather: dict, lang="Hindi",
         gloss = ("\nIS FARMER KE LIYE YE LOCAL SHABD USE KAR (standard shabd mat use kar): "
                  f"{pairs}\n")
 
-    prompt = PROMPT.format(lang=lang, glossary=gloss, context=context,
-                           timeline=_timeline_lines(events),
+    # The Devanagari rule used to be unconditional, so picking English got a
+    # Hindi answer: the script line sat right under the language line and won.
+    english = lang.lower().startswith("en")
+    script_rule = (
+        "Answer in plain English. Short sentences, no jargon, no Hindi words."
+        if english else
+        "POORA jawab Devanagari lipi mein likh. Dawa ke naam ke ilawa ek bhi roman ya\n"
+        "English shabd mat likh. Ye instructions roman mein likhi hain par TERA JAWAB\n"
+        "nahi honi chahiye: farmer ko mixed script padhne mein dikkat hoti hai. Number\n"
+        "aur % theek hain, shabd nahi.")
+
+    prompt = PROMPT.format(lang=lang, script_rule=script_rule,
+                           own_record="\"Your own record\"" if english else "\"आपका अपना रिकॉर्ड\"",
+                           glossary=gloss, context=context,
+                           timeline=_timeline_lines(events, english),
                            weather=json.dumps(weather, ensure_ascii=False),
                            question=question)
 

@@ -39,6 +39,24 @@ def _schedule():
 hindi_date = A.hindi_date          # everything the model reads is formatted in advise.py
 
 
+def vaccine_note(d: dict, lang: str) -> dict:
+    """One vaccine, described in the language the farmer is already reading on
+    the card. Same sentence in both places or they stop trusting either."""
+    en = lang.lower().startswith("en")
+    name = (d["label"] or {}).get("en" if en else "hi") or d["vaccine"]
+    when = A.hindi_date(d["due_on"], en)
+    days = abs(d["days_left"])
+    if d["no_record"]:
+        status = "No record found for this vaccine" if en else "इस टीके का कोई रिकॉर्ड नहीं मिला"
+    elif d["overdue"]:
+        status = (f"was due on {when}, {days} days ago" if en
+                  else f"{when} को लगना था, {days} दिन हो गए")
+    else:
+        status = (f"due on {when}, in {days} days" if en
+                  else f"{when} को लगना है, {days} दिन बाक़ी")
+    return {"tika": name, "status": status}
+
+
 # ------------------------------------------------------------------ health
 @app.get("/health")
 def health():
@@ -239,20 +257,13 @@ def ask(body: AskIn):
             # status="koi record nahi" is a contradiction, and the model picks
             # the more emphatic half: it told the farmer a vaccine was overdue
             # on the same screen where the app said no record existed.
-            # These status strings are written in Devanagari because the model
-            # echoes them verbatim. Romanized values here leaked straight into
-            # a Hindi answer as "एक बार jaanch lein" and "overdue".
-            # Everything here is Devanagari and nothing is a flag, because the
-            # model echoes whatever it is given. An `overdue: true` key came
-            # back as the English word "overdue" in a Hindi sentence, and the
-            # vaccine code "FMD" came back instead of खुरपका-मुँहपका. The status
-            # string alone carries the same information without leaking script.
-            "data": {"tika": (d["label"] or {}).get("hi") or d["vaccine"],
-                     "status": ("इस टीके का कोई रिकॉर्ड नहीं मिला" if d["no_record"]
-                                else f"{hindi_date(d['due_on'])} को लगना था, "
-                                     f"{abs(d['days_left'])} दिन हो गए" if d["overdue"]
-                                else f"{hindi_date(d['due_on'])} को लगना है, "
-                                     f"{d['days_left']} दिन बाक़ी")}}
+            # Nothing here is a flag and nothing is romanized, because the model
+            # echoes whatever it is given. An `overdue: true` key came back as
+            # the English word "overdue" in a Hindi sentence, the vaccine code
+            # "FMD" came back instead of खुरपका-मुँहपका, and an ISO due date came
+            # back as "2026-05-31 को". The status sentence carries all of it in
+            # the language the farmer is already reading on the card.
+            "data": vaccine_note(d, body.lang)}
             for d in due]
 
         ans = A.advise(body.question, events, weather, body.lang, gloss)

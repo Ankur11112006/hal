@@ -34,15 +34,39 @@ cd backend && pip install -r requirements.txt && uvicorn main:app --reload
 cd mobile && npm install && npm start
 ```
 
-The app needs an **EAS development build**, not Expo Go, because
-`react-native-fast-tflite` is native:
+Expo Go will not work: `react-native-fast-tflite` is native, so the app needs a
+real build.
+
+### Build the APK
+
+Needs **JDK 17** (Gradle for RN 0.86 rejects JDK 8) and the Android SDK.
 
 ```bash
-cd mobile && npx expo prebuild && npx expo run:android
+cd mobile && npm run sync && npx expo prebuild --platform android --clean
 ```
 
-Point the app at a backend with `EXPO_PUBLIC_API`. On an Android emulator the
-host is `http://10.0.2.2:8000`, which is the default.
+```bash
+cd mobile/android && JAVA_HOME=/path/to/jdk-17 ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+```
+
+Output lands in `mobile/android/app/build/outputs/apk/release/`. Dropping the
+`-P` flag builds all four ABIs and triples the size to 142 MB; arm64-v8a alone
+covers every phone since roughly 2016 and comes to 50 MB.
+
+Release is signed with the debug keystore, which installs fine and is not
+publishable. Generate a real keystore before any store upload.
+
+### Point it at a backend
+
+`EXPO_PUBLIC_API` is the compiled-in default (emulator: `http://10.0.2.2:8000`),
+but **Settings → सर्वर पता** overrides it at runtime and persists. Use that rather
+than rebuilding when the backend moves.
+
+### Deploy the backend
+
+render.com → New → Blueprint → this repo. `render.yaml` at the root does the
+rest; Render will prompt for `GEMINI_API_KEY`, which is `sync: false` and so
+never lives in the repo.
 
 ---
 

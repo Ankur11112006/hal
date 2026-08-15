@@ -50,7 +50,7 @@ Nothing below has executed even once. Each is a plausible demo-day failure.
 | Thing | Risk | Why it is unproven |
 |---|---|---|
 | **Every app screen** | 🔴 high | No emulator, no device. 12 screens rendered zero times |
-| **TFLite on Android** | 🔴 high | Model verified in Python only. `react-native-fast-tflite` never loaded it. This is `SPEC.md` 6.1's own #1 risk and it is still open |
+| **TFLite on Android** | 🟡 **downgraded** | See §3b. The APK builds and the native libraries and the model are provably inside it. Still never *loaded* at runtime |
 | **jpeg-js → tensor path** | 🔴 high | `ml.js` decodes the photo in JS and builds a Float32Array. That code has never processed one image |
 | **Camera capture** | 🟡 med | `expo-camera` permission flow, shutter, `takePictureAsync` |
 | ~~Gemini advisory~~ | ✅ **now verified** | See §3a. Ran against the real API; the cross-domain answer works and is asserted by `backend/test_advise_live.py` |
@@ -91,6 +91,37 @@ The first two attempts did **not** work, and neither failure was visible offline
     the model as "koi record nahi" rather than as overdue.
 
 Both were product bugs, not integration bugs. The offline suite passed throughout.
+
+---
+
+### 3b. The APK builds, which retires half of the biggest risk
+
+`SPEC.md` 6.1 rated "TFLite inside Expo" as the project's #1 red risk and told us
+to spike it before any UI. It was spiked last instead. It works.
+
+| APK | size | ABIs | model inside |
+|---|---|---|---|
+| `dist/bahi-arm64.apk` | **50 MB** | arm64-v8a | md5 identical to `artifacts/crop_model.tflite` |
+| `dist/bahi-universal.apk` | 142 MB | all four | same |
+
+Verified by unzipping the APK, not by trusting the build log:
+
+- `lib/*/libtensorflowlite_jni.so`, `libtensorflowlite_gpu_jni.so`,
+  `libNitroTflite.so`, `libNitroModules.so` present for every ABI
+- `res/mn.tflite` is byte-for-byte our model (Metro renames assets in release
+  builds, which is why it is not under `assets/`)
+- the Hindi strings, the symptom tree and the label list are inside
+  `assets/index.android.bundle`
+
+Ship the 50 MB one. The universal build carries x86 and x86_64 for emulators
+only, and 142 MB is a bad number to put next to a pitch about cheap phones.
+
+Local build needs JDK 17; the machine had only JRE 1.8, which would have failed
+Gradle. `D:\tools\jdk-17.0.20+8` was installed for it.
+
+**What this does NOT prove:** that the app launches, that a screen renders, or
+that `loadTensorflowModel()` succeeds at runtime. The library is in the box. It
+has not been switched on.
 
 ---
 

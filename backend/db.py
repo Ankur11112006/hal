@@ -14,10 +14,19 @@ import sqlite3
 import uuid
 
 # Render's free tier has no persistent disk, so this is ephemeral there and is
-# wiped on redeploy. That is fine by design: the phone owns the event log
-# (SPEC.md E3) and the server holds a synced copy. Point BAHI_DB at a real
+# wiped on redeploy. The phone owns the event log (SPEC.md E3) and the server
+# holds a synced copy, so losing it is survivable ONLY because the phone can be
+# told to send everything again: see BOOT_ID below. Point BAHI_DB at a real
 # volume, or swap to Postgres, before any of it matters.
 DB_PATH = pathlib.Path(os.environ.get("BAHI_DB", pathlib.Path(__file__).parent / "bahi.db"))
+
+# New value on every process start, which on Render means every redeploy, which
+# is also every wipe. /health hands it to the phone; a phone that sees a value
+# it does not recognise re-sends its whole event log. Without this the server's
+# copy stays empty forever after a deploy: the phone has already marked those
+# rows synced and will never offer them again, so /advise answers "koi record
+# nahi mila" about a farm whose entire history is sitting on the device.
+BOOT_ID = uuid.uuid4().hex[:12]
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS farmer (
@@ -49,7 +58,13 @@ CREATE TABLE IF NOT EXISTS event (
   type TEXT NOT NULL, data TEXT DEFAULT '{}',
   photo_url TEXT, confidence REAL, lat REAL, lng REAL,
   at TEXT NOT NULL, synced INTEGER DEFAULT 1, is_demo INTEGER DEFAULT 0,
-  CHECK (plot_id IS NOT NULL OR animal_id IS NOT NULL OR type IN ('note','weather'))
+  -- A scan or a symptom check is allowed to have no plot and no animal. The app
+  -- lets a farmer photograph a leaf before they have entered a single field,
+  -- deliberately, because that is the first thing anyone does. This constraint
+  -- used to reject those rows, and since /sync inserted the batch as one unit,
+  -- one plotless scan silently blocked every other event from ever syncing.
+  CHECK (plot_id IS NOT NULL OR animal_id IS NOT NULL
+         OR type IN ('note','weather','disease_detected','symptom_flagged'))
 );
 CREATE INDEX IF NOT EXISTS idx_event_farmer_at ON event(farmer_id, at DESC);
 CREATE INDEX IF NOT EXISTS idx_event_animal ON event(animal_id, type, at DESC);

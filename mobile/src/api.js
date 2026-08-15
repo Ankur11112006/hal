@@ -1,7 +1,7 @@
 // Backend calls. Nothing here is on the critical path of a scan: the model is
 // on the phone and every write goes to SQLite first. If all of this fails the
 // app still works, which is the point.
-import { unsynced, markSynced, plots as localPlots, animals as localAnimals } from './db';
+import { unsynced, markSynced, resendAll, plots as localPlots, animals as localAnimals } from './db';
 
 // EXPO_PUBLIC_* is inlined at bundle time, so baking the backend URL into the
 // APK means a 20-minute rebuild every time it moves: Render, then a laptop's
@@ -72,13 +72,16 @@ async function call(path, opts = {}, timeoutMs = 12000) {
   return r.json();
 }
 
+const BOOT_KEY = 'bahi.server_boot';
+
 export async function online() {
   try {
     // 4s was too tight. A cold Render instance takes ~50s to wake, and even a
     // warm one over a slow rural link spends a second or two on the TLS
     // handshake alone. Reporting that as "no internet" is the same mistake as
     // the advisory sheet made: a timeout is not a verdict.
-    await call('/health', {}, 20000);
+    const h = await call('/health', {}, 20000);
+    await checkServerRestarted(h);
     lastOnlineError = null;
     return true;
   } catch (e) {
@@ -88,10 +91,33 @@ export async function online() {
   }
 }
 
+/**
+ * The server's database is ephemeral. When it comes back with a boot id we have
+ * not seen, its copy of this farm is gone and every event has to be offered
+ * again, because the phone had already marked them synced and would otherwise
+ * never mention them. Cheap because /health is polled anyway.
+ */
+async function checkServerRestarted(health) {
+  const id = health?.boot_id;
+  if (!id) return;
+  const seen = await AsyncStorage.getItem(BOOT_KEY);
+  if (seen === id) return;
+  await AsyncStorage.setItem(BOOT_KEY, id);
+  if (seen === null) return;              // first run: nothing was ever sent
+  const n = await resendAll();
+  console.warn(`[api] server restarted (${seen} -> ${id}), re-sending ${n} events`);
+}
+
 let lastOnlineError = null;
+let lastSyncError = null;
+
+export function noteSyncError(e) {
+  lastSyncError = `${e.status || 'offline'} ${e.message}${e.body ? ' ' + e.body.slice(0, 120) : ''}`;
+}
+
 /** Shown in Settings so a connectivity failure is diagnosable on the phone. */
 export function lastError() {
-  return lastOnlineError;
+  return lastSyncError || lastOnlineError;
 }
 
 // Profile rows are small, mutable and few, so they are pushed wholesale rather
@@ -107,9 +133,11 @@ export async function pushProfile(farmer) {
 // SPEC.md E3, the entire sync layer. Append-only events cannot conflict, so
 // this is a batch POST and a flag update. Do not build a sync engine.
 export async function flush(farmer) {
-  // The server needs the farmer, plots and animals before the events referring
-  // to them mean anything to /advise.
-  if (farmer) { try { await pushProfile(farmer); } catch {} }
+  // Profile first, and its failure is fatal to the rest: the event rows point
+  // at plot and animal ids, and the server enforces those keys. Pushing events
+  // to a server that has never heard of the farm gets every one of them
+  // rejected, which used to read as a bare 500 with no clue why.
+  if (farmer) await pushProfile(farmer);
 
   const rows = await unsynced();
   if (!rows.length) return { sent: 0 };
@@ -118,9 +146,15 @@ export async function flush(farmer) {
     type: r.type, data: r.data, confidence: r.confidence,
     lat: r.lat, lng: r.lng, at: r.at,
   }));
-  await call('/sync', { method: 'POST', body: JSON.stringify(body) });
-  await markSynced(rows.map((r) => r.id));
-  return { sent: rows.length };
+  const res = await call('/sync', { method: 'POST', body: JSON.stringify(body) });
+
+  // Only what the server actually kept is marked synced. Rejected rows stay
+  // queued and get retried, which is noisy but is the only version that cannot
+  // quietly lose a farmer's record.
+  const bad = new Set((res.rejected || []).map((r) => r.id));
+  await markSynced(rows.map((r) => r.id).filter((id) => !bad.has(id)));
+  if (bad.size) console.warn('[api] server rejected rows:', JSON.stringify(res.rejected));
+  return { sent: rows.length - bad.size, rejected: res.rejected || [] };
 }
 
 /**

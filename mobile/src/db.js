@@ -232,6 +232,19 @@ export async function markSynced(ids) {
     `UPDATE event SET synced = 1 WHERE id IN (${ids.map(() => '?').join(',')})`, ids);
 }
 
+/**
+ * Offer the whole log again. The server's copy lives on a free tier with no
+ * disk and is wiped on every redeploy; once these rows are marked synced the
+ * phone never offers them again, so without this the server stays empty and
+ * the advisory answers "no record" about a farm with two years of history.
+ * Called only when /health reports a server we have not talked to before.
+ */
+export async function resendAll() {
+  const d = await open();
+  const r = await d.runAsync('UPDATE event SET synced = 0 WHERE synced = 1');
+  return r.changes;
+}
+
 // ---------------------------------------------------------------- DPDP
 // SPEC.md E8: one tap, and it must report the real count deleted.
 export async function deleteEverything() {

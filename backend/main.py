@@ -10,6 +10,7 @@ import io
 import json
 import os
 import pathlib
+import sqlite3
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,7 +41,10 @@ def _schedule():
 def health():
     with db.conn() as c:
         n = c.execute("SELECT COUNT(*) n FROM event").fetchone()["n"]
-    return {"ok": True, "events": n, "kb_docs": len(A.kb().docs),
+    # boot_id changes whenever this process restarted, which on Render's free
+    # tier is also whenever the database was wiped. The phone compares it and
+    # re-sends its log if it does not match.
+    return {"ok": True, "events": n, "boot_id": db.BOOT_ID, "kb_docs": len(A.kb().docs),
             "model_present": (ARTIFACTS / "crop_model.tflite").exists()}
 
 
@@ -62,21 +66,34 @@ class EventIn(BaseModel):
 @app.post("/sync")
 def sync(events: list[EventIn]):
     """Append-only, so this is an upsert-by-id and there is nothing to merge.
-    Re-sending the same batch is safe (SPEC.md E3)."""
-    written = 0
+    Re-sending the same batch is safe (SPEC.md E3).
+
+    Every row is inserted on its own. A batch used to be one unit, so a single
+    row the schema refused (an event pointing at a plot this server had never
+    been told about, most often) raised, rolled back the other forty, and came
+    back as a bare 500. The phone logged nothing and retried the same poisoned
+    batch every thirty seconds, forever. Bad rows are now named in the reply so
+    the phone can say which ones and stop resending them.
+    """
+    written, rejected = 0, []
     with db.conn() as c:
         for e in events:
             eid = e.id or db.new_id()
             if c.execute("SELECT 1 FROM event WHERE id=?", (eid,)).fetchone():
                 continue
-            c.execute(
-                "INSERT INTO event (id,farmer_id,plot_id,animal_id,type,data,photo_url,"
-                "confidence,lat,lng,at,synced) VALUES (?,?,?,?,?,?,?,?,?,?,?,1)",
-                (eid, e.farmer_id, e.plot_id, e.animal_id, e.type,
-                 json.dumps(e.data, ensure_ascii=False), e.photo_url, e.confidence,
-                 e.lat, e.lng, e.at))
-            written += 1
-    return {"received": len(events), "written": written}
+            try:
+                c.execute(
+                    "INSERT INTO event (id,farmer_id,plot_id,animal_id,type,data,photo_url,"
+                    "confidence,lat,lng,at,synced) VALUES (?,?,?,?,?,?,?,?,?,?,?,1)",
+                    (eid, e.farmer_id, e.plot_id, e.animal_id, e.type,
+                     json.dumps(e.data, ensure_ascii=False), e.photo_url, e.confidence,
+                     e.lat, e.lng, e.at))
+                c.commit()                   # commit per row, so one bad row loses only itself
+                written += 1
+            except sqlite3.Error as ex:
+                c.rollback()
+                rejected.append({"id": eid, "reason": str(ex)})
+    return {"received": len(events), "written": written, "rejected": rejected}
 
 
 class ProfileIn(BaseModel):

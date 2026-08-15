@@ -140,7 +140,19 @@ export default function App() {
       const up = await api.online();
       if (!alive) return;
       setOnline(up);
-      if (up) { try { await api.flush(farmer); } catch {} }
+      // Not swallowed. This catch used to be empty, and it hid the fact that
+      // every /sync had been failing for the whole build: the server held the
+      // profile but not one event, so the advisory kept answering "no record"
+      // about a farm with two years of history, and nothing anywhere said so.
+      if (up) {
+        try {
+          const r = await api.flush(farmer);
+          if (r.sent) console.log('[sync] sent', r.sent, 'events');
+        } catch (e) {
+          api.noteSyncError(e);
+          console.warn('[sync] failed:', e.status || 'offline', e.message, e.body || '');
+        }
+      }
     };
     beat();
     const id = setInterval(beat, 30000);

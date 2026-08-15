@@ -78,7 +78,38 @@ def main_test():
            "at": dt.datetime.now().isoformat(timespec="seconds")}]
     assert c.post("/sync", json=ev).json()["written"] == 1
     assert c.post("/sync", json=ev).json()["written"] == 0, "resend must not duplicate"
-    print("sync ok, resend is a no-op")
+
+    # --- one bad row must not take the batch down with it ---
+    # This is the bug that emptied the server. The batch was one transaction, so
+    # a single row the schema refused rolled back the other forty and returned a
+    # bare 500. The phone's catch was empty, so for an entire build the server
+    # held a profile and zero events and the advisory answered "koi record nahi"
+    # about a farm with two years of history.
+    mixed = [
+        {"id": "e-ok", "farmer_id": F, "plot_id": "p1", "type": "irrigation",
+         "data": {}, "at": "2026-08-01T08:00:00"},
+        {"id": "e-bad-fk", "farmer_id": F, "plot_id": "no-such-plot", "type": "spray",
+         "data": {}, "at": "2026-08-01T09:00:00"},
+        # same disease as the seeded record on purpose: the advisory test below
+        # reads this farmer's timeline, and naming a second disease here would
+        # legitimately change its answer
+        {"id": "e-scan-no-plot", "farmer_id": F, "type": "disease_detected",
+         "data": {"label": "maize__northern_leaf_blight"}, "at": "2026-08-01T10:00:00"},
+    ]
+    r = c.post("/sync", json=mixed)
+    assert r.status_code == 200, f"a bad row must not 500 the batch: {r.status_code}"
+    r = r.json()
+    assert r["written"] == 2, f"good rows must land, got {r['written']}: {r}"
+    assert [x["id"] for x in r["rejected"]] == ["e-bad-fk"], r["rejected"]
+    assert r["rejected"][0]["reason"], "a rejected row must say why"
+    # a scan taken before any plot exists is a legitimate record, not a violation
+    with db.conn() as cx:
+        assert cx.execute("SELECT 1 FROM event WHERE id='e-scan-no-plot'").fetchone(), \
+            "a scan with no plot must be storable: the app lets you scan first"
+    print(f"sync ok, resend is a no-op, 1 bad row rejected without losing {r['written']}")
+
+    # --- the phone has to be able to tell that the server was wiped ---
+    assert h.get("boot_id"), "health must carry boot_id or a wiped server stays empty"
 
     # --- profile push: without it /advise has no plots, no animals, and the
     #     cross-domain line has nothing to reference ---

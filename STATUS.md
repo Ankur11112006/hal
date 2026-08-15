@@ -245,6 +245,40 @@ Each one was silent, and each would have survived to demo day.
 8. **Metro does not bundle `.tflite`** without config, so the model would have been
    silently absent from the APK.
 
+### The sync had been failing the entire build, and looked fine
+
+Found on 16 Aug by asking the running app a question and then asking the server
+the same question. The app said गौरी's vaccine was 76 days overdue. The server,
+about the same cow on the same day, said no record existed. `/timeline` showed
+why: **zero events on the server**, while the profile was there.
+
+Four causes, each hiding the next:
+
+9. **`/sync` inserted a whole batch in one transaction.** One row the schema
+   refused rolled the other forty back and returned a bare 500. Now per-row,
+   and the reply names each rejected row with its reason.
+10. **The schema refused a scan with no plot** (`CHECK plot_id IS NOT NULL OR
+    animal_id IS NOT NULL`), which the app creates deliberately: you can
+    photograph a leaf before entering a single field. So an ordinary scan
+    poisoned the queue for good.
+11. **`App.js` swallowed the flush error in an empty catch.** Nothing anywhere
+    said a word. This is the same failure mode as the model-load bug and the
+    404-reported-as-offline bug, for the third time in one project.
+12. **The server DB is ephemeral and the phone never re-offered its log.** Every
+    redeploy emptied the server permanently, because those rows were already
+    marked synced. `/health` now returns a `boot_id` and the phone re-sends when
+    it changes.
+
+And two the advisory showed once the data was actually flowing:
+
+13. **The prompt told the model, in Roman, to say "ek baar jaanch lein".** It
+    printed the instruction back as **"एक बार जाanch लें"**. Naming a forbidden
+    word in the prompt is how that word reaches the farmer.
+14. **English mode was Hindi.** The Devanagari rule was unconditional and sat
+    directly under the language line; the vaccine notes fed to the model were
+    Devanagari-only; and the app passed the literal string `'Hindi'` at its one
+    call site. Three independent reasons, all pointing the same way.
+
 ---
 
 ## 8. Where the time went

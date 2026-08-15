@@ -257,7 +257,11 @@ def advise(question: str, events: list[dict], weather: dict, lang="Hindi",
         "aur % theek hain, shabd nahi.")
 
     prompt = PROMPT.format(lang=lang, script_rule=script_rule,
-                           own_record="\"Your own record\"" if english else "\"आपका अपना रिकॉर्ड\"",
+                           # The screen renders "According to {source}" and
+                           # "{source} के अनुसार", so English wants lowercase and
+                           # Hindi wants the oblique case, or it reads
+                           # "आपका अपना रिकॉर्ड के अनुसार".
+                           own_record="\"your own record\"" if english else "\"आपके अपने रिकॉर्ड\"",
                            glossary=gloss, context=context,
                            timeline=_timeline_lines(events, english),
                            weather=json.dumps(weather, ensure_ascii=False),

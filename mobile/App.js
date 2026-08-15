@@ -103,6 +103,7 @@ export default function App() {
   useEffect(() => {
     (async () => {
       await db.open();
+      await api.loadApiBase();                       // Settings override, if any
       ml.load();                                     // warm the interpreter early
       setFarmer((await db.anyFarmer()) || null);
     })();

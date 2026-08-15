@@ -2,7 +2,7 @@
 // "मेरा डेटा मिटाएँ" is DPDP Act 2023 compliance and MUST report the real count
 // of records deleted. One line, one screenshot, one scoring point.
 import React, { useState } from 'react';
-import { View, Text, Pressable, Alert, ScrollView } from 'react-native';
+import { View, Text, Pressable, Alert, ScrollView, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { C, T, D } from '../theme';
 import { t } from '../content';
@@ -10,11 +10,13 @@ import { Card, OutlineButton } from '../components/ui';
 import { useApp } from '../../App';
 import * as db from '../db';
 import * as ml from '../ml';
+import * as api from '../api';
 import { seedDemo } from '../seed';
 
 export default function Settings({ navigation }) {
   const { farmer, setFarmer, isOnline, refresh } = useApp();
   const [msg, setMsg] = useState(null);
+  const [base, setBase] = useState(api.apiBase());
 
   const rows = [
     { label: t('settings.language'), onPress: () => {} },
@@ -76,7 +78,30 @@ export default function Settings({ navigation }) {
           </Pressable>
         ))}
 
+        {/* Not farmer-facing. It exists so the backend can be repointed at a
+            demo without a 20-minute rebuild. */}
         <Card style={{ marginTop: 24 }}>
+          <Text style={[T.caption, { marginBottom: 6 }]}>सर्वर पता (डेमो सेटअप)</Text>
+          <TextInput
+            value={base} onChangeText={setBase} autoCapitalize="none"
+            autoCorrect={false} keyboardType="url" placeholder={api.apiBase()}
+            style={{
+              borderWidth: 1, borderColor: C.outline, borderRadius: D.btnRadius,
+              backgroundColor: C.surface, paddingHorizontal: 12, height: 48,
+              fontSize: 15, fontFamily: T.body.fontFamily, color: C.ink,
+            }} />
+          <OutlineButton
+            label={t('common.save')} style={{ marginTop: 10, height: 48 }}
+            onPress={async () => {
+              const v = await api.setApiBase(base);
+              setBase(v);
+              setMsg(v);
+              refresh();
+              setTimeout(() => setMsg(null), 2000);
+            }} />
+        </Card>
+
+        <Card>
           <Text style={T.caption}>{t('app.name')} · {t('app.tagline')}</Text>
           <Text style={[T.caption, { marginTop: 6 }]}>
             नेटवर्क: {isOnline ? 'चालू' : 'बंद (ऐप फिर भी चलती है)'}

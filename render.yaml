@@ -1,0 +1,35 @@
+# Render Blueprint. Must live at the repo ROOT, not inside backend/.
+#
+# Deploy: render.com -> New -> Blueprint -> pick this repo -> Apply.
+# Then set GEMINI_API_KEY in the dashboard (it is sync:false, so Render will
+# prompt for it and it never touches the repo).
+
+services:
+  - type: web
+    name: bahi-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: GEMINI_API_KEY
+        sync: false          # set in the dashboard, never in the repo
+      - key: GEMINI_MODEL
+        value: gemini-flash-lite-latest
+
+# Two things the free tier does NOT give you, both deliberate here:
+#
+# 1. No persistent disk. SQLite therefore lives on ephemeral storage and is
+#    wiped on every restart and redeploy. That is acceptable because the PHONE
+#    is the source of truth: SPEC.md E3 makes the event log append-only and
+#    local-first, and the server holds a synced copy plus the RAG corpus. The
+#    demo seed lives on the device, not here. Move to Postgres before any real
+#    farmer data exists.
+#
+# 2. The instance sleeps after 15 minutes idle and takes ~50s to wake. Ping
+#    /health five minutes before the demo, or run uvicorn on the presenting
+#    laptop and point the app at it from Settings -> सर्वर पता.

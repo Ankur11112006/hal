@@ -13,6 +13,10 @@ import pathlib
 import sqlite3
 import uuid
 
+# Render's free tier has no persistent disk, so this is ephemeral there and is
+# wiped on redeploy. That is fine by design: the phone owns the event log
+# (SPEC.md E3) and the server holds a synced copy. Point BAHI_DB at a real
+# volume, or swap to Postgres, before any of it matters.
 DB_PATH = pathlib.Path(os.environ.get("BAHI_DB", pathlib.Path(__file__).parent / "bahi.db"))
 
 SCHEMA = """

@@ -3,7 +3,36 @@
 // app still works, which is the point.
 import { unsynced, markSynced, plots as localPlots, animals as localAnimals } from './db';
 
-export const BASE = process.env.EXPO_PUBLIC_API || 'http://10.0.2.2:8000';
+// EXPO_PUBLIC_* is inlined at bundle time, so baking the backend URL into the
+// APK means a 20-minute rebuild every time it moves: Render, then a laptop's
+// LAN address when the hall wifi blocks it, then back. The compiled value is
+// only the default; Settings can override it and the override wins.
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const DEFAULT_BASE = process.env.EXPO_PUBLIC_API || 'http://10.0.2.2:8000';
+const KEY = 'bahi.api_base';
+
+let BASE = DEFAULT_BASE;
+
+export function apiBase() {
+  return BASE;
+}
+
+export async function loadApiBase() {
+  try {
+    const v = await AsyncStorage.getItem(KEY);
+    if (v) BASE = v;
+  } catch {}
+  return BASE;
+}
+
+export async function setApiBase(url) {
+  BASE = (url || '').trim().replace(/\/+$/, '') || DEFAULT_BASE;
+  try {
+    await AsyncStorage.setItem(KEY, BASE);
+  } catch {}
+  return BASE;
+}
 
 async function call(path, opts = {}, timeoutMs = 12000) {
   const ctl = new AbortController();

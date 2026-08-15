@@ -49,8 +49,10 @@ export default function Livestock({ navigation }) {
           return (
             <Card key={a.id} onPress={() => navigation.navigate('AnimalDetail', { id: a.id })}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 34, marginRight: 12 }}>
-                  {a.species === 'buffalo' ? '🐃' : '🐄'}
+                <Text style={[T.title, { width: 44, height: 44, lineHeight: 44, marginRight: 12,
+                    textAlign: 'center', borderRadius: 22, overflow: 'hidden',
+                    backgroundColor: C.greenSoft, color: C.green }]}>
+                  {a.name.slice(0, 1)}
                 </Text>
                 <View style={{ flex: 1 }}>
                   <Text style={T.cardTitle}>{a.name}</Text>
@@ -79,7 +81,7 @@ export default function Livestock({ navigation }) {
 
 function age(dob) {
   const y = (Date.now() - new Date(dob)) / (365.25 * 86400000);
-  return y < 1 ? `${Math.round(y * 12)} महीने` : `${Math.floor(y)} साल`;
+  return y < 1 ? t('unit.months', { n: Math.round(y * 12) }) : t('unit.years', { n: Math.floor(y) });
 }
 
 // Adding one animal writes its whole vaccination and breeding calendar into the
@@ -117,7 +119,7 @@ function AddAnimal({ visible, onClose, farmer, onAdded }) {
 
           {msg ? (
             <View style={{ backgroundColor: C.greenSoft, borderRadius: D.btnRadius, padding: 14, marginTop: 8 }}>
-              <Text style={[T.label, { color: C.green, textAlign: 'center' }]}>✓ {msg}</Text>
+              <Text style={[T.label, { color: C.green, textAlign: 'center' }]}>{msg}</Text>
             </View>
           ) : (
             <>

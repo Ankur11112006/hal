@@ -17,9 +17,7 @@ import * as db from '../db';
 import * as voice from '../voice';
 
 const SUGGESTIONS = [
-  'अब मुझे क्या करना चाहिए?',
-  'मक्का में झुलसा लग गया है, क्या करूँ?',
-  'गौरी का टीका कब लगेगा?',
+  'advisory.suggest1', 'advisory.suggest2', 'advisory.suggest3',
 ];
 
 export default function Advisory({ navigation }) {
@@ -61,10 +59,9 @@ export default function Advisory({ navigation }) {
         padding: D.pad, paddingBottom: 32, maxHeight: '86%',
       }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <Text style={{ fontSize: 26, marginRight: 10 }}>🎤</Text>
           <Text style={[T.title, { flex: 1 }]}>{t('home.askAnything')}</Text>
           <Pressable onPress={() => { voice.stop(); navigation.goBack(); }} style={{ padding: 10 }}>
-            <Text style={{ fontSize: 22 }}>✕</Text>
+            <Text style={{ fontSize: 22 }}>×</Text>
           </Pressable>
         </View>
 
@@ -74,14 +71,14 @@ export default function Advisory({ navigation }) {
               {/* A keyboard toggle exists for literate users and, practically,
                   for demoing in a noisy hall. */}
               <TextInput
-                value={q} onChangeText={setQ} multiline placeholder="यहाँ लिखें या बोलें"
+                value={q} onChangeText={setQ} multiline placeholder={t('advisory.placeholder')}
                 placeholderTextColor={C.inkSoft}
                 style={{
                   borderWidth: 1, borderColor: C.outline, borderRadius: D.btnRadius,
                   backgroundColor: C.surface, padding: 14, minHeight: 90,
                   fontSize: 18, fontFamily: T.body.fontFamily, color: C.ink, marginBottom: 12,
                 }} />
-              {SUGGESTIONS.map((s) => (
+              {SUGGESTIONS.map(t).map((s) => (
                 <Pressable key={s} onPress={() => ask(s)}
                   style={{ paddingVertical: 12, borderBottomWidth: 1, borderColor: C.outline }}>
                   <Text style={[T.body, { color: C.green }]}>“{s}”</Text>
@@ -102,7 +99,7 @@ export default function Advisory({ navigation }) {
 
           {state === 'queued' && (
             <Card style={{ backgroundColor: C.greenSoft, borderColor: C.green }}>
-              <Text style={[T.body, { color: C.green }]}>✓ {t('advisory.queued')}</Text>
+              <Text style={[T.body, { color: C.green }]}>{t('advisory.queued')}</Text>
               <Text style={[T.caption, { marginTop: 8 }]}>{q}</Text>
             </Card>
           )}
@@ -125,16 +122,16 @@ export default function Advisory({ navigation }) {
                     more than anonymous AI. */}
                 <Text style={[T.caption, { marginTop: 10 }]}>
                   {t('advisory.source', { s: ans.source })}
-                  {ans.fallback ? ' · स्रोत से सीधा उद्धरण' : ''}
+                  {ans.fallback ? ' · ' + t('advisory.fromSource') : ''}
                 </Text>
               </Card>
 
-              {ans.escalate && <CallButton which="kcc" label={`📞 ${t('tier.callKcc')}`} />}
+              {ans.escalate && <CallButton which="kcc" label={t('tier.callKcc')} />}
 
               <View style={{ flexDirection: 'row', gap: 12, marginTop: 12, alignItems: 'center' }}>
                 <Text style={T.caption}>{t('advisory.helpful')}</Text>
-                <Pressable style={{ padding: 10 }}><Text style={{ fontSize: 22 }}>👍</Text></Pressable>
-                <Pressable style={{ padding: 10 }}><Text style={{ fontSize: 22 }}>👎</Text></Pressable>
+                <Pressable style={{ padding: 10 }}><Text style={T.label}>{t('common.yes')}</Text></Pressable>
+                <Pressable style={{ padding: 10 }}><Text style={T.label}>{t('common.no')}</Text></Pressable>
               </View>
 
               <OutlineButton label={t('common.ok')} style={{ marginTop: 12 }}

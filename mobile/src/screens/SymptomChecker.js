@@ -11,7 +11,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { C, T, D, TIER } from '../theme';
-import { t, symptomTree as tree } from '../content';
+import { t, symptomTree as tree, L } from '../content';
 import { BigYesNo, TierCard, CallButton, OutlineButton, SpeakButton, Card } from '../components/ui';
 import { useApp } from '../../App';
 import * as db from '../db';
@@ -36,7 +36,7 @@ export default function SymptomChecker({ route, navigation }) {
   // Questions are read aloud automatically. A farmer who cannot read must be
   // able to run this whole wizard by ear.
   useEffect(() => {
-    if (!step.done) voice.speak(step.node.q.hi, 'hi');
+    if (!step.done) voice.speak(L(step.node.q), 'hi');
     return () => voice.stop();
   }, [id]);
 
@@ -48,7 +48,7 @@ export default function SymptomChecker({ route, navigation }) {
         farmer_id: farmer.id, animal_id: animal.id, type: 'symptom_flagged',
         at: new Date().toISOString(),
         data: {
-          likely: r.likely.hi, action: r.action.hi, urgency: r.urgency,
+          likely: L(r.likely), action: L(r.action), urgency: r.urgency,
           needs_vet: !!r.needs_vet, canonical_id: r.canonical_id,
           notifiable: !!r.notifiable, answers: path.length,
         },
@@ -74,28 +74,28 @@ export default function SymptomChecker({ route, navigation }) {
   if (step.done) {
     const r = step.result;
     const tier = URGENCY_TIER[r.urgency];
-    const speak = `${r.likely.hi}. ${r.action.hi}`;
+    const speak = `${L(r.likely)}. ${L(r.action)}`;
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}>
         <View style={{ flex: 1, padding: D.pad }}>
           <Text style={[T.caption, { marginBottom: 8 }]}>{animal.name}</Text>
-          <TierCard tier={tier} title={r.likely.hi} speakText={speak}>
+          <TierCard tier={tier} title={L(r.likely)} speakText={speak}>
             <Text style={[T.caption, { marginBottom: 4 }]}>{t('symptom.action')}</Text>
-            <Text style={T.body}>{r.action.hi}</Text>
+            <Text style={T.body}>{L(r.action)}</Text>
             {r.notifiable && (
               <Text style={[T.caption, { marginTop: 10, color: C.red }]}>
-                ⚠ यह सूचना देने योग्य बीमारी है, सरकार को बताना ज़रूरी है
+                {t('symptom.notifiable')}
               </Text>
             )}
           </TierCard>
 
           {/* Any urgent branch surfaces 1962 as the single primary action. */}
-          {r.needs_vet && <CallButton which="vet" label={`📞 ${t('symptom.callVet')}`} />}
+          {r.needs_vet && <CallButton which="vet" label={t('symptom.callVet')} />}
 
           {r.photo_assist && (
             <Card style={{ marginTop: 12 }}>
               <Text style={[T.caption]}>
-                📷 फ़ोटो से दूसरी राय लेना अगले अपडेट में आएगा। अभी डॉक्टर को दिखाना ही सही है।
+                {t('symptom.photoAssist')}
               </Text>
             </Card>
           )}
@@ -103,7 +103,7 @@ export default function SymptomChecker({ route, navigation }) {
           <View style={{ flex: 1 }} />
           {saved && (
             <Text style={[T.caption, { textAlign: 'center', marginBottom: 10 }]}>
-              ✓ {t('symptom.saved')}
+              {t('symptom.saved')}
             </Text>
           )}
           <OutlineButton label={t('common.back')} onPress={() => navigation.goBack()} />
@@ -135,8 +135,8 @@ export default function SymptomChecker({ route, navigation }) {
 
         <View style={{ flex: 1, justifyContent: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
-            <Text style={[T.display, { flex: 1 }]}>{step.node.q.hi}</Text>
-            <SpeakButton text={step.node.q.hi} />
+            <Text style={[T.display, { flex: 1 }]}>{L(step.node.q)}</Text>
+            <SpeakButton text={L(step.node.q)} />
           </View>
         </View>
 

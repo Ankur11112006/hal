@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { C, T, D, TIER } from '../theme';
-import { t, treatments } from '../content';
+import { t, treatments, L } from '../content';
 import {
   TierCard, Row, PrimaryButton, OutlineButton, CallButton, Card, OfflineChip,
 } from '../components/ui';
@@ -28,7 +28,7 @@ export default function ScanResult({ route, navigation }) {
   const [weather, setWeather] = useState(null);
 
   const plan = treatments[result.label];
-  const name = plan?.name?.hi || result.label;
+  const name = L(plan?.name) || result.label;
   const pct = Math.round(result.confidence * 100);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function ScanResult({ route, navigation }) {
 
   const timing = timingFor(plan, weather);
   const speak = plan && !plan.healthy
-    ? `${name}. ${plan.what.hi}. ${plan.dose.hi}. ${timing || plan.when.hi}. ${costBenefit(plan)}`
+    ? `${name}. ${L(plan.what)}. ${L(plan.dose)}. ${timing || L(plan.when)}. ${costBenefit(plan)}`
     : null;
 
   return (
@@ -84,13 +84,13 @@ export default function ScanResult({ route, navigation }) {
               <Text style={T.body}>{t('tier.healthy')}</Text>
             ) : plan ? (
               <>
-                <Row label={t('tier.whatToDo')} value={plan.what.hi} />
-                <Row label={t('tier.howMuch')} value={plan.dose.hi} />
-                <Row label={t('tier.when')} value={timing || plan.when.hi} />
+                <Row label={t('tier.whatToDo')} value={L(plan.what)} />
+                <Row label={t('tier.howMuch')} value={L(plan.dose)} />
+                <Row label={t('tier.when')} value={timing || L(plan.when)} />
                 <Row label={t('tier.cost')} value={`₹${plan.cost_inr}`} />
                 <Row label={t('tier.saves')} value={t('tier.savesValue', { n: plan.saves_inr })} />
-                {!!plan.also?.hi && (
-                  <Text style={[T.caption, { marginTop: 10 }]}>💡 {plan.also.hi}</Text>
+                {!!L(plan.also) && (
+                  <Text style={[T.caption, { marginTop: 10 }]}>{L(plan.also)}</Text>
                 )}
               </>
             ) : null}
@@ -98,7 +98,7 @@ export default function ScanResult({ route, navigation }) {
         )}
 
         {result.tier === TIER.VERIFY && (
-          <TierCard tier={TIER.VERIFY} title={`शायद ${name}`} badge={`${pct}%`}
+          <TierCard tier={TIER.VERIFY} title={t('scan.maybe', { name })} badge={`${pct}%`}
             speakText={`${t('tier.verifyBody')} ${t('tier.caseNo', { n: caseNo })}`}
             action={t('common.ok')} onAction={() => navigation.navigate('Main')}>
             <Text style={T.body}>{t('tier.verifyBody')}</Text>
@@ -112,10 +112,10 @@ export default function ScanResult({ route, navigation }) {
             speakText={`${t('tier.expertBody')} ${t('tier.callKcc')}`}>
             <Text style={T.body}>{t('tier.expertBody')}</Text>
             <Text style={[T.caption, { marginTop: 8 }]}>
-              फ़ोटो पास से और अच्छी रोशनी में दोबारा लेने पर पहचान बेहतर हो सकती है।
+              {t('scan.retakeHint')}
             </Text>
             <View style={{ height: 14 }} />
-            <CallButton which="kcc" label={`📞 ${t('tier.callKcc')}`} />
+            <CallButton which="kcc" label={t('tier.callKcc')} />
             <View style={{ height: 10 }} />
             <OutlineButton label={t('scan.retake')} onPress={() => navigation.replace('Camera')} />
           </TierCard>
@@ -124,7 +124,7 @@ export default function ScanResult({ route, navigation }) {
         {result.cropConditioned && (
           <Card style={{ backgroundColor: C.greenSoft, borderColor: C.green }}>
             <Text style={T.caption}>
-              🎯 {t('tier.cropKnown', { crop: t('label.crop.' + result.label.split('__')[0]) })}
+              {t('tier.cropKnown', { crop: t('label.crop.' + result.label.split('__')[0]) })}
             </Text>
           </Card>
         )}
@@ -132,14 +132,14 @@ export default function ScanResult({ route, navigation }) {
         {result.stub && (
           <Card style={{ borderColor: C.amber }}>
             <Text style={[T.caption, { color: C.amber }]}>
-              डेमो मोड: मॉडल अभी बंडल में नहीं है, यह नमूना नतीजा है।
+              {t('scan.stubNote')}
             </Text>
           </Card>
         )}
 
         <View style={{ flex: 1 }} />
         {saved && <Text style={[T.caption, { textAlign: 'center', marginBottom: 8 }]}>
-          ✓ {t('scan.added')}
+          {t('scan.added')}
         </Text>}
         <OutlineButton label={t('common.back')} onPress={() => navigation.navigate('Main')} />
       </View>

@@ -1,6 +1,7 @@
-# बही · BAHI
+# हल · HAL
 
-**खेत और पशु, एक ही बही में** — one ledger for a farmer's crops and animals.
+**खेती की हर बात, एक साथ** — every part of farming, together. One record for a
+farmer's crops and animals, so the advice knows about both.
 
 SIH Problem Statement 1. Design docs: [`SPEC.md`](SPEC.md) (features, schema, thesis)
 and the UI blueprint that ships alongside it.

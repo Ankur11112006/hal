@@ -22,8 +22,7 @@ import { toHectares, unitsFor } from '../domain';
 
 const CROPS = ['rice', 'wheat', 'maize', 'tomato', 'potato', 'cotton'];
 const LOG_TYPES = [
-  ['irrigation', '💧'], ['spray', '🧪'], ['fertilizer', '🌾'],
-  ['harvest', '🚜'], ['expense', '₹'], ['sowing', '🌱'],
+  'irrigation', 'spray', 'fertilizer', 'harvest', 'expense', 'sowing',
 ];
 
 export default function Crop({ navigation }) {
@@ -54,15 +53,15 @@ export default function Crop({ navigation }) {
         ) : list.map((p) => (
           <Card key={p.id}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ fontSize: 30, marginRight: 12 }}>🌱</Text>
+              
               <View style={{ flex: 1 }}>
                 <Text style={T.cardTitle}>{p.name}</Text>
                 <Text style={T.caption}>
                   {p.area_local_value ? `${p.area_local_value} ${p.area_local_unit}` : ''}
-                  {p.area_ha ? ` (${p.area_ha.toFixed(2)} हे.)` : ''}
+                  {p.area_ha ? ` (${p.area_ha.toFixed(2)} ${t('unit.hectareShort')})` : ''}
                   {p.current_crop ? ` · ${t('label.crop.' + p.current_crop)}` : ''}
                 </Text>
-                {!!p.soil_type && <Text style={T.caption}>मिट्टी: {p.soil_type}</Text>}
+                {!!p.soil_type && <Text style={T.caption}>{t('plot.soil', { s: p.soil_type })}</Text>}
               </View>
             </View>
             <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
@@ -120,12 +119,12 @@ function AddPlot({ visible, farmer, onClose, onAdded }) {
       <Choice label={t('plot.crop')} value={f.crop} onChange={(v) => setF({ ...f, crop: v })}
         options={CROPS.map((c) => [c, t('label.crop.' + c)])} />
 
-      <OutlineButton label={gps ? `✓ ${t('plot.gpsTaken')}` : `📍 ${t('plot.useGps')}`}
+      <OutlineButton label={gps ? t('plot.gpsTaken') : t('plot.useGps')}
         onPress={locate} style={{ marginBottom: 10 }} />
       <Text style={[T.caption, { marginBottom: 12 }]}>{t('plot.soilDerived')}</Text>
 
       {msg ? (
-        <Text style={[T.label, { color: C.green, textAlign: 'center' }]}>✓ {t('common.done')}</Text>
+        <Text style={[T.label, { color: C.green, textAlign: 'center' }]}>{t('common.done')}</Text>
       ) : (
         <PrimaryButton label={t('common.save')} disabled={!f.name.trim() || !f.area} onPress={save} />
       )}
@@ -159,7 +158,7 @@ function LogSheet({ plot, farmer, onClose, onLogged }) {
   return (
     <Sheet visible={!!plot} title={plot.name} onClose={onClose}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-        {LOG_TYPES.map(([k, icon]) => (
+        {LOG_TYPES.map((k) => (
           <Pressable key={k} onPress={() => setType(k)}
             style={{
               paddingHorizontal: 14, minHeight: D.minTarget, justifyContent: 'center',
@@ -167,14 +166,14 @@ function LogSheet({ plot, farmer, onClose, onLogged }) {
               borderColor: type === k ? C.green : C.outline,
               backgroundColor: type === k ? C.greenSoft : C.surface,
             }}>
-            <Text style={T.label}>{icon} {t('event.' + k)}</Text>
+            <Text style={T.label}>{t('event.' + k)}</Text>
           </Pressable>
         ))}
       </View>
       {type && (
         <>
-          <In label="क्या" value={what} onChange={setWhat} />
-          <In label={type === 'harvest' ? 'कितने क्विंटल' : 'कितना ₹'} value={amount}
+          <In label={t('log.what')} value={what} onChange={setWhat} />
+          <In label={t(type === 'harvest' ? 'log.howMuchQtl' : 'log.howMuchRs')} value={amount}
             keyboard="decimal-pad" onChange={(v) => setAmount(v.replace(/[^0-9.]/g, ''))} />
           <PrimaryButton label={t('common.save')} onPress={save} />
         </>
@@ -193,7 +192,7 @@ export function Sheet({ visible, title, children, onClose }) {
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
             <Text style={[T.title, { flex: 1 }]}>{title}</Text>
             <Pressable onPress={onClose} style={{ padding: 10 }}>
-              <Text style={{ fontSize: 22 }}>✕</Text>
+              <Text style={{ fontSize: 22 }}>×</Text>
             </Pressable>
           </View>
           {children}

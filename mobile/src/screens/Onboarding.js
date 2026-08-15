@@ -6,44 +6,57 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { C, T, D } from '../theme';
-import { t } from '../content';
+import { t, setLang, READY, L } from '../content';
 import { PrimaryButton, OutlineButton, SpeakButton } from '../components/ui';
 import { useApp } from '../../App';
 import * as db from '../db';
 import { seedDemo } from '../seed';
 import * as voice from '../voice';
 
-const LANGS = [
-  { code: 'hi', native: 'हिन्दी', ready: true },
-  { code: 'en', native: 'English', ready: true },
-  { code: 'mr', native: 'मराठी', ready: false },
-  { code: 'pa', native: 'ਪੰਜਾਬੀ', ready: false },
-  { code: 'bn', native: 'বাংলা', ready: false },
-  { code: 'te', native: 'తెలుగు', ready: false },
-];
+export const LANG_NAME = {
+  hi: 'हिन्दी', en: 'English', mr: 'मराठी', pa: 'ਪੰਜਾਬੀ', bn: 'বাংলা', te: 'తెలుగు',
+};
+
+// `ready` is derived from which string bundles actually exist, never hand-set.
+// Marking a language ready by hand is how English came to be offered while
+// silently rendering Hindi.
+const LANGS = Object.entries(LANG_NAME).map(([code, native]) => ({
+  code, native, ready: READY.includes(code),
+}));
 
 // Every slide carries its source line. That is how the app earns the trust
 // SPEC.md section 2 names as the real bottleneck, and it pre-empts
 // "where did that number come from?"
-const SLIDES = [
-  { stat: '26%', head: 'हर साल फ़सल कीट और बीमारी से बर्बाद होती है',
-    body: 'सही समय पर सलाह मिले तो नुक़सान 10% तक घट सकता है।',
-    src: 'Ama Krushi RCT, ओडिशा सरकार / PxD' },
-  { stat: '28%', head: 'आलू के दाम का सिर्फ़ इतना हिस्सा किसान तक पहुँचता है',
-    body: 'प्याज़ 33%, चावल 49%। बाक़ी बीच में चला जाता है।',
-    src: 'RBI अध्ययन, 16 राज्य, 9,400 किसान' },
-  { stat: '7.63 करोड़', head: 'किसान अब डिजिटल पहचान से जुड़ चुके हैं',
-    body: 'AgriStack Farmer ID · DPDP क़ानून 2023, डेटा आपका, कभी भी मिटाएँ।',
+export const SLIDES = [
+  { stat: '26%',
+    head: { hi: 'हर साल फ़सल कीट और बीमारी से बर्बाद होती है',
+            en: 'Lost to pest and disease every year' },
+    body: { hi: 'सही समय पर सलाह मिले तो नुक़सान 10% तक घट सकता है।',
+            en: 'Timely advice has cut severe crop loss by as much as 10%.' },
+    src: 'Ama Krushi RCT, Govt of Odisha / PxD' },
+  { stat: '28%',
+    head: { hi: 'आलू के दाम का सिर्फ़ इतना हिस्सा किसान तक पहुँचता है',
+            en: 'Of the potato price is all that reaches the farmer' },
+    body: { hi: 'प्याज़ 33%, चावल 49%। बाक़ी बीच में चला जाता है।',
+            en: 'Onion 33%, rice 49%. The rest goes to the middle.' },
+    src: 'RBI study, 16 states, 9,400 farmers' },
+  { stat: '7.63 करोड़',
+    head: { hi: 'किसान अब डिजिटल पहचान से जुड़ चुके हैं',
+            en: 'Farmers now have a digital identity' },
+    body: { hi: 'AgriStack Farmer ID · DPDP क़ानून 2023, डेटा आपका, कभी भी मिटाएँ।',
+            en: 'AgriStack Farmer ID · DPDP Act 2023: the data is yours, delete it any time.' },
     src: 'DAHD · IMD' },
-  { stat: '', head: 'बही क्या करती है',
-    body: '📷 पत्ता दिखाओ, बीमारी पहचानो\n🎤 बोलकर पूछो, जवाब सुनो\n🐄 पशु का टीका और बीमारी\n📖 खेत और पशु, एक ही बही में',
+  { stat: '',
+    head: { hi: 'हल क्या करता है', en: 'What HAL does' },
+    body: { hi: 'पत्ते की फ़ोटो लें, बीमारी पहचानें\nबोलकर पूछें, जवाब सुनें\nपशु का टीका और बीमारी, एक जगह\nखेती की हर बात, एक साथ',
+            en: 'Photograph a leaf, spot the disease\nAsk out loud, hear the answer\nAnimal vaccines and illness in one place\nEvery part of farming, together' },
     src: '' },
 ];
 
 export default function Onboarding({ navigation }) {
   const { setFarmer } = useApp();
   const [step, setStep] = useState('lang');
-  const [lang, setLang] = useState('hi');
+  const [lang, setLangState] = useState('hi');
   const [slide, setSlide] = useState(0);
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -69,8 +82,9 @@ export default function Onboarding({ navigation }) {
             <Pressable key={l.code}
               onPress={() => {
                 if (!l.ready) return;               // do not fake it, a judge will tap
+                setLangState(l.code);
                 setLang(l.code);
-                voice.speak('बही में आपका स्वागत है', l.code);
+                voice.speak(t('onboard.welcome'), l.code);
                 setStep('slides');
               }}
               style={{
@@ -104,11 +118,11 @@ export default function Onboarding({ navigation }) {
             </Text>
           )}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Text style={[T.display, { flex: 1, marginVertical: 12 }]}>{sl.head}</Text>
-            <SpeakButton text={`${sl.head}. ${sl.body}`} lang={lang} />
+            <Text style={[T.display, { flex: 1, marginVertical: 12 }]}>{L(sl.head)}</Text>
+            <SpeakButton text={`${L(sl.head)}. ${L(sl.body)}`} lang={lang} />
           </View>
-          <Text style={[T.bodySoft, { marginBottom: 16 }]}>{sl.body}</Text>
-          {!!sl.src && <Text style={T.caption}>स्रोत: {sl.src}</Text>}
+          <Text style={[T.bodySoft, { marginBottom: 16 }]}>{L(sl.body)}</Text>
+          {!!sl.src && <Text style={T.caption}>{t('onboard.source', { s: sl.src })}</Text>}
         </View>
         <View style={{ flexDirection: 'row', gap: 6, marginBottom: 16 }}>
           {SLIDES.map((_, i) => (
@@ -169,7 +183,7 @@ export default function Onboarding({ navigation }) {
             setFarmer(await db.farmer(farmer_id));
           }} />
         <Text style={[T.caption, { textAlign: 'center', marginTop: 10 }]}>
-          8 महीने का रिकॉर्ड पहले से भरा हुआ, डेमो के लिए
+          {t('login.demoHint')}
         </Text>
       </>
     );
@@ -190,7 +204,7 @@ export default function Onboarding({ navigation }) {
 
         <Text style={[T.label, { marginTop: 16, marginBottom: 8 }]}>{t('profile.doesWhat')}</Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          {[['kheti', '🌱'], ['pashu', '🐄'], ['dono', '🌱🐄']].map(([k, icon]) => (
+          {['kheti', 'pashu', 'dono'].map((k) => (
             <Pressable key={k} onPress={() => setP({ ...p, does: k })}
               style={{
                 flex: 1, height: 96, borderRadius: D.cardRadius, borderWidth: 2,
@@ -198,7 +212,6 @@ export default function Onboarding({ navigation }) {
                 backgroundColor: p.does === k ? C.greenSoft : C.surface,
                 alignItems: 'center', justifyContent: 'center',
               }}>
-              <Text style={{ fontSize: 26 }}>{icon}</Text>
               <Text style={T.caption}>{t('profile.' + k)}</Text>
             </Pressable>
           ))}
@@ -206,7 +219,7 @@ export default function Onboarding({ navigation }) {
 
         {/* SPEC.md E6: no land title. Requiring one excludes tenant farmers
             and most women, since titles are usually in a man's name. */}
-        <Text style={[T.caption, { marginTop: 14 }]}>✓ {t('profile.noLandTitle')}</Text>
+        <Text style={[T.caption, { marginTop: 14 }]}>{t('profile.noLandTitle')}</Text>
 
         <View style={{ height: 24 }} />
         <PrimaryButton

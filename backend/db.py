@@ -1,4 +1,4 @@
-"""SQLite schema for BAHI. SPEC.md section 5, one event table.
+"""SQLite schema for HAL. SPEC.md section 5, one event table.
 
 Postgres/Supabase is the production target but the DDL below is plain SQL and
 the only Postgres-ism in SPEC.md was JSONB, which is TEXT here. Swap the driver

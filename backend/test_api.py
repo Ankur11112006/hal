@@ -1,4 +1,4 @@
-"""Smoke test for the backend. python test_api.py
+"""Smoke test for the HAL backend. python test_api.py
 
 Covers the paths the demo actually walks, and the two the demo depends on
 being CORRECT rather than merely present:
@@ -122,7 +122,7 @@ def main_test():
     # --- escalation always yields a real case number and a real helpline ---
     e = c.post("/escalate", json={"farmer_id": F, "tier": "expert",
                                   "reason": "confidence 0.44"}).json()
-    assert e["case_no"].startswith("BH-") and e["helpline"] == "1800-180-1551", e
+    assert e["case_no"].startswith("HL-") and e["helpline"] == "1800-180-1551", e
     v = c.post("/escalate", json={"farmer_id": F, "tier": "vet", "reason": "x"}).json()
     assert v["helpline"] == "1962", v
     assert v["case_no"] != e["case_no"], "case numbers must be unique"

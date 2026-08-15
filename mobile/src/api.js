@@ -9,7 +9,7 @@ import { unsynced, markSynced, plots as localPlots, animals as localAnimals } fr
 // only the default; Settings can override it and the override wins.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const DEFAULT_BASE = process.env.EXPO_PUBLIC_API || 'http://10.0.2.2:8000';
+const DEFAULT_BASE = process.env.EXPO_PUBLIC_API || 'https://bahi-backend.onrender.com';
 const KEY = 'bahi.api_base';
 
 let BASE = DEFAULT_BASE;

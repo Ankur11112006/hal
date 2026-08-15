@@ -1,4 +1,4 @@
-"""BAHI backend. FastAPI on Render.
+"""HAL backend. FastAPI on Render.
 
 The phone is offline-first and owns its own SQLite; this server exists for the
 four things a phone cannot do alone: RAG advisory, cloud fallback inference,
@@ -21,7 +21,7 @@ import db
 CONTENT = pathlib.Path(__file__).parent.parent / "content"
 ARTIFACTS = pathlib.Path(__file__).parent.parent / "artifacts"
 
-app = FastAPI(title="BAHI", version="0.1.0")
+app = FastAPI(title="HAL", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -246,7 +246,7 @@ def escalate(body: EscalateIn):
     that a KVK can look up. Never promises a response time (blueprint 9)."""
     with db.conn() as c:
         n = c.execute("SELECT COUNT(*) n FROM escalation").fetchone()["n"] + 2481
-        case_no = f"BH-{n}"
+        case_no = f"HL-{n}"
         c.execute("INSERT INTO escalation (id,case_no,farmer_id,event_id,tier,reason) "
                   "VALUES (?,?,?,?,?,?)",
                   (db.new_id(), case_no, body.farmer_id, body.event_id, body.tier, body.reason))

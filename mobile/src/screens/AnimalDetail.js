@@ -8,9 +8,9 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { C, T, D } from '../theme';
-import { t } from '../content';
+import { t, L } from '../content';
 import {
-  Card, PrimaryButton, OutlineButton, LabeledIcon, TimelineRow, SpeakButton, CallButton,
+  Card, PrimaryButton, OutlineButton, TimelineRow, SpeakButton, CallButton,
 } from '../components/ui';
 import { useApp } from '../../App';
 import * as db from '../db';
@@ -60,7 +60,7 @@ export default function AnimalDetail({ route, navigation }) {
         <Pressable onPress={() => navigation.goBack()} style={{ padding: 8, minWidth: 44 }}>
           <Text style={{ fontSize: 24 }}>←</Text>
         </Pressable>
-        <Text style={{ fontSize: 30, marginRight: 8 }}>{animal.species === 'buffalo' ? '🐃' : '🐄'}</Text>
+        
         <View style={{ flex: 1 }}>
           <Text style={T.title}>{animal.name}</Text>
           <Text style={T.caption}>{animal.breed || ''}</Text>
@@ -69,37 +69,37 @@ export default function AnimalDetail({ route, navigation }) {
 
       <ScrollView contentContainerStyle={{ padding: D.pad, paddingBottom: 60 }}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
-          <Tile icon="🩺" label={t('animal.checkSymptoms')}
+          <Tile label={t('animal.checkSymptoms')}
             onPress={() => navigation.navigate('SymptomChecker',
               { animal: { ...animal, farmer_id: farmer.id } })} />
-          <Tile icon="💉" label={t('animal.vaccine')} />
-          <Tile icon="📅" label={t('animal.breeding')} />
-          <Tile icon="📖" label={t('animal.history')} />
+          <Tile label={t('animal.vaccine')} />
+          <Tile label={t('animal.breeding')} />
+          <Tile label={t('animal.history')} />
         </View>
 
         {toast && (
           <View style={{ backgroundColor: C.greenSoft, borderRadius: D.btnRadius, padding: 14, marginBottom: 12 }}>
-            <Text style={[T.label, { color: C.green }]}>✓ {toast}</Text>
+            <Text style={[T.label, { color: C.green }]}>{toast}</Text>
           </View>
         )}
 
-        <Text style={[T.label, { marginBottom: 8 }]}>💉 {t('vaccine.title')}</Text>
+        <Text style={[T.label, { marginBottom: 8 }]}>{t('vaccine.title')}</Text>
         {dueRows.length === 0 ? (
           <Card><Text style={T.bodySoft}>{t('vaccine.none')}</Text></Card>
         ) : dueRows.map((v) => {
           const overdue = v.daysLeft < 0;
           const line = overdue ? t('vaccine.overdue', { days: Math.abs(v.daysLeft) })
             : v.daysLeft === 0 ? t('vaccine.dueToday') : t('vaccine.due', { days: v.daysLeft });
-          const name = v.data.label?.hi || v.data.vaccine;
+          const name = L(v.data.label) || v.data.vaccine;
           return (
             <Card key={v.id} style={overdue ? { borderColor: C.red, borderWidth: 2 } : null}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ flex: 1 }}>
                   <Text style={T.cardTitle}>{name}</Text>
                   <Text style={[T.body, { color: overdue ? C.red : C.inkSoft }]}>{line}</Text>
-                  {!!v.data.why?.hi && <Text style={[T.caption, { marginTop: 4 }]}>{v.data.why.hi}</Text>}
+                  {!!L(v.data.why) && <Text style={[T.caption, { marginTop: 4 }]}>{L(v.data.why)}</Text>}
                 </View>
-                <SpeakButton text={`${name}. ${line}. ${v.data.why?.hi || ''}`} size={40} />
+                <SpeakButton text={`${name}. ${line}. ${L(v.data.why)}`} size={40} />
               </View>
               <PrimaryButton label={t('vaccine.markDone')} style={{ marginTop: 12 }}
                 onPress={() => markDone(v.data.vaccine)} />
@@ -109,13 +109,13 @@ export default function AnimalDetail({ route, navigation }) {
 
         {breedRows.length > 0 && (
           <>
-            <Text style={[T.label, { marginTop: 16, marginBottom: 8 }]}>📅 {t('breeding.title')}</Text>
+            <Text style={[T.label, { marginTop: 16, marginBottom: 8 }]}>{t('breeding.title')}</Text>
             {breedRows.map((b) => (
               <Card key={b.id} style={{ paddingVertical: 12 }}>
                 <Text style={T.body}>{t('breeding.' + b.type)}</Text>
                 <Text style={T.caption}>{b.at.slice(0, 10)}</Text>
-                {!!b.data.window?.hi && (
-                  <Text style={[T.caption, { marginTop: 4 }]}>⏱ {b.data.window.hi}</Text>
+                {!!L(b.data.window) && (
+                  <Text style={[T.caption, { marginTop: 4 }]}>{L(b.data.window)}</Text>
                 )}
               </Card>
             ))}
@@ -128,7 +128,7 @@ export default function AnimalDetail({ route, navigation }) {
           : history.map((e) => <TimelineRow key={e.id} e={{ ...e, animal_name: animal.name }} />)}
 
         <View style={{ height: 16 }} />
-        <CallButton which="vet" label={`📞 ${t('symptom.callVet')}`} />
+        <CallButton which="vet" label={t('symptom.callVet')} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -142,7 +142,6 @@ function Tile({ icon, label, onPress }) {
         borderWidth: 1, borderColor: C.outline, backgroundColor: C.surface,
         alignItems: 'center', justifyContent: 'center',
       }}>
-      <Text style={{ fontSize: 30 }}>{icon}</Text>
       <Text style={[T.caption, { marginTop: 4 }]}>{label}</Text>
     </Pressable>
   );

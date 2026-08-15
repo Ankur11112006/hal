@@ -9,7 +9,8 @@ import { View, Text, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { C, T, D } from '../theme';
-import { t } from '../content';
+import { t, L, getLang } from '../content';
+import { LANG_NAME } from './Onboarding';
 import {
   Card, PrimaryButton, TimelineRow, OfflineChip, DemoChip, SpeakButton, EmptyState,
 } from '../components/ui';
@@ -44,11 +45,11 @@ export default function Home({ navigation }) {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: C.bg }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', padding: D.pad, paddingBottom: 8 }}>
-        <Text style={[T.caption, { flex: 1 }]}>🌐 हिन्दी</Text>
+        <Text style={[T.caption, { flex: 1 }]}>{LANG_NAME[getLang()]}</Text>
         <Text style={T.title}>{t('app.name')}</Text>
         <Pressable onPress={() => navigation.navigate('Settings')}
           style={{ flex: 1, alignItems: 'flex-end', minHeight: 44, justifyContent: 'center' }}>
-          <Text style={{ fontSize: 22 }}>⚙</Text>
+          <Text style={[T.caption, { color: C.green }]}>{t('settings.title')}</Text>
         </Pressable>
       </View>
 
@@ -62,14 +63,14 @@ export default function Home({ navigation }) {
           <Card style={{ paddingVertical: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={[T.body, { flex: 1 }]}>
-                ☀ {Math.round(weather.now_c)}° · {rainNote(weather)}
+                {Math.round(weather.now_c)}° · {rainNote(weather)}
               </Text>
-              <SpeakButton text={`आज ${Math.round(weather.now_c)} डिग्री. ${rainNote(weather)}`} size={40} />
+              <SpeakButton text={t('weather.spoken', { t: Math.round(weather.now_c), note: rainNote(weather) })} size={40} />
             </View>
           </Card>
         )}
 
-        <Text style={[T.label, { marginTop: 8, marginBottom: 8 }]}>⚠ {t('home.todayImportant')}</Text>
+        <Text style={[T.label, { marginTop: 8, marginBottom: 8 }]}>{t('home.todayImportant')}</Text>
         {due.length === 0 ? (
           <Card><Text style={T.bodySoft}>{t('home.nothingUrgent')}</Text></Card>
         ) : (
@@ -78,17 +79,17 @@ export default function Home({ navigation }) {
             const line = overdue
               ? t('vaccine.overdue', { days: Math.abs(v.daysLeft) })
               : v.daysLeft === 0 ? t('vaccine.dueToday') : t('vaccine.due', { days: v.daysLeft });
-            const title = `${v.animal_name} · ${v.data.label?.hi || v.data.vaccine}`;
+            const title = `${v.animal_name} · ${L(v.data.label) || v.data.vaccine}`;
             return (
               <Card key={v.id} style={{ borderColor: overdue ? C.red : C.amber, borderWidth: 2,
                                         backgroundColor: overdue ? C.redSoft : C.amberSoft }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Text style={[T.cardTitle, { flex: 1 }]}>{title}</Text>
-                  <SpeakButton text={`${title}, ${line}. ${v.data.funding?.hi || ''}`} size={40} />
+                  <SpeakButton text={`${title}, ${line}. ${L(v.data.funding)}`} size={40} />
                 </View>
                 <Text style={[T.body, { color: overdue ? C.red : C.amber, marginTop: 2 }]}>{line}</Text>
-                {!!v.data.funding?.hi && (
-                  <Text style={[T.caption, { marginTop: 6 }]}>💰 {t('vaccine.free')}</Text>
+                {!!L(v.data.funding) && (
+                  <Text style={[T.caption, { marginTop: 6 }]}>{t('vaccine.free')}</Text>
                 )}
                 <PrimaryButton
                   label={t('vaccine.markDone')} tone={overdue ? 'red' : 'amber'}
@@ -120,7 +121,6 @@ export default function Home({ navigation }) {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
         elevation: 6, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 6,
       }}>
-        <Text style={{ fontSize: 22 }}>🎤</Text>
         <Text style={[T.label, { color: '#fff' }]}>{t('home.askAnything')}</Text>
       </Pressable>
     </SafeAreaView>

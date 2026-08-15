@@ -1,24 +1,30 @@
 {
   "expo": {
-    "name": "BAHI",
-    "slug": "bahi",
+    "name": "HAL",
+    "slug": "hal",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
       "backgroundColor": "#FAF8F3"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "android": {
-      "package": "in.bahi.app",
+      "package": "in.hal.app",
       "adaptiveIcon": {
         "backgroundColor": "#1B5E20"
       },
-      "permissions": ["CAMERA", "ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "in.bahi.app"
+      "bundleIdentifier": "in.hal.app"
     },
     "plugins": [
       "expo-dev-client",
@@ -27,11 +33,23 @@
         "expo-build-properties",
         {
           "_comment": "Android 9+ blocks plain HTTP by default. Render serves HTTPS so the normal path is unaffected, but the demo fallback is running uvicorn on the presenting laptop over the LAN, which is http:// and would be blocked silently, with no error the farmer or the presenter could see. Remove this before any store build.",
-          "android": { "usesCleartextTraffic": true }
+          "android": {
+            "usesCleartextTraffic": true
+          }
         }
       ],
-      ["expo-camera", { "cameraPermission": "पत्ते की फ़ोटो लेकर बीमारी पहचानने के लिए कैमरा चाहिए" }],
-      ["expo-location", { "locationWhenInUsePermission": "खेत की जगह दर्ज करने के लिए लोकेशन चाहिए" }]
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "पत्ते की फ़ोटो लेकर बीमारी पहचानने के लिए कैमरा चाहिए"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "खेत की जगह दर्ज करने के लिए लोकेशन चाहिए"
+        }
+      ]
     ]
   }
 }

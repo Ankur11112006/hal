@@ -1,10 +1,10 @@
 // Blueprint 7. Build these first, everything after is assembly.
 //
 // Seven UI laws enforced here by construction:
-//   1 no icon without a text label      -> LabeledIcon
+//   1 no control without a text label   -> every Pressable has one
 //   2 one primary action per screen     -> PrimaryButton
-//   3 every advisory block has a 🔊     -> SpeakButton
-//   4 colour never carries meaning alone -> TierCard prints an icon AND a word
+//   3 every advisory block can be heard -> SpeakButton
+//   4 colour never carries meaning alone -> TierCard prints the tier WORD
 //   5 no empty state without an action  -> EmptyState
 //   7 offline is a state, not an error  -> OfflineChip is green
 import React, { useState } from 'react';
@@ -12,7 +12,7 @@ import {
   View, Text, Pressable, ScrollView, ActivityIndicator, Linking, StyleSheet,
 } from 'react-native';
 import { C, T, D, TIER_STYLE, HELPLINE } from '../theme';
-import { t } from '../content';
+import { t, L } from '../content';
 import * as voice from '../voice';
 
 export function Screen({ title, children, right, scroll = true }) {
@@ -65,17 +65,6 @@ export function OutlineButton({ label, onPress, style }) {
   );
 }
 
-// Law 1: the icon never travels alone.
-export function LabeledIcon({ icon, label, onPress, tone = C.ink, style }) {
-  return (
-    <Pressable onPress={onPress} accessibilityLabel={label}
-      style={({ pressed }) => [s.tile, { opacity: pressed ? 0.7 : 1 }, style]}>
-      <Text style={{ fontSize: 30 }}>{icon}</Text>
-      <Text style={[T.caption, { color: tone, marginTop: 6, textAlign: 'center' }]}>{label}</Text>
-    </Pressable>
-  );
-}
-
 export function SpeakButton({ text, lang = 'hi', size = 48 }) {
   const [on, setOn] = useState(false);
   if (!text) return null;
@@ -91,7 +80,7 @@ export function SpeakButton({ text, lang = 'hi', size = 48 }) {
       style={[s.speak, { width: size, height: size, borderRadius: size / 2 },
               on && { backgroundColor: C.greenSoft }]}
     >
-      <Text style={{ fontSize: size * 0.5 }}>{on ? '⏸' : '🔊'}</Text>
+      <Text style={{ fontSize: size * 0.42, color: C.green }}>{on ? '॥' : '▶'}</Text>
     </Pressable>
   );
 }
@@ -101,7 +90,7 @@ export function OfflineChip({ visible }) {
   // Law 7: styled green. Offline is normal in a field, not a failure.
   return (
     <View style={s.chip}>
-      <Text style={[T.caption, { color: C.green }]}>● {t('common.offline')}</Text>
+      <Text style={[T.caption, { color: C.green }]}>{t('common.offline')}</Text>
     </View>
   );
 }
@@ -144,14 +133,13 @@ export function Row({ label, value }) {
 
 /**
  * The most important component in the app. Three variants, one enum.
- * Colour is never the only signal: each tier also prints an icon and a word.
+ * Colour is never the only signal: each tier also prints its word in Hindi.
  */
 export function TierCard({ tier, title, badge, children, action, onAction, speakText }) {
   const st = TIER_STYLE[tier];
   return (
     <View style={[s.card, { borderColor: st.border, borderWidth: 2, backgroundColor: st.fill }]}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-        <Text style={{ fontSize: 22, marginRight: 8 }}>{st.icon}</Text>
         <Text style={[T.cardTitle, { flex: 1 }]}>{title}</Text>
         {badge ? (
           <View style={[s.badge, { backgroundColor: st.border }]}>
@@ -160,7 +148,7 @@ export function TierCard({ tier, title, badge, children, action, onAction, speak
         ) : null}
         <SpeakButton text={speakText} size={40} />
       </View>
-      <Text style={[T.caption, { color: st.border, marginTop: 2, marginBottom: 10 }]}>{st.word}</Text>
+      <Text style={[T.caption, { color: st.border, marginTop: 2, marginBottom: 10 }]}>{t(st.wordKey)}</Text>
       {children}
       {action ? <PrimaryButton label={action} onPress={onAction} style={{ marginTop: 14 }} /> : null}
     </View>
@@ -173,7 +161,7 @@ export function CallButton({ which = 'kcc', label }) {
   return (
     <PrimaryButton
       tone="red"
-      label={label || `📞 ${number}`}
+      label={label || number}
       onPress={() => Linking.openURL(`tel:${number.replace(/-/g, '')}`)}
     />
   );
@@ -187,7 +175,8 @@ export function TimelineRow({ e, onPress }) {
     <Pressable onPress={onPress}
       style={[s.tlRow, isCrop && { backgroundColor: C.greenSoft }]}>
       <Text style={[T.caption, { width: 58 }]}>{fmtDate(e.at)}</Text>
-      <Text style={{ fontSize: 18, width: 26 }}>{isCrop ? '🌱' : '🐄'}</Text>
+      <View style={{ width: 8, height: 34, borderRadius: 4, marginRight: 6,
+                     backgroundColor: isCrop ? C.green : C.amber }} />
       <View style={{ flex: 1 }}>
         <Text style={[T.label]} numberOfLines={1}>{who}{crop}</Text>
         <Text style={[T.caption]} numberOfLines={1}>{describe(e)}</Text>
@@ -206,12 +195,11 @@ export function Loading({ label }) {
 }
 
 // ---------------------------------------------------------------- helpers
-const MONTHS = ['जन', 'फ़र', 'मार्च', 'अप्रैल', 'मई', 'जून',
-                'जुल', 'अग', 'सित', 'अक्तू', 'नव', 'दिस'];
+
 
 export function fmtDate(iso) {
   const d = new Date(iso);
-  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+  return `${d.getDate()} ${t('month.short')[d.getMonth()]}`;
 }
 
 export function describe(e) {
@@ -222,13 +210,13 @@ export function describe(e) {
     case 'symptom_flagged':
       return d.likely || t('event.symptom_flagged');
     case 'vaccine_due':
-      return `${d.label?.hi || d.vaccine} ${t('event.vaccine_due')}`;
+      return `${L(d.label) || d.vaccine} ${t('event.vaccine_due')}`;
     case 'vaccination':
-      return `${d.label?.hi || d.vaccine} ${t('event.vaccination')}`;
+      return `${L(d.label) || d.vaccine} ${t('event.vaccination')}`;
     case 'sowing':
       return `${t('event.sowing')}${d.crop ? ' · ' + t('label.crop.' + d.crop) : ''}`;
     case 'harvest':
-      return `${t('event.harvest')}${d.qtl ? ' · ' + d.qtl + ' क्विंटल' : ''}`;
+      return `${t('event.harvest')}${d.qtl ? ' · ' + d.qtl + ' ' + t('unit.quintal') : ''}`;
     case 'spray':
       return `${t('event.spray')}${d.what ? ' · ' + d.what : ''}${d.cost_inr ? ' · ₹' + d.cost_inr : ''}`;
     case 'expense':

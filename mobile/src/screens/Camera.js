@@ -9,6 +9,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import { C, T, D } from '../theme';
 import { t } from '../content';
 import { PrimaryButton, Card } from '../components/ui';
@@ -37,7 +38,7 @@ export default function Camera({ navigation }) {
       <SafeAreaView style={{ flex: 1, backgroundColor: C.bg, padding: D.pad, justifyContent: 'center' }}>
         <Card>
           <Text style={[T.body, { marginBottom: 16 }]}>
-            पत्ते की फ़ोटो लेने के लिए कैमरे की इजाज़त चाहिए।
+            {t('camera.permission')}
           </Text>
           <PrimaryButton label={t('common.ok')} onPress={requestPerm} />
         </Card>
@@ -45,15 +46,39 @@ export default function Camera({ navigation }) {
     );
   }
 
+  const run = async (uri) => {
+    const r = await ml.classify(uri, plot?.current_crop || null);
+    navigation.replace('ScanResult', { result: r, plotId: plot?.id || null });
+  };
+
   const shoot = async () => {
     if (busy) return;
     setBusy(true);
     try {
       const photo = await ref.current.takePictureAsync({ quality: 0.9, skipProcessing: true });
-      const r = await ml.classify(photo.uri, plot?.current_crop || null);
-      navigation.replace('ScanResult', { result: r, plotId: plot?.id || null });
+      await run(photo.uri);
     } catch (e) {
       console.warn('[camera]', e);
+      setBusy(false);
+    }
+  };
+
+  // A photo already on the phone is the same input. It also covers the cases
+  // the camera cannot: a picture taken earlier in the field, one sent by a
+  // neighbour, or a demo run indoors with no leaf to hand.
+  const pick = async () => {
+    if (busy) return;
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) return;
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'], quality: 0.9,
+      });
+      if (res.canceled || !res.assets?.length) return;
+      setBusy(true);
+      await run(res.assets[0].uri);
+    } catch (e) {
+      console.warn('[picker]', e);
       setBusy(false);
     }
   };
@@ -65,7 +90,7 @@ export default function Camera({ navigation }) {
           <View style={{ padding: D.pad }}>
             <Pressable onPress={() => navigation.goBack()}
               style={{ alignSelf: 'flex-start', padding: 10 }}>
-              <Text style={{ fontSize: 26, color: '#fff' }}>✕</Text>
+              <Text style={{ fontSize: 26, color: '#fff' }}>×</Text>
             </Pressable>
           </View>
 
@@ -104,11 +129,23 @@ export default function Camera({ navigation }) {
                 borderWidth: 4, borderColor: '#fff',
                 alignItems: 'center', justifyContent: 'center',
               }}>
-              {busy ? <ActivityIndicator color="#fff" /> : <Text style={{ fontSize: 30 }}>📷</Text>}
+              {busy
+                ? <ActivityIndicator color="#fff" />
+                : <View style={{ width: 34, height: 34, borderRadius: 6,
+                                 borderWidth: 3, borderColor: '#fff' }} />}
             </Pressable>
             <Text style={[T.caption, { color: '#fff', marginTop: 8 }]}>
               {busy ? t('scan.checking') : t('scan.shutter')}
             </Text>
+
+            <Pressable onPress={pick} disabled={busy} accessibilityLabel={t('scan.fromGallery')}
+              style={{
+                marginTop: 14, paddingHorizontal: 20, minHeight: D.minTarget,
+                justifyContent: 'center', borderRadius: D.btnRadius,
+                borderWidth: 2, borderColor: '#fff', backgroundColor: 'rgba(0,0,0,0.55)',
+              }}>
+              <Text style={[T.label, { color: '#fff' }]}>{t('scan.fromGallery')}</Text>
+            </Pressable>
           </View>
         </SafeAreaView>
       </CameraView>

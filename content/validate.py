@@ -148,11 +148,44 @@ def check_treatments() -> list[str]:
     return errs
 
 
+def check_strings() -> list[str]:
+    """Both languages must carry exactly the same keys.
+
+    A key present in Hindi but missing in English does not crash: t() silently
+    falls back to Hindi, so an English-speaking user gets one Devanagari line in
+    the middle of an English screen and nobody notices until a judge does.
+    """
+    files = sorted(HERE.glob("strings_*.json"))
+    sets = {f.stem.split("_")[1]: {k for k in load(f.name) if not k.startswith("_")}
+            for f in files}
+    base = sets.get("hi", set())
+    errs = []
+    for lang, keys in sets.items():
+        for k in sorted(base - keys):
+            errs.append(f"strings_{lang}.json is missing key '{k}'")
+        for k in sorted(keys - base):
+            errs.append(f"strings_{lang}.json has extra key '{k}' not in Hindi")
+    # placeholders must survive translation, or the value never gets substituted
+    hi = load("strings_hi.json")
+    for lang in sets:
+        d = load(f"strings_{lang}.json")
+        for k in base & sets[lang]:
+            a, b = hi[k], d[k]
+            if isinstance(a, str) and isinstance(b, str):
+                ph = lambda x: {p.split("}")[0] for p in x.split("{")[1:]}
+                if ph(a) != ph(b):
+                    errs.append(f"strings_{lang}.json '{k}': placeholders "
+                                f"{sorted(ph(b))} do not match Hindi {sorted(ph(a))}")
+    print(f"  {len(sets)} languages, {len(base)} keys each")
+    return errs
+
+
 def main():
     errs = []
     for name, fn in [("symptom_tree.json", check_symptom_tree),
                      ("vaccination_schedule.json", check_vaccination),
-                     ("treatment_plans.json", check_treatments)]:
+                     ("treatment_plans.json", check_treatments),
+                     ("strings_*.json", check_strings)]:
         e = fn()
         print(f"{name}: {'OK' if not e else str(len(e)) + ' PROBLEMS'}")
         errs += [f"  {name}: {x}" for x in e]

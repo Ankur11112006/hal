@@ -8,7 +8,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { dueVaccines } from './db';
-import { t } from './content';
+import { t, L } from './content';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -25,7 +25,7 @@ export async function setup() {
   }
   if (granted && Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('vaccine', {
-      name: 'टीके की याद',
+      name: t('notify.channel'),
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
     });
@@ -47,7 +47,7 @@ export async function syncReminders(farmerId) {
   let n = 0;
 
   for (const v of due) {
-    const name = v.data.label?.hi || v.data.vaccine;
+    const name = L(v.data.label) || v.data.vaccine;
     // Fire a week ahead, and again on the day. An overdue one is surfaced at
     // the next 9am rather than silently dropped.
     const dueAt = new Date(v.at).getTime();

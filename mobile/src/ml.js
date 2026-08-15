@@ -24,14 +24,26 @@ export async function load() {
     const { loadTensorflowModel } = require('react-native-fast-tflite');
     labels = require('../assets/labels.json');
     meta = require('../assets/metrics.json');
-    model = await loadTensorflowModel(require('../assets/crop_model.tflite'));
+    // v3 requires the delegates argument. Passing one argument throws, which
+    // this try/catch then swallowed into stub mode: the app ran, said
+    // "डेमो मोड", and gave no clue why. [] means the default CPU delegate;
+    // 'android-gpu' is faster on some devices but silently wrong on others,
+    // so it is not worth the risk on a model this small.
+    model = await loadTensorflowModel(require('../assets/crop_model.tflite'), []);
   } catch (e) {
-    // Blueprint 13 risk register: if the model is not in the bundle yet, the
-    // app must still run so all three tier screens stay rehearsable.
+    // Blueprint 13 risk register: if the model cannot load, the app must still
+    // run so all three tier screens stay rehearsable. But the reason has to be
+    // visible, or a silent fallback looks exactly like success.
     loadError = e;
-    console.warn('[ml] on-device model unavailable, using stub:', e.message);
+    console.warn('[ml] on-device model unavailable, using stub:', e?.message || e);
   }
   return model;
+}
+
+/** Surfaced in Settings so a failure is diagnosable on the device itself. */
+export function status() {
+  if (model) return { ok: true, detail: `${labelList().length} classes, on-device` };
+  return { ok: false, detail: loadError ? String(loadError.message || loadError) : 'not loaded' };
 }
 
 export function labelList() {
@@ -40,6 +52,13 @@ export function labelList() {
 
 export function isReal() {
   return !!model;
+}
+
+// Surfaced in Settings. A whole build silently ran on the stub because this
+// message was caught and thrown away, and the only symptom was one line of
+// small text saying "demo mode".
+export function loadErrorMessage() {
+  return loadError ? String(loadError.message || loadError).slice(0, 120) : null;
 }
 
 // Resize on device before anything else. 224 is the model input anyway, and it
@@ -82,9 +101,12 @@ export async function classify(uri, crop = null) {
 
   if (!model) return stub(list, crop, prepared);
 
+  // run() takes and returns ArrayBuffer[], not typed arrays. Handing it a
+  // Float32Array directly, or reading the result as one, silently produces
+  // garbage rather than an error.
   const input = toTensor(prepared.base64);
-  const out = await model.run([input]);
-  const logits = Array.from(out[0]);
+  const out = await model.run([input.buffer]);
+  const logits = Array.from(new Float32Array(out[0]));
 
   // Temperature scaling is what makes the gate mean anything. Without it,
   // "85% confident" is just a raw softmax number and the three-tier routing

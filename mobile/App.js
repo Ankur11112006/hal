@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   useFonts,
   NotoSansDevanagari_400Regular,
@@ -13,7 +14,7 @@ import {
 } from '@expo-google-fonts/noto-sans-devanagari';
 
 import { C, T, D } from './src/theme';
-import { t } from './src/content';
+import { t, setLang } from './src/content';
 import * as db from './src/db';
 import * as api from './src/api';
 import * as ml from './src/ml';
@@ -41,11 +42,11 @@ export const useApp = () => useContext(Ctx);
 
 function TabBar({ state, navigation }) {
   const items = [
-    { key: 'Home', icon: '🏠', label: t('nav.home') },
-    { key: 'Crop', icon: '🌱', label: t('nav.crop') },
-    { key: '__scan', icon: '📷', label: t('nav.scan') },
-    { key: 'Livestock', icon: '🐄', label: t('nav.livestock') },
-    { key: 'Records', icon: '📖', label: t('nav.records') },
+    { key: 'Home', label: t('nav.home') },
+    { key: 'Crop', label: t('nav.crop') },
+    { key: '__scan', label: t('nav.scan') },
+    { key: 'Livestock', label: t('nav.livestock') },
+    { key: 'Records', label: t('nav.records') },
   ];
   return (
     <SafeAreaView edges={['bottom']} style={{ backgroundColor: C.surface }}>
@@ -57,7 +58,12 @@ function TabBar({ state, navigation }) {
             return (
               <Pressable key="scan" accessibilityLabel={it.label}
                 onPress={() => navigation.navigate('Camera')} style={s.fabWrap}>
-                <View style={s.fab}><Text style={{ fontSize: 30 }}>{it.icon}</Text></View>
+                <View style={s.fab}>
+                  {/* A plain camera shutter drawn as a shape, not an emoji:
+                      emoji render differently on every Android skin. */}
+                  <View style={{ width: 30, height: 30, borderRadius: 6,
+                                 borderWidth: 3, borderColor: '#fff' }} />
+                </View>
                 <Text style={[T.caption, { color: C.scanOrange }]}>{it.label}</Text>
               </Pressable>
             );
@@ -66,10 +72,11 @@ function TabBar({ state, navigation }) {
           return (
             <Pressable key={it.key} accessibilityLabel={it.label}
               onPress={() => navigation.navigate(it.key)} style={s.tab}>
-              <Text style={{ fontSize: 24, opacity: active ? 1 : 0.55 }}>{it.icon}</Text>
-              <Text style={[T.caption, active && { color: C.green, fontWeight: '700' }]}>
+              <Text style={[T.label, { fontSize: 16, color: active ? C.green : C.inkSoft }]}>
                 {it.label}
               </Text>
+              <View style={{ height: 3, width: 22, marginTop: 5, borderRadius: 2,
+                             backgroundColor: active ? C.green : 'transparent' }} />
             </Pressable>
           );
         })}
@@ -104,8 +111,12 @@ export default function App() {
     (async () => {
       await db.open();
       await api.loadApiBase();                       // Settings override, if any
+      const saved = await AsyncStorage.getItem('bahi.lang');
+      if (saved) setLang(saved);
       ml.load();                                     // warm the interpreter early
-      setFarmer((await db.anyFarmer()) || null);
+      const f = (await db.anyFarmer()) || null;
+      if (f?.lang && !saved) setLang(f.lang);
+      setFarmer(f);
     })();
   }, []);
 
@@ -131,7 +142,7 @@ export default function App() {
   if (!fonts || farmer === undefined) {
     return (
       <View style={{ flex: 1, backgroundColor: C.bg, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ fontSize: 44, color: C.green, fontWeight: '700' }}>बही</Text>
+        <Text style={{ fontSize: 44, color: C.green, fontWeight: '700' }}>{t('app.name')}</Text>
       </View>
     );
   }

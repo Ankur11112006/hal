@@ -177,5 +177,5 @@ export function softmax(logits, temperature = 1) {
 // Offline case number. The farmer must be able to carry it to a KVK even if
 // the phone never sees a network (blueprint section 9).
 export function caseNumber(seed = Date.now()) {
-  return 'BH-' + String(2481 + (seed % 7000));
+  return 'HL-' + String(2481 + (seed % 7000));
 }

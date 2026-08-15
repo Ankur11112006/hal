@@ -1,4 +1,4 @@
-# BAHI — honest status
+# HAL — honest status
 
 *15 August 2026. Written to be useful before a demo, not to be flattering.*
 

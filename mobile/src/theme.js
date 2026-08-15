@@ -1,4 +1,4 @@
-// BAHI design tokens. Blueprint section 6.
+// HAL design tokens. Blueprint section 6.
 // The confidence system IS the colour system: green means the app is sure,
 // amber means it is checking, red means it will not guess.
 export const C = {
@@ -50,10 +50,14 @@ export function routeConfidence(confidence) {
   return TIER.EXPERT;
 }
 
+// Blueprint law 4: colour never carries meaning alone. The WORD is the
+// non-colour signal, which is why there is no icon here. A farmer who cannot
+// read still gets the spoken version; a farmer who can read gets plain Hindi
+// rather than a symbol they have to decode.
 export const TIER_STYLE = {
-  [TIER.AUTO]: { border: C.green, fill: C.greenSoft, icon: '✓', word: 'पक्का' },
-  [TIER.VERIFY]: { border: C.amber, fill: C.amberSoft, icon: '⏳', word: 'जाँच हो रही है' },
-  [TIER.EXPERT]: { border: C.red, fill: C.redSoft, icon: '⚠', word: 'विशेषज्ञ देखेगा' },
+  [TIER.AUTO]: { border: C.green, fill: C.greenSoft, wordKey: 'tier.word.auto' },
+  [TIER.VERIFY]: { border: C.amber, fill: C.amberSoft, wordKey: 'tier.word.verify' },
+  [TIER.EXPERT]: { border: C.red, fill: C.redSoft, wordKey: 'tier.word.expert' },
 };
 
 export const HELPLINE = { vet: '1962', kcc: '1800-180-1551' };

@@ -38,7 +38,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 export async function open() {
   if (db) return db;
-  db = await SQLite.openDatabaseAsync('bahi.db');
+  db = await SQLite.openDatabaseAsync('hal.db');
   await db.execAsync(SCHEMA);
   return db;
 }

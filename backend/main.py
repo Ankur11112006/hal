@@ -36,6 +36,9 @@ def _schedule():
     return json.loads((CONTENT / "vaccination_schedule.json").read_text(encoding="utf-8"))
 
 
+hindi_date = A.hindi_date          # everything the model reads is formatted in advise.py
+
+
 # ------------------------------------------------------------------ health
 @app.get("/health")
 def health():
@@ -246,8 +249,10 @@ def ask(body: AskIn):
             # string alone carries the same information without leaking script.
             "data": {"tika": (d["label"] or {}).get("hi") or d["vaccine"],
                      "status": ("इस टीके का कोई रिकॉर्ड नहीं मिला" if d["no_record"]
-                                else f"{abs(d['days_left'])} दिन पहले लगना था" if d["overdue"]
-                                else f"{d['days_left']} दिन में लगना है")}}
+                                else f"{hindi_date(d['due_on'])} को लगना था, "
+                                     f"{abs(d['days_left'])} दिन हो गए" if d["overdue"]
+                                else f"{hindi_date(d['due_on'])} को लगना है, "
+                                     f"{d['days_left']} दिन बाक़ी")}}
             for d in due]
 
         ans = A.advise(body.question, events, weather, body.lang, gloss)

@@ -13,6 +13,7 @@ English ones and lexical matching is enough at this size.
 # ponytail: TF-IDF over ~100 docs. Swap in an embedding API if recall on
 # paraphrased Hindi questions measurably suffers; the search() signature holds.
 """
+import datetime as dt
 import json
 import math
 import os
@@ -150,8 +151,11 @@ Farmer ke apne record ko jawab mein use kar, aur KHET + PASHU dono ki baat ek hi
 jawab mein kar. Agar pichle saal isi plot pe wahi bimari thi to wo bol. Agar kisi
 pashu ka tika overdue hai to wo bhi usi jawab mein bol, chahe sawaal fasal ka ho:
 kisan ek hi aadmi hai, uske liye khet aur pashu alag nahi hain.
-Jis tike ka status kehta hai ki record nahi hai, use overdue mat bol. Uske liye
-bilkul yahi vaakya likh, jaisa ka taisa: "इसका कोई रिकॉर्ड नहीं मिला, एक बार पूछ लें"
+Tike ki baat karte waqt uska "status" jaisa likha hai waisa hi jawab mein le
+aa. Apne shabd mat gadh: app usi pashu ke liye wahi vaakya screen par dikha
+raha hai, aur do jagah do baat likhi ho to kisan dono par bharosa karna chhod
+deta hai. Jis tike ka status kehta hai ki record nahi hai, use overdue mat
+bol.
 
 BIMARI KA NAAM FARMER KE RECORD SE LE, SOURCES SE MAT LE. Agar record mein
 "मक्का का झुलसा रोग" likha hai to jawab mein wahi bol, chahe SOURCES mein makka
@@ -169,6 +173,21 @@ MAUSAM: {weather}
 SAWAAL: {question}"""
 
 
+_MONTHS = ["जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून",
+           "जुलाई", "अगस्त", "सितंबर", "अक्तूबर", "नवंबर", "दिसंबर"]
+
+
+def hindi_date(iso: str) -> str:
+    """"2026-05-31" -> "31 मई 2026". The model repeats back whatever format it
+    is handed, and it was being handed ISO strings, so a farmer was told his
+    cow's vaccine "2026-05-31 ko due tha"."""
+    try:
+        d = dt.date.fromisoformat(iso[:10])
+    except ValueError:
+        return iso[:10]
+    return f"{d.day} {_MONTHS[d.month - 1]} {d.year}"
+
+
 def _timeline_lines(events: list[dict]) -> str:
     out = []
     for e in events[:20]:
@@ -176,7 +195,7 @@ def _timeline_lines(events: list[dict]) -> str:
         crop = f" ({e['current_crop']})" if e.get("current_crop") else ""
         detail = e.get("data") or {}
         bits = ", ".join(f"{k}={v}" for k, v in list(detail.items())[:4])
-        out.append(f"{e['at'][:10]} | {who}{crop} | {e['type']} | {bits}")
+        out.append(f"{hindi_date(e['at'])} | {who}{crop} | {e['type']} | {bits}")
     return "\n".join(out) or "(koi record nahi)"
 
 

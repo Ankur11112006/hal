@@ -111,6 +111,13 @@ def main_test():
     # --- the phone has to be able to tell that the server was wiped ---
     assert h.get("boot_id"), "health must carry boot_id or a wiped server stays empty"
 
+    # --- dates the model sees must already be in the script it answers in ---
+    # It repeats the format it is handed, and an ISO string came back to a
+    # farmer as "गौरी का टीका 2026-05-31 को ड्यू था".
+    assert main.hindi_date("2026-05-31") == "31 मई 2026", main.hindi_date("2026-05-31")
+    assert main.hindi_date("2026-01-05T10:00:00") == "5 जनवरी 2026"
+    assert main.hindi_date("not-a-date") == "not-a-dat", "a bad date must not 500 an answer"
+
     # --- profile push: without it /advise has no plots, no animals, and the
     #     cross-domain line has nothing to reference ---
     prof = c.post("/profile", json={

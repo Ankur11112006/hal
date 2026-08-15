@@ -31,3 +31,7 @@ backend/*.db-shm
 .env
 .kaggle/
 *.key
+
+# Built APKs. 40-150 MB each and reproducible from the repo.
+dist/
+mobile/android/

@@ -14,7 +14,7 @@ import {
 } from '@expo-google-fonts/noto-sans-devanagari';
 
 import { C, T, D } from './src/theme';
-import { t, setLang } from './src/content';
+import { t, setLang, getLang } from './src/content';
 import * as db from './src/db';
 import * as api from './src/api';
 import * as ml from './src/ml';
@@ -171,7 +171,12 @@ export default function App() {
     <SafeAreaProvider>
       <Ctx.Provider value={{ farmer, setFarmer, isOnline, refresh, tick }}>
         <StatusBar style="dark" backgroundColor={C.bg} />
-        <NavigationContainer>
+        {/* Keyed on the language so switching it remounts the navigator.
+            Strings are read at render, and the tab bar lives inside the
+            navigator, which React Navigation keeps mounted across a state
+            change in App: switching to English left the five tabs reading
+            घर, खेत, फ़ोटो, पशु, बही under an otherwise English screen. */}
+        <NavigationContainer key={getLang()}>
           <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
             {!farmer ? (
               <Stack.Screen name="FirstRun" component={FirstRun} />

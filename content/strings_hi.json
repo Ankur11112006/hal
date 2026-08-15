@@ -112,7 +112,7 @@
   "tier.callKcc": "किसान कॉल सेंटर, 1800-180-1551",
   "tier.cropKnown": "आपके खेत में {crop} है, इसलिए सिर्फ़ {crop} की बीमारियाँ देखी गईं",
   "symptom.title": "क्या दिक़्क़त है?",
-  "symptom.step": "सवाल {n} में से {total}",
+  "symptom.step": "सवाल {total} में से {n}",
   "symptom.likely": "शायद यह है",
   "symptom.action": "क्या करें",
   "symptom.callVet": "पशु डॉक्टर, 1962",

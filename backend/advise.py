@@ -245,7 +245,11 @@ def advise(question: str, events: list[dict], weather: dict, lang="Hindi",
     # Hindi answer: the script line sat right under the language line and won.
     english = lang.lower().startswith("en")
     script_rule = (
-        "Answer in plain English. Short sentences, no jargon, no Hindi words."
+        "Answer in plain English. Short sentences, no jargon, no Hindi words.\n"
+        "Parts of the record below are written in Hindi, because that is the\n"
+        "language they were entered in. Say them in English rather than copying\n"
+        "the Devanagari through: an English answer once came back quoting a\n"
+        "whole Hindi sentence out of the farmer's own history."
         if english else
         "POORA jawab Devanagari lipi mein likh. Dawa ke naam ke ilawa ek bhi roman ya\n"
         "English shabd mat likh. Ye instructions roman mein likhi hain par TERA JAWAB\n"

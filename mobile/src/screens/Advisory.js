@@ -42,7 +42,10 @@ export default function Advisory({ navigation }) {
 
     setState('thinking');
     try {
-      const a = await api.advise(farmer.id, question, 'Hindi', farmer);
+      // Was hardcoded to 'Hindi', so an English user got an English screen with
+      // a Devanagari answer inside it.
+      const a = await api.advise(farmer.id, question,
+                                 getLang() === 'en' ? 'English' : 'Hindi', farmer);
       setAns(a);
       setState('answer');
       voice.speak([a.action, a.quantity, a.timing, a.cost_benefit].filter(Boolean).join('. '), getLang());

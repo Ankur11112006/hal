@@ -5,15 +5,13 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "splash": {
-      "backgroundColor": "#FAF8F3"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
     "android": {
       "package": "in.hal.app",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1B5E20"
       },
       "permissions": [
@@ -28,6 +26,15 @@
     },
     "plugins": [
       "expo-dev-client",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#FAF8F3"
+        }
+      ],
       "react-native-fast-tflite",
       [
         "expo-build-properties",
@@ -50,6 +57,7 @@
           "locationWhenInUsePermission": "खेत की जगह दर्ज करने के लिए लोकेशन चाहिए"
         }
       ]
-    ]
+    ],
+    "icon": "./assets/icon.png"
   }
 }

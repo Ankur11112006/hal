@@ -116,7 +116,7 @@ def main_test():
     # farmer as "गौरी का टीका 2026-05-31 को ड्यू था".
     assert main.hindi_date("2026-05-31") == "31 मई 2026", main.hindi_date("2026-05-31")
     assert main.hindi_date("2026-01-05T10:00:00") == "5 जनवरी 2026"
-    assert main.hindi_date("not-a-date") == "not-a-dat", "a bad date must not 500 an answer"
+    assert main.hindi_date("not-a-date") == "not-a-date", "a bad date must not 500 an answer"
 
     # --- profile push: without it /advise has no plots, no animals, and the
     #     cross-domain line has nothing to reference ---

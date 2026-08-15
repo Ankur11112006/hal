@@ -132,6 +132,16 @@ def main_test():
         f"English mode must not carry Devanagari into the prompt: {en}"
     print("vaccine notes ok, both languages")
 
+    # --- and those notes have to survive into the prompt ---
+    # They are appended after the history, and a 20-row slice at the end cut
+    # every one of them off on any farm with a real timeline.
+    history = [{"at": "2026-08-0{}".format(i % 9 + 1), "plot_name": "प",
+                "type": "irrigation", "data": {}} for i in range(30)]
+    line = main.A._timeline_lines(history + [
+        {"at": "2026-05-31", "animal_name": "गौरी", "type": "vaccine_due",
+         "data": {"tika": "खुरपका-मुँहपका", "status": "31 मई 2026 को लगना था"}}])
+    assert "खुरपका-मुँहपका" in line, "due vaccines must not be trimmed out of the prompt"
+
     # --- profile push: without it /advise has no plots, no animals, and the
     #     cross-domain line has nothing to reference ---
     prof = c.post("/profile", json={

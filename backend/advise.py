@@ -196,8 +196,15 @@ def hindi_date(iso: str, english: bool = False) -> str:
 
 
 def _timeline_lines(events: list[dict], english: bool = False) -> str:
+    # Due vaccines are appended after the history, and a farm with twenty
+    # recorded events pushed every one of them past this cut, so the carefully
+    # worded status sentences never reached the model at all: it answered about
+    # deworming while an FMD dose sat 76 days overdue. History is trimmed; the
+    # due list is not, because it is short and it is the point.
+    due = [e for e in events if e.get("type") == "vaccine_due"]
+    rest = [e for e in events if e.get("type") != "vaccine_due"]
     out = []
-    for e in events[:20]:
+    for e in due + rest[:20]:
         who = e.get("plot_name") or e.get("animal_name") or "-"
         crop = f" ({e['current_crop']})" if e.get("current_crop") else ""
         detail = e.get("data") or {}

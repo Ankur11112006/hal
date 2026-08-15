@@ -1,6 +1,7 @@
 # HAL: session handoff
 
-*16 August 2026. Everything a fresh session needs to pick this up.*
+*16 August 2026, updated after a device-testing pass that found the sync had
+never worked. Everything a fresh session needs to pick this up.*
 
 Read `STATUS.md` for the honest state of the product and `README.md` for the
 model card. This file is the operational context: where things are, what runs,

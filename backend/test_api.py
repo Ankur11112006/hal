@@ -119,6 +119,15 @@ def main_test():
     assert b["source"] == a["source"], "romanized query must find the same doc"
     print("advise ok, devanagari and romanized agree")
 
+    # --- a farmer the server has never seen must still get an answer ---
+    # A 404 here dead-ends the advisory sheet, and the app reported it to the
+    # farmer as "no internet", which is how it went unnoticed.
+    u = c.post("/advise", json={"farmer_id": "never-seen-before",
+                                "question": "मक्का में झुलसा"}).json()
+    assert "detail" not in u, f"unknown farmer 404'd: {u}"
+    assert u.get("action"), u
+    print("advise ok for an unknown farmer (degraded, not 404)")
+
     # --- escalation always yields a real case number and a real helpline ---
     e = c.post("/escalate", json={"farmer_id": F, "tier": "expert",
                                   "reason": "confidence 0.44"}).json()

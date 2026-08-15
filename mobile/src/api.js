@@ -34,20 +34,42 @@ export async function setApiBase(url) {
   return BASE;
 }
 
+/**
+ * Errors carry `status` when the server answered and `offline` when it did not.
+ * Callers have to be able to tell those apart: a 404 shown to the farmer as
+ * "you have no internet" is a lie, and it hid a real bug for a whole build.
+ */
+export class ApiError extends Error {
+  constructor(message, { status = null, offline = false, body = null } = {}) {
+    super(message);
+    this.status = status;
+    this.offline = offline;
+    this.body = body;
+  }
+}
+
 async function call(path, opts = {}, timeoutMs = 12000) {
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), timeoutMs);
+  let r;
   try {
-    const r = await fetch(BASE + path, {
+    r = await fetch(BASE + path, {
       ...opts,
       signal: ctl.signal,
       headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
     });
-    if (!r.ok) throw new Error(`${path} ${r.status}`);
-    return await r.json();
+  } catch (e) {
+    // fetch only rejects when the request never got an answer
+    throw new ApiError(`${path}: ${e.message}`, { offline: true });
   } finally {
     clearTimeout(t);
   }
+  if (!r.ok) {
+    let body = null;
+    try { body = await r.text(); } catch {}
+    throw new ApiError(`${path} ${r.status}`, { status: r.status, body });
+  }
+  return r.json();
 }
 
 export async function online() {
@@ -88,11 +110,18 @@ export async function flush(farmer) {
   return { sent: rows.length };
 }
 
-export function advise(farmer_id, question, lang = 'Hindi') {
+/**
+ * The server cannot answer about a farmer it has never seen, and the phone is
+ * the source of truth, so the profile goes up first. Skipping this is what made
+ * every question after "delete my records" come back as 404 unknown farmer,
+ * which the UI then reported as having no internet.
+ */
+export async function advise(farmer_id, question, lang = 'Hindi', farmer = null) {
+  if (farmer) { try { await pushProfile(farmer); } catch {} }
   return call('/advise', {
     method: 'POST',
     body: JSON.stringify({ farmer_id, question, lang }),
-  }, 30000);
+  }, 45000);
 }
 
 export function escalate(farmer_id, event_id, tier, reason) {

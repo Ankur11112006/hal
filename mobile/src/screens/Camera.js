@@ -6,13 +6,13 @@
 // The confidence gate IS the quality check. Linking OpenCV for this would be
 // native C++ for a job the model already does.
 import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { C, T, D } from '../theme';
 import { t } from '../content';
-import { PrimaryButton, Card } from '../components/ui';
+import { PrimaryButton, OutlineButton, Card } from '../components/ui';
 import { useApp } from '../../App';
 import * as db from '../db';
 import * as ml from '../ml';
@@ -31,20 +31,6 @@ export default function Camera({ navigation }) {
       if (ps.length === 1) setPlot(ps[0]);
     });
   }, [farmer.id]);
-
-  if (!perm) return <View style={{ flex: 1, backgroundColor: '#000' }} />;
-  if (!perm.granted) {
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: C.bg, padding: D.pad, justifyContent: 'center' }}>
-        <Card>
-          <Text style={[T.body, { marginBottom: 16 }]}>
-            {t('camera.permission')}
-          </Text>
-          <PrimaryButton label={t('common.ok')} onPress={requestPerm} />
-        </Card>
-      </SafeAreaView>
-    );
-  }
 
   const run = async (uri) => {
     const r = await ml.classify(uri, plot?.current_crop || null);
@@ -83,9 +69,33 @@ export default function Camera({ navigation }) {
     }
   };
 
+  if (!perm) return <View style={{ flex: 1, backgroundColor: '#000' }} />;
+  if (!perm.granted) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: C.bg, padding: D.pad, justifyContent: 'center' }}>
+        <Card>
+          <Text style={[T.body, { marginBottom: 16 }]}>
+            {t('camera.permission')}
+          </Text>
+          <PrimaryButton label={t('common.ok')} onPress={requestPerm} />
+          {/* A photo already on the phone needs no camera. Gating this path
+              behind the camera permission left the farmer with a dead screen
+              and no way back. */}
+          <OutlineButton label={t('scan.fromGallery')} onPress={pick}
+            style={{ marginTop: 12 }} />
+          <OutlineButton label={t('common.back')} onPress={() => navigation.goBack()}
+            style={{ marginTop: 10 }} />
+        </Card>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: '#000' }}>
-      <CameraView ref={ref} style={{ flex: 1 }} facing="back">
+      <CameraView ref={ref} style={StyleSheet.absoluteFill} facing="back" />
+      {/* CameraView warns that children are unsupported and can behave
+          inconsistently, so the controls float above it instead of inside it. */}
+      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
         <SafeAreaView style={{ flex: 1, justifyContent: 'space-between' }}>
           <View style={{ padding: D.pad }}>
             <Pressable onPress={() => navigation.goBack()}
@@ -148,7 +158,7 @@ export default function Camera({ navigation }) {
             </Pressable>
           </View>
         </SafeAreaView>
-      </CameraView>
+      </View>
     </View>
   );
 }

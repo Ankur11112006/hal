@@ -9,7 +9,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { C, T, D } from '../theme';
-import { t } from '../content';
+import { t, getLang } from '../content';
 import { Card, PrimaryButton, OutlineButton, Row, SpeakButton, Loading, CallButton } from '../components/ui';
 import { useApp } from '../../App';
 import * as api from '../api';
@@ -25,6 +25,7 @@ export default function Advisory({ navigation }) {
   const [q, setQ] = useState('');
   const [state, setState] = useState('idle');   // idle | thinking | answer | queued
   const [ans, setAns] = useState(null);
+  const [err, setErr] = useState(null);
 
   const ask = async (text) => {
     const question = (text ?? q).trim();
@@ -41,12 +42,22 @@ export default function Advisory({ navigation }) {
 
     setState('thinking');
     try {
-      const a = await api.advise(farmer.id, question);
+      const a = await api.advise(farmer.id, question, 'Hindi', farmer);
       setAns(a);
       setState('answer');
-      voice.speak([a.action, a.quantity, a.timing, a.cost_benefit].filter(Boolean).join('. '), 'hi');
-    } catch {
-      setState('queued');
+      voice.speak([a.action, a.quantity, a.timing, a.cost_benefit].filter(Boolean).join('. '), getLang());
+    } catch (e) {
+      // Only a request that never reached the server is "no internet". A reply
+      // that came back and said no is a different problem and has to look like
+      // one, or it stays invisible for a whole build.
+      if (e.offline) {
+        await db.logEvent({ farmer_id: farmer.id, type: 'note',
+          at: new Date().toISOString(), data: { queued_question: question } });
+        setState('queued');
+      } else {
+        setErr(`${e.status || ''} ${e.message}`.trim());
+        setState('error');
+      }
     }
     refresh();
   };
@@ -95,6 +106,15 @@ export default function Advisory({ navigation }) {
               <Text style={[T.body, { marginBottom: 20 }]}>{q}</Text>
               <Loading label={t('advisory.thinking')} />
             </>
+          )}
+
+          {state === 'error' && (
+            <Card style={{ borderColor: C.red, borderWidth: 2, backgroundColor: C.redSoft }}>
+              <Text style={[T.body, { color: C.red }]}>{t('advisory.serverError')}</Text>
+              <Text style={[T.caption, { marginTop: 8 }]}>{err}</Text>
+              <OutlineButton label={t('common.retry')}
+                style={{ marginTop: 12 }} onPress={() => ask(q)} />
+            </Card>
           )}
 
           {state === 'queued' && (

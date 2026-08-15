@@ -63,6 +63,7 @@ export default function Onboarding({ navigation }) {
   const [sent, setSent] = useState(false);
   const [p, setP] = useState({ name: '', village: '', pincode: '', state: 'UP', does: 'dono' });
   const [busy, setBusy] = useState(false);
+  const [seedError, setSeedError] = useState(null);
 
   const wrap = (children) => (
     <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}>
@@ -179,9 +180,19 @@ export default function Onboarding({ navigation }) {
           label={t('login.demo')}
           onPress={async () => {
             setBusy(true);
-            const { farmer_id } = await seedDemo();
-            setFarmer(await db.farmer(farmer_id));
+            try {
+              const { farmer_id } = await seedDemo();
+              setFarmer(await db.farmer(farmer_id));
+            } catch (e) {
+              // An unhandled rejection here is invisible in a release build:
+              // the button just does nothing, forever, with no way to tell why.
+              setBusy(false);
+              setSeedError(String(e?.message || e).slice(0, 160));
+            }
           }} />
+        {!!seedError && (
+          <Text style={[T.caption, { color: C.red, marginTop: 8 }]}>{seedError}</Text>
+        )}
         <Text style={[T.caption, { textAlign: 'center', marginTop: 10 }]}>
           {t('login.demoHint')}
         </Text>

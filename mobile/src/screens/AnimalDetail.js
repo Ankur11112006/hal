@@ -88,8 +88,10 @@ export default function AnimalDetail({ route, navigation }) {
           <Card><Text style={T.bodySoft}>{t('vaccine.none')}</Text></Card>
         ) : dueRows.map((v) => {
           const overdue = v.daysLeft < 0;
-          const line = overdue ? t('vaccine.overdue', { days: Math.abs(v.daysLeft) })
-            : v.daysLeft === 0 ? t('vaccine.dueToday') : t('vaccine.due', { days: v.daysLeft });
+          const line = v.data.no_record
+            ? t('vaccine.noRecord')
+            : overdue ? t('vaccine.overdue', { days: Math.abs(v.daysLeft) })
+              : v.daysLeft === 0 ? t('vaccine.dueToday') : t('vaccine.due', { days: v.daysLeft });
           const name = L(v.data.label) || v.data.vaccine;
           return (
             <Card key={v.id} style={overdue ? { borderColor: C.red, borderWidth: 2 } : null}>

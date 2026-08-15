@@ -196,7 +196,11 @@ def ask(body: AskIn):
     with db.conn() as c:
         f = c.execute("SELECT * FROM farmer WHERE id=?", (body.farmer_id,)).fetchone()
         if not f:
-            raise HTTPException(404, "unknown farmer")
+            # A farmer the server has not seen yet still deserves an answer. It
+            # will be a general one, because there is no timeline to draw on,
+            # but 404 here dead-ends the only screen the pitch is built around
+            # and the app reported it to the farmer as "no internet".
+            f = {"id": body.farmer_id, "state": None, "lang": body.lang[:2].lower()}
         events = db.timeline(c, body.farmer_id, 20)
         plot = c.execute("SELECT lat,lng FROM plot WHERE farmer_id=? AND lat IS NOT NULL "
                          "LIMIT 1", (body.farmer_id,)).fetchone()

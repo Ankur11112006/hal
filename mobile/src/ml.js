@@ -5,7 +5,7 @@
 // confident 95%: apps with 95% lab accuracy have shown under 10% field
 // adoption. Below 0.60 we show NO diagnosis. Not even a guess.
 import * as ImageManipulator from 'expo-image-manipulator';
-import * as FileSystem from 'expo-file-system';
+import { Asset } from 'expo-asset';
 import jpeg from 'jpeg-js';
 import { Buffer } from 'buffer';
 import { routeConfidence } from './theme';
@@ -24,12 +24,26 @@ export async function load() {
     const { loadTensorflowModel } = require('react-native-fast-tflite');
     labels = require('../assets/labels.json');
     meta = require('../assets/metrics.json');
-    // v3 requires the delegates argument. Passing one argument throws, which
-    // this try/catch then swallowed into stub mode: the app ran, said
-    // "डेमो मोड", and gave no clue why. [] means the default CPU delegate;
-    // 'android-gpu' is faster on some devices but silently wrong on others,
-    // so it is not worth the risk on a model this small.
-    model = await loadTensorflowModel(require('../assets/crop_model.tflite'), []);
+    // Two separate things had to be right here, and both failed silently.
+    //
+    // 1. v3 requires the delegates argument. Passing one argument throws.
+    //    [] means the default CPU delegate; 'android-gpu' is faster on some
+    //    devices and silently wrong on others, not worth it on a 2 MB model.
+    //
+    // 2. require() cannot be handed to the library in a RELEASE build. Metro
+    //    serves dev assets over http, so the native side gets a real URL; in
+    //    release the asset is compiled into res/ and resolves to a bare
+    //    resource name, which the library passes to new URL():
+    //      MalformedURLException: no protocol: assets_crop_model
+    //    expo-asset unpacks it out of the APK to a file:// path, which works
+    //    in both. This is why the bug was invisible until a release build ran
+    //    on a real device.
+    const asset = Asset.fromModule(require('../assets/crop_model.tflite'));
+    await asset.downloadAsync();
+    const uri = asset.localUri || asset.uri;
+    if (!uri) throw new Error('crop_model.tflite did not resolve to a file uri');
+    model = await loadTensorflowModel({ url: uri }, []);
+    console.log('[ml] model loaded from', uri);
   } catch (e) {
     // Blueprint 13 risk register: if the model cannot load, the app must still
     // run so all three tier screens stay rehearsable. But the reason has to be

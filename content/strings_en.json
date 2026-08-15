@@ -249,5 +249,7 @@
   "symptom.photoAssist": "A second opinion from a photo is not available yet. Showing a vet is the right step.",
   "tier.word.auto": "Certain",
   "tier.word.verify": "Being checked",
-  "tier.word.expert": "We are not certain"
+  "tier.word.expert": "We are not certain",
+  "advisory.serverError": "Could not get an answer. The internet is fine, but the server did not reply properly.",
+  "common.retry": "Try again"
 }

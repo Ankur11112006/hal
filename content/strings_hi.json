@@ -250,5 +250,7 @@
   "symptom.photoAssist": "फ़ोटो से दूसरी राय लेना अभी नहीं आया है। अभी डॉक्टर को दिखाना ही सही है।",
   "tier.word.auto": "पक्का",
   "tier.word.verify": "जाँच हो रही है",
-  "tier.word.expert": "हमें पक्का पता नहीं"
+  "tier.word.expert": "हमें पक्का पता नहीं",
+  "advisory.serverError": "जवाब नहीं मिल पाया। इंटरनेट है, पर सर्वर से बात नहीं हुई।",
+  "common.retry": "फिर कोशिश करें"
 }

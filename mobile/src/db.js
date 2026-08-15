@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS event (
 CREATE INDEX IF NOT EXISTS idx_ev ON event(farmer_id, at DESC);
 CREATE TABLE IF NOT EXISTS advisory (
   id TEXT PRIMARY KEY, farmer_id TEXT, question TEXT, answer_json TEXT,
-  rating INTEGER, at TEXT, synced INTEGER DEFAULT 0);
+  rating INTEGER, at TEXT, synced INTEGER DEFAULT 0, is_demo INTEGER DEFAULT 0);
 `;
 
 export const uid = () =>
@@ -40,6 +40,11 @@ export async function open() {
   if (db) return db;
   db = await SQLite.openDatabaseAsync('hal.db');
   await db.execAsync(SCHEMA);
+  // CREATE TABLE IF NOT EXISTS does nothing to a table that already exists, so
+  // an install made before is_demo was added keeps the old advisory table and
+  // resetDemo() dies on "no such column". Cheap to attempt, harmless to fail.
+  try { await db.execAsync('ALTER TABLE advisory ADD COLUMN is_demo INTEGER DEFAULT 0'); }
+  catch {}
   return db;
 }
 
@@ -124,7 +129,8 @@ export async function generateSchedule(animal) {
     await logEvent({
       farmer_id: animal.farmer_id, animal_id: animal.id, type: 'vaccine_due',
       at: v.due, is_demo: animal.is_demo,
-      data: { vaccine: v.vaccine, label: v.label, funding: v.funding, why: v.why },
+      data: { vaccine: v.vaccine, label: v.label, funding: v.funding, why: v.why,
+              no_record: !v.lastDone },
     });
     n++;
   }
@@ -200,11 +206,18 @@ export async function dueVaccines(farmer_id) {
     `SELECT e.*, a.name AS animal_name FROM event e JOIN animal a ON a.id=e.animal_id
      WHERE e.farmer_id=? AND e.type='vaccine_due' ORDER BY e.at ASC`, [farmer_id]));
   const t = today();
-  return rows.map((r) => ({
-    ...r,
-    daysLeft: Math.round((new Date(r.at) - new Date(t)) / 86400000),
-    overdue: r.at.slice(0, 10) < t,
-  }));
+  return rows
+    .map((r) => ({
+      ...r,
+      daysLeft: Math.round((new Date(r.at) - new Date(t)) / 86400000),
+      overdue: r.at.slice(0, 10) < t,
+      noRecord: !!r.data.no_record,
+    }))
+    // A recorded dose that has expired is a FACT. A missing row is only an
+    // inference, and one interval of it is not evidence of anything. Sorting
+    // them together buried गौरी's genuinely overdue FMD under two vaccines
+    // nobody had ever written down.
+    .sort((a, b) => (a.noRecord - b.noRecord) || (a.daysLeft - b.daysLeft));
 }
 
 // ---------------------------------------------------------------- sync
@@ -236,6 +249,9 @@ export async function deleteEverything() {
 export async function resetDemo() {
   const d = await open();
   for (const t of ['event', 'advisory', 'plot', 'animal', 'farmer']) {
-    await d.runAsync(`DELETE FROM ${t} WHERE is_demo = 1`);
+    // One table missing the column must not take the whole seed down with it.
+    // It did: the demo button silently did nothing for an entire build.
+    try { await d.runAsync(`DELETE FROM ${t} WHERE is_demo = 1`); }
+    catch (e) { console.warn(`[db] resetDemo skipped ${t}:`, e?.message || e); }
   }
 }

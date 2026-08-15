@@ -5,7 +5,7 @@
 // a feature: it is what prevents the alert fatigue that kills generic SMS
 // advisory (SPEC.md D2).
 import React, { useCallback, useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { C, T, D } from '../theme';
@@ -53,7 +53,11 @@ export default function Home({ navigation }) {
         </Pressable>
       </View>
 
-      <View style={{ flex: 1, paddingHorizontal: D.pad }}>
+      {/* Scrollable, and padded past the mic pill and the tab bar. With three
+          urgent cards the recent-ledger section sat underneath both and there
+          was no way to reach it. */}
+      <ScrollView style={{ flex: 1 }}
+        contentContainerStyle={{ paddingHorizontal: D.pad, paddingBottom: 96 }}>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <OfflineChip visible={!isOnline} />
           {farmer.is_demo ? <DemoChip /> : null}
@@ -75,10 +79,12 @@ export default function Home({ navigation }) {
           <Card><Text style={T.bodySoft}>{t('home.nothingUrgent')}</Text></Card>
         ) : (
           due.slice(0, 3).map((v) => {
-            const overdue = v.overdue;
-            const line = overdue
-              ? t('vaccine.overdue', { days: Math.abs(v.daysLeft) })
-              : v.daysLeft === 0 ? t('vaccine.dueToday') : t('vaccine.due', { days: v.daysLeft });
+            const overdue = v.overdue && !v.noRecord;
+            const line = v.noRecord
+              ? t('vaccine.noRecord')
+              : overdue
+                ? t('vaccine.overdue', { days: Math.abs(v.daysLeft) })
+                : v.daysLeft === 0 ? t('vaccine.dueToday') : t('vaccine.due', { days: v.daysLeft });
             const title = `${v.animal_name} · ${L(v.data.label) || v.data.vaccine}`;
             return (
               <Card key={v.id} style={{ borderColor: overdue ? C.red : C.amber, borderWidth: 2,
@@ -112,7 +118,7 @@ export default function Home({ navigation }) {
             </Pressable>
           </>
         )}
-      </View>
+      </ScrollView>
 
       {/* Advisory is a pill, not a tab. You invoke it, you don't browse it. */}
       <Pressable onPress={() => navigation.navigate('Advisory')} style={{

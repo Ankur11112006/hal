@@ -220,6 +220,7 @@ REFUSED = {
     # magnesium shortage, sometimes just cold, and the app would answer a
     # nutrient problem with a bactericide.
     "leaf_reddening": "usually a nutrient shortage, not a pathogen",
+    "leaf_redding": "the dataset's spelling of leaf reddening",
     "herbicide_growth_damage": "chemical injury, not a disease",
     "leaf_hopper_jassids": "insect pest not in the class list",
     "leaf_variegation": "not in the class list",
@@ -315,7 +316,9 @@ def _self_check():
     assert resolve("Bacterial Blight", crop_hint="cotton") == "cotton__bacterial_blight"
     assert resolve("Curl Virus", crop_hint="cotton") == "cotton__leaf_curl_virus"
     assert resolve("Healthy Leaf", crop_hint="cotton") == "cotton__healthy"
-    for folder in ("Leaf Reddening", "Herbicide Growth Damage",
+    # "Leaf Redding" is how the dataset spells it, and it is the largest folder
+    # in the archive at 578 images, so a typo here would cost more than the rest.
+    for folder in ("Leaf Redding", "Leaf Reddening", "Herbicide Growth Damage",
                    "Leaf Hopper Jassids", "Leaf Variegation"):
         assert resolve(folder, crop_hint="cotton") is None, folder
     print(f"labels ok: {len(LABELS)} classes / {len(CROPS)} crops, "

@@ -112,6 +112,19 @@ SOURCES = [
     # ml/extract_ccmt.py unpacks only Raw Data. The archive's augmented copy is
     # rotations of these same photos and train.py augments on the fly.
     ("ccmt", "crop_nested", "field"),
+    # SAR-CLD-2024 (Mendeley, CC BY 4.0): the National Cotton Research
+    # Institute's field in Gazipur, shot on a Redmi Note 11s between October
+    # 2023 and January 2024. Cotton had no field images at all, in any of its
+    # three classes, and this has exactly those three. Four other folders are
+    # refused, "Leaf Redding" above all: 578 images of what is usually a
+    # potassium shortage, which mapped to bacterial blight would have the app
+    # answering a feeding problem with a bactericide.
+    ("cotton_field", "flat:cotton", "field"),
+    # Tanzanian smallholder farms, smartphone photographs validated by plant
+    # pathologists (Zenodo 17553016, CC BY 4.0). Not India, but the gap that
+    # hurts this model is lab-versus-field and these are field. One flat zip per
+    # class; ml/extract.py holds the zip-name-to-class mapping.
+    ("potato_field", "flat:potato", "field"),
 ]
 
 IMG_EXT = {".jpg", ".jpeg", ".png", ".bmp"}

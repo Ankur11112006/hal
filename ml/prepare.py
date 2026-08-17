@@ -20,6 +20,7 @@ Three rules that matter more than the code:
 """
 import collections
 import hashlib
+import json
 import pathlib
 import random
 import shutil
@@ -224,6 +225,16 @@ def dedupe(items):
     return out, dupes
 
 
+def source_of(p: pathlib.Path) -> str:
+    """Which downloaded dataset an image came from: the first directory under
+    data/raw. Used to split each source on its own, so one collection's
+    sessions cannot straddle train and test."""
+    try:
+        return p.relative_to(RAW).parts[0]
+    except ValueError:
+        return "?"
+
+
 def save(src: pathlib.Path, dst: pathlib.Path) -> bool:
     try:
         with Image.open(src) as im:
@@ -257,11 +268,35 @@ def main():
         # Split the field pool three ways FIRST, so a calibration or test image
         # can never leak into training no matter what happens below.
         field = b["field"][:]
-        random.shuffle(field)
-        field = field[:MAX_FIELD_PER_CLASS]
-        n_tr = int(len(field) * FIELD_SPLIT["train"])
-        n_cal = int(len(field) * FIELD_SPLIT["cal"])
-        f_train, f_cal, f_test = field[:n_tr], field[n_tr:n_tr + n_cal], field[n_tr + n_cal:]
+        # NOT shuffled. Field collections are shot in sessions: the cotton set
+        # is 2,137 photographs of one institute's field over three months, the
+        # potato set is smallholder plots walked with one phone. Splitting those
+        # at random puts near-identical frames of the same plant on both sides,
+        # and the test score then measures memory rather than generalisation.
+        # It read 97.9% on cotton and 69.3% on tomato while the unchanged
+        # PlantDoc holdout, which is web imagery from everywhere, read 37.1%.
+        #
+        # Sorting by path keeps a session together, because these datasets name
+        # sequential shots sequentially, and taking the split as contiguous
+        # blocks then sends whole sessions to one side. This reduces the leak.
+        # It does not eliminate it: two sessions in the same field on the same
+        # day are still two sessions. field_accuracy_plantdoc in metrics.json is
+        # the number that owes nothing to any of this.
+        # Split each source separately, so capping cannot silently delete a
+        # whole dataset and every source contributes to all three splits.
+        f_train, f_cal, f_test = [], [], []
+        by_source = collections.defaultdict(list)
+        for p in field:
+            by_source[source_of(p)].append(p)
+        share = max(1, MAX_FIELD_PER_CLASS // max(1, len(by_source)))
+        for src in sorted(by_source):
+            block = sorted(by_source[src], key=str)[:share]
+            n_tr = int(len(block) * FIELD_SPLIT["train"])
+            n_cal = int(len(block) * FIELD_SPLIT["cal"])
+            f_train += block[:n_tr]
+            f_cal += block[n_tr:n_tr + n_cal]
+            f_test += block[n_tr + n_cal:]
+        field = f_train + f_cal + f_test
         n_test = len(f_test) + len(b["holdout"])
 
         pool = b["lab"] + f_train
@@ -308,13 +343,22 @@ def main():
 
     print(f"\nwriting {len(plan)} files to {OUT} ...")
     written, failed = collections.Counter(), 0
+    # Where each test image came from. Prepared files are renumbered, so without
+    # this the only honest number in the report, accuracy on imagery that shares
+    # no collection with training, cannot be computed after the fact.
+    origins = {}
     for split, lab, src in plan:
         d = OUT / split / lab
         d.mkdir(parents=True, exist_ok=True)
-        if save(src, d / f"{written[(split, lab)]:05d}.jpg"):
+        name = f"{written[(split, lab)]:05d}.jpg"
+        if save(src, d / name):
+            if split == "field_test":
+                origins[f"{lab}/{name}"] = source_of(src)
             written[(split, lab)] += 1
         else:
             failed += 1
+    (OUT / "field_test_origins.json").write_text(
+        json.dumps(origins, indent=0), encoding="utf-8")
 
     tot = collections.Counter()
     for (split, _), n in written.items():

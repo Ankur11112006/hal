@@ -337,8 +337,34 @@ def main():
         metrics["field_classes"] = present
         metrics["field_note"] = (
             f"{len(present)} of {len(LABELS)} classes have in-the-wild test "
-            f"images (PlantDoc). Classes without field images are reported on "
+            f"images. Classes without field images are reported on "
             f"the validation split only.")
+
+        # Accuracy split by which collection the photograph came from. This
+        # exists because the headline field number is not trustworthy on its
+        # own: a donated field set is usually one team, one camera, a handful of
+        # sessions, so held-out images from it resemble the training images far
+        # more than a stranger's photo would. Measured once at 97.9% on cotton
+        # and 37.1% on PlantDoc from the same model on the same day.
+        #
+        # plantdoc is the number to quote. It is web imagery from everywhere,
+        # it has never been in training in any run, and it shares no collection
+        # with anything the model has seen.
+        origins_file = PREPARED / "field_test_origins.json"
+        if origins_file.exists():
+            origins = json.loads(origins_file.read_text(encoding="utf-8"))
+            keys = ["/".join(pathlib.Path(p).parts[-2:]) for p in fd.file_paths]
+            src = np.array([origins.get(k, "?") for k in keys])
+            per_source = {}
+            for s in sorted(set(src)):
+                m = src == s
+                per_source[s] = {"n": int(m.sum()),
+                                 "accuracy": float((fpred[m] == fy[m]).mean())}
+            metrics["field_accuracy_by_source"] = per_source
+            pd = per_source.get("plantdoc_files")
+            if pd:
+                metrics["field_accuracy_plantdoc"] = pd["accuracy"]
+                metrics["field_n_plantdoc"] = pd["n"]
         # What the three tiers actually do on field data.
         # tier1_precision is THE number to optimise: of the photos the app is
         # willing to put a diagnosis on, how often is that diagnosis right?

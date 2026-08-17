@@ -1,23 +1,27 @@
 {
-  "temperature": 1.8000000000000012,
-  "temperature_fitted_on": "field_cal, 226 held-out field images",
-  "temperature_if_fitted_on_val": 1.1000000000000005,
-  "val_accuracy": 0.9392466585662211,
-  "val_ece_after_calibration": 0.0837106031594657,
-  "val_ece_before_calibration": 0.006613004993407423,
+  "temperature": 1.2000000000000006,
+  "temperature_fitted_on": "field_cal, 1061 held-out field images",
+  "temperature_if_fitted_on_val": 1.0500000000000005,
+  "val_accuracy": 0.9275502318392581,
+  "val_ece_after_calibration": 0.017028086581245792,
+  "val_ece_before_calibration": 0.005405938537817256,
   "img_size": 224,
   "classes": 30,
-  "field_accuracy": 0.4487534626038781,
-  "field_n": 361,
-  "field_ece_after_calibration": 0.04481251781336819,
-  "field_ece_before_calibration": 0.22212748679427888,
+  "field_accuracy": 0.7710241465445462,
+  "field_n": 1201,
+  "field_ece_after_calibration": 0.037417626053367854,
+  "field_ece_before_calibration": 0.06270331448311613,
   "field_classes": [
+    "cotton__bacterial_blight",
+    "cotton__healthy",
+    "cotton__leaf_curl_virus",
     "maize__common_rust",
     "maize__fall_armyworm",
     "maize__gray_leaf_spot",
     "maize__healthy",
     "maize__northern_leaf_blight",
     "potato__early_blight",
+    "potato__healthy",
     "potato__late_blight",
     "rice__bacterial_leaf_blight",
     "rice__brown_spot",
@@ -31,38 +35,38 @@
     "tomato__septoria_leaf_spot",
     "tomato__yellow_leaf_curl"
   ],
-  "field_note": "18 of 30 classes have in-the-wild test images (PlantDoc). Classes without field images are reported on the validation split only.",
+  "field_note": "22 of 30 classes have in-the-wild test images (PlantDoc). Classes without field images are reported on the validation split only.",
   "tier1_auto": {
-    "share": 0.09695290858725762,
-    "accuracy": 0.8285714285714286,
-    "n": 35
+    "share": 0.5970024979184013,
+    "accuracy": 0.9553695955369595,
+    "n": 717
   },
   "tier2_vlae": {
-    "share": 0.2077562326869806,
-    "accuracy": 0.6533333333333333,
-    "n": 75
+    "share": 0.17318900915903415,
+    "accuracy": 0.6875,
+    "n": 208
   },
   "tier3_expert": {
-    "share": 0.6952908587257618,
-    "accuracy": 0.3346613545816733,
-    "n": 251
+    "share": 0.22980849292256453,
+    "accuracy": 0.35507246376811596,
+    "n": 276
   },
-  "tier1_precision": 0.8285714285714286,
-  "tier1_false_positive_rate": 0.17142857142857137,
-  "field_treatment_accuracy": 0.5789473684210527,
-  "tier1_treatment_precision": 0.9714285714285714,
-  "field_accuracy_crop_conditioned": 0.5318559556786704,
+  "tier1_precision": 0.9553695955369595,
+  "tier1_false_positive_rate": 0.04463040446304045,
+  "field_treatment_accuracy": 0.8118234804329725,
+  "tier1_treatment_precision": 0.9665271966527197,
+  "field_accuracy_crop_conditioned": 0.7985012489592007,
   "cc_tier1_auto": {
-    "share": 0.2077562326869806,
-    "accuracy": 0.7733333333333333
+    "share": 0.6469608659450458,
+    "accuracy": 0.9485199485199485
   },
   "cc_tier2_vlae": {
-    "share": 0.296398891966759,
-    "accuracy": 0.6822429906542056
+    "share": 0.17568692756036636,
+    "accuracy": 0.6682464454976303
   },
   "cc_tier3_expert": {
-    "share": 0.49584487534626037,
-    "accuracy": 0.3407821229050279
+    "share": 0.17735220649458786,
+    "accuracy": 0.38028169014084506
   },
   "tflite_bytes": 1976852,
   "tflite_mb": 1.98,

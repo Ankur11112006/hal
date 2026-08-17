@@ -102,8 +102,20 @@ AUG = tf.keras.Sequential([
 ], name="augment")
 
 
+# BAHI_BACKBONE=large swaps in MobileNetV3Large. Small ships at 1.98 MB in
+# float16 against a 4-6 MB budget (SPEC.md 4.1), so there is room; Large is
+# roughly 5x the parameters and doubles both training time and the ~200ms
+# on-device inference. Worth trying once the data is settled, not before: on a
+# corpus this size the ceiling has been the training distribution, not capacity.
+BACKBONES = {"small": tf.keras.applications.MobileNetV3Small,
+             "large": tf.keras.applications.MobileNetV3Large}
+BACKBONE = os.environ.get("BAHI_BACKBONE", "small").lower()
+
+
 def build():
-    base = tf.keras.applications.MobileNetV3Small(
+    if BACKBONE not in BACKBONES:
+        sys.exit(f"BAHI_BACKBONE must be one of {sorted(BACKBONES)}, got {BACKBONE!r}")
+    base = BACKBONES[BACKBONE](
         input_shape=(IMG, IMG, 3),
         include_top=False,
         weights="imagenet",
@@ -308,6 +320,7 @@ def main():
     p = tf.nn.softmax(vl / T).numpy()
     conf, pred = p.max(1), p.argmax(1)
     metrics = {
+        "backbone": BACKBONE,
         "temperature": T,
         "temperature_fitted_on": cal_note,
         "temperature_if_fitted_on_val": T_val,

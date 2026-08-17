@@ -27,29 +27,39 @@ const LANGS = Object.entries(LANG_NAME).map(([code, native]) => ({
 // Every slide carries its source line. That is how the app earns the trust
 // SPEC.md section 2 names as the real bottleneck, and it pre-empts
 // "where did that number come from?"
+// `stat` is a localised block like the rest, not a bare string. It used to be
+// one, and "7.63 करोड़" appeared in the middle of the English onboarding: a
+// Devanagari number word on the first screen an English-speaking judge sees.
 export const SLIDES = [
-  { stat: '26%',
+  { stat: { hi: '26%', en: '26%', mr: '26%' },
     head: { hi: 'हर साल फ़सल कीट और बीमारी से बर्बाद होती है',
-            en: 'Lost to pest and disease every year' },
+            en: 'Lost to pest and disease every year',
+            mr: 'दरवर्षी पीक कीड आणि रोगामुळे वाया जातं' },
     body: { hi: 'सही समय पर सलाह मिले तो नुक़सान 10% तक घट सकता है।',
-            en: 'Timely advice has cut severe crop loss by as much as 10%.' },
+            en: 'Timely advice has cut severe crop loss by as much as 10%.',
+            mr: 'वेळेवर सल्ला मिळाला तर नुकसान 10% पर्यंत कमी होऊ शकतं.' },
     src: 'Ama Krushi RCT, Govt of Odisha / PxD' },
-  { stat: '28%',
+  { stat: { hi: '28%', en: '28%', mr: '28%' },
     head: { hi: 'आलू के दाम का सिर्फ़ इतना हिस्सा किसान तक पहुँचता है',
-            en: 'Of the potato price is all that reaches the farmer' },
+            en: 'Of the potato price is all that reaches the farmer',
+            mr: 'बटाट्याच्या भावातला एवढाच वाटा शेतकऱ्यापर्यंत पोहोचतो' },
     body: { hi: 'प्याज़ 33%, चावल 49%। बाक़ी बीच में चला जाता है।',
-            en: 'Onion 33%, rice 49%. The rest goes to the middle.' },
+            en: 'Onion 33%, rice 49%. The rest goes to the middle.',
+            mr: 'कांदा 33%, तांदूळ 49%. बाकीचं मधेच जातं.' },
     src: 'RBI study, 16 states, 9,400 farmers' },
-  { stat: '7.63 करोड़',
+  { stat: { hi: '7.63 करोड़', en: '76.3 million', mr: '7.63 कोटी' },
     head: { hi: 'किसान अब डिजिटल पहचान से जुड़ चुके हैं',
-            en: 'Farmers now have a digital identity' },
+            en: 'Farmers now have a digital identity',
+            mr: 'शेतकरी आता डिजिटल ओळखीशी जोडले गेले आहेत' },
     body: { hi: 'AgriStack Farmer ID · DPDP क़ानून 2023, डेटा आपका, कभी भी मिटाएँ।',
-            en: 'AgriStack Farmer ID · DPDP Act 2023: the data is yours, delete it any time.' },
+            en: 'AgriStack Farmer ID · DPDP Act 2023: the data is yours, delete it any time.',
+            mr: 'AgriStack Farmer ID · DPDP कायदा 2023, डेटा तुमचा, कधीही पुसून टाका.' },
     src: 'DAHD · IMD' },
-  { stat: '',
-    head: { hi: 'हल क्या करता है', en: 'What HAL does' },
+  { stat: { hi: '', en: '', mr: '' },
+    head: { hi: 'हल क्या करता है', en: 'What HAL does', mr: 'हल काय करतं' },
     body: { hi: 'पत्ते की फ़ोटो लें, बीमारी पहचानें\nबोलकर पूछें, जवाब सुनें\nपशु का टीका और बीमारी, एक जगह\nखेती की हर बात, एक साथ',
-            en: 'Photograph a leaf, spot the disease\nAsk out loud, hear the answer\nAnimal vaccines and illness in one place\nEvery part of farming, together' },
+            en: 'Photograph a leaf, spot the disease\nAsk out loud, hear the answer\nAnimal vaccines and illness in one place\nEvery part of farming, together',
+            mr: 'पानाचा फोटो घ्या, रोग ओळखा\nबोलून विचारा, उत्तर ऐका\nजनावराची लस आणि आजार, एकाच ठिकाणी\nशेतीची प्रत्येक गोष्ट, एकत्र' },
     src: '' },
 ];
 
@@ -113,9 +123,9 @@ export default function Onboarding({ navigation }) {
           <Text style={[T.caption, { color: C.green }]}>{t('common.skip')}</Text>
         </Pressable>
         <View style={{ flex: 1, justifyContent: 'center' }}>
-          {!!sl.stat && (
+          {!!L(sl.stat) && (
             <Text style={{ fontSize: 44, color: C.green, fontFamily: T.title.fontFamily }}>
-              {sl.stat}
+              {L(sl.stat)}
             </Text>
           )}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

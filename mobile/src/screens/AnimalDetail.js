@@ -3,7 +3,7 @@
 // The vaccination row is the highest impact-to-effort feature in the whole app:
 // the vaccine is free and the government administers it, so cost is not the
 // barrier, knowing the due date is. One date per animal and a WHERE clause.
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -21,6 +21,21 @@ export default function AnimalDetail({ route, navigation }) {
   const [animal, setAnimal] = useState(null);
   const [events, setEvents] = useState([]);
   const [toast, setToast] = useState(null);
+
+  // Three of the four tiles had no onPress at all. They looked identical to the
+  // one that worked, so pressing them did nothing and gave no hint why, on a
+  // screen built for someone who may not read. What they were always meant to
+  // do is jump to the section already sitting further down this same page, so
+  // that is what they do: each heading records its y as it lays out, and the
+  // tile scrolls there.
+  const scroller = useRef(null);
+  const anchors = useRef({});
+  const mark = (key) => (e) => { anchors.current[key] = e.nativeEvent.layout.y; };
+  const jump = (key) => () => {
+    const y = anchors.current[key];
+    if (y == null) return;                      // section not rendered for this animal
+    scroller.current?.scrollTo({ y: Math.max(0, y - 12), animated: true });
+  };
 
   useFocusEffect(useCallback(() => {
     let alive = true;
@@ -67,14 +82,14 @@ export default function AnimalDetail({ route, navigation }) {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: D.pad, paddingBottom: 60 }}>
+      <ScrollView ref={scroller} contentContainerStyle={{ padding: D.pad, paddingBottom: 60 }}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
           <Tile label={t('animal.checkSymptoms')}
             onPress={() => navigation.navigate('SymptomChecker',
               { animal: { ...animal, farmer_id: farmer.id } })} />
-          <Tile label={t('animal.vaccine')} />
-          <Tile label={t('animal.breeding')} />
-          <Tile label={t('animal.history')} />
+          <Tile label={t('animal.vaccine')} onPress={jump('vaccine')} />
+          <Tile label={t('animal.breeding')} onPress={jump('breeding')} />
+          <Tile label={t('animal.history')} onPress={jump('history')} />
         </View>
 
         {toast && (
@@ -83,7 +98,7 @@ export default function AnimalDetail({ route, navigation }) {
           </View>
         )}
 
-        <Text style={[T.label, { marginBottom: 8 }]}>{t('vaccine.title')}</Text>
+        <Text onLayout={mark('vaccine')} style={[T.label, { marginBottom: 8 }]}>{t('vaccine.title')}</Text>
         {dueRows.length === 0 ? (
           <Card><Text style={T.bodySoft}>{t('vaccine.none')}</Text></Card>
         ) : dueRows.map((v) => {
@@ -111,7 +126,7 @@ export default function AnimalDetail({ route, navigation }) {
 
         {breedRows.length > 0 && (
           <>
-            <Text style={[T.label, { marginTop: 16, marginBottom: 8 }]}>{t('breeding.title')}</Text>
+            <Text onLayout={mark('breeding')} style={[T.label, { marginTop: 16, marginBottom: 8 }]}>{t('breeding.title')}</Text>
             {breedRows.map((b) => (
               <Card key={b.id} style={{ paddingVertical: 12 }}>
                 <Text style={T.body}>{t('breeding.' + b.type)}</Text>
@@ -124,7 +139,7 @@ export default function AnimalDetail({ route, navigation }) {
           </>
         )}
 
-        <Text style={[T.label, { marginTop: 16, marginBottom: 8 }]}>{t('animal.history')}</Text>
+        <Text onLayout={mark('history')} style={[T.label, { marginTop: 16, marginBottom: 8 }]}>{t('animal.history')}</Text>
         {history.length === 0
           ? <Card><Text style={T.bodySoft}>{t('records.emptyPast')}</Text></Card>
           : history.map((e) => <TimelineRow key={e.id} e={{ ...e, animal_name: animal.name }} />)}

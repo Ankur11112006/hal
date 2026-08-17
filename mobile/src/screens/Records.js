@@ -16,7 +16,12 @@ import { TimelineRow, EmptyState, DemoChip } from '../components/ui';
 import { useApp } from '../../App';
 import * as db from '../db';
 
-const FILTERS = [
+// A function, not a constant. As a constant these three t() calls ran once, at
+// import time, while the language was still the default: the chips read सब,
+// खेत, पशु for ever, under an English "Ledger" heading, and no amount of
+// switching language moved them. Any t() at module scope is frozen at whatever
+// the language was when the file loaded.
+const filters = () => [
   { key: 'all', label: t('records.all') },
   { key: 'crop', label: t('nav.crop') },
   { key: 'animal', label: t('nav.livestock') },
@@ -50,7 +55,7 @@ export default function Records({ navigation }) {
           {farmer.is_demo ? <DemoChip /> : null}
         </View>
         <View style={{ flexDirection: 'row', gap: 8, marginVertical: 12 }}>
-          {FILTERS.map((f) => (
+          {filters().map((f) => (
             <Pressable key={f.key} onPress={() => setFilter(f.key)}
               style={{
                 paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999,

@@ -45,18 +45,33 @@ Backend: `https://bahi-backend.onrender.com` (live, free tier).
 
 ## 2. State right now
 
-Last commit `22d1408`, working tree clean, everything pushed.
+17 August, working tree clean, everything pushed.
 
 | | state |
 |---|---|
-| Model | trained, `artifacts/crop_model.tflite`, 1.98 MB float16 |
+| Model | v4, `artifacts/crop_model.tflite`, 1.98 MB float16, MobileNetV3-Small |
 | Backend | live on Render, all tests pass, Gemini verified against the real API |
-| App | runs on a device, most flows verified by hand (see §4) |
-| `dist/hal-arm64.apk` | current, 51 MB, built 16 Aug 01:28 |
+| App | walked by hand on an emulator: scan, ledger, symptom check, advisory, all three languages, and a full airplane-mode round trip |
+| Languages | Hindi, English, **Marathi** |
+| `dist/hal-arm64.apk` | current, 51 MB, built 17 Aug |
+
+**The number to quote is 46.9%, not 76.1%.** Both are in the model card and §5
+of this file explains the difference in one paragraph. Getting that backwards in
+a pitch is the single easiest way to lose credibility with a judge who has
+trained one of these.
 
 Rebuild the APK after any change under `mobile/`. Backend changes deploy
 themselves on push, but **only when something under `backend/` changed**: Render
 uses `rootDir: backend` and skips the deploy otherwise.
+
+### Five minutes before the demo
+
+Render's free instance sleeps after 15 minutes idle, takes about 50 seconds to
+wake, **and its database is wiped when it does**. Open
+`https://bahi-backend.onrender.com/health` to wake it, then give the app a
+minute on the phone: `/health` returns a `boot_id`, the phone notices it is new
+and re-sends the whole event log by itself. Without that minute the advisory
+answers about an empty farm.
 
 ---
 
@@ -140,8 +155,22 @@ Walked by hand on an x86_64 emulator, release build, with logcat open.
   `/vaccine-due/demo-ramesh` agreeing with the home card down to the date.
 - **Re-sync after a server wipe**, seen in logcat: `server is new to us (null ->
   43f79861e029), re-sending 32 events`.
+- **Marathi end to end.** Onboarding, home, tabs, vaccine names. Offered in the
+  picker; Punjabi, Bengali and Telugu still say "जल्द आएगी" because their string
+  files do not exist and the picker reads that, never a hand-set flag.
+- **The full offline round trip (SPEC.md 6.3).** Airplane mode on: the offline
+  chip appears, a gallery photo runs entirely on-device to tier 3, the advisory
+  queues as "इंटरनेट आते ही जवाब मिल जाएगा" with the question kept. Airplane mode
+  off: `[sync] sent 2 events`, both on the server afterwards with the Devanagari
+  intact. The tier-3 scan stored `name: null`, so it does not even record a
+  guess it would not show.
+- **Reminders reach the OS.** `[notify] scheduled 13 reminders`, and
+  `adb shell dumpsys alarm | grep in.hal.app` shows 13 matching `RTC_WAKEUP`
+  alarms set for 9am. Android is holding them, not the JS.
 
-Not yet walked: notifications actually firing, `मेरा डेटा मिटाएँ` count,
+Not yet walked: a notification actually appearing on screen (the emulator is a
+Play Store image, so the clock cannot be moved past 9am without root),
+`मेरा डेटा मिटाएँ` count,
 airplane-mode sync, adding a खेत or पशु by hand.
 
 ---
@@ -194,10 +223,26 @@ and `curl .../vaccine-due/demo-ramesh` would have shown this on day one.
 11. **The prompt named the words it was forbidding.** "na 'jaanch'" came back as
     **"एक बार जाanch लें"**, and an ISO due date came back as "2026-05-31 को".
 
+12. **A dead SQLite handle blanked the home screen.** Installing over a running
+    app closes the native database while the cached handle stays non-null, so
+    every query failed and the screen rendered its headings with nothing under
+    them and no error. Exactly what a farmer would see if a presenter sideloaded
+    a new build during a demo. `open()` now proves the handle first.
+13. **Marathi arrived half-built three separate ways**, each a different route to
+    the same failure: vaccine names baked into event rows at write time, so the
+    record never changed language; onboarding slides hardcoded with only `hi`
+    and `en`; and `'7.63 करोड़'` as a bare string, which had been showing
+    Devanagari in the middle of the **English** onboarding since English was
+    added. Nobody caught that one because nobody ran English from screen one.
+
 > The pattern in nearly all of them: **a `catch` that swallowed the reason, or a
 > value that contradicted itself.** Every fix included making the failure
 > visible. If something in this app appears to do nothing, assume an error is
 > being eaten and go find it, rather than guessing at the cause.
+>
+> And a second pattern, from the model side: **a headline number that jumps is
+> usually a test set that moved.** Field accuracy read 77% for an afternoon
+> before the check that showed it was measuring memory of a single farm.
 
 A related rule that keeps paying: **anything the model echoes must already be
 in the target script.** Sending it `"FMD"`, `overdue: true` and romanized status
@@ -208,25 +253,43 @@ whose entire premise is speaking the farmer's language.
 
 ## 6. Open, roughly in order
 
-1. Walk notifications, `मेरा डेटा मिटाएँ`, and adding a खेत/पशु by hand.
-2. Airplane-mode test: scan works, writes queue, then sync (`SPEC.md` 6.3).
-3. Rehearse tier 3 with a leaf that genuinely lands under 0.60.
-4. Three files need a human before a farmer sees them, all carrying
-   `_validated_by: null` and a warning:
-   - `content/symptom_tree.json`: a district vet
-   - `content/treatment_plans.json`: a KVK plant-protection officer
-   - `mobile/src/domain.js` `UNITS`: state revenue figures. **The quietest
-     risk in the codebase**: a bigha is not a fixed area, and a wrong
-     conversion makes every dose and cost wrong by up to 3x with no error.
-5. Field accuracy is 44.9% (maize 75.7%, tomato 29.8%). Not shippable. The fix
-   is Indian field imagery, not a bigger model. Say the number out loud in the
-   pitch.
+Nothing here is code that is missing. It is all work only a person can do, plus
+things deliberately left out.
+
+1. **Four files need a human before a farmer sees them.** All carry
+   `_validated_by: null` and print a warning on every `validate.py` run. A KVK,
+   Krishi Vigyan Kendra, is the government's district farm-science centre. There
+   is one in every district, the staff are qualified, and helping farmers is
+   their job. Walk in with a printout.
+   - `content/treatment_plans.json`: a KVK plant-protection officer. This is
+     where the doses live. "मैंकोज़ेब 75% WP, 2.5 ग्राम प्रति लीटर" came out of
+     research, not out of anyone who has sprayed a field.
+   - `content/symptom_tree.json`: a district veterinarian.
+   - `content/strings_mr.json`: a Marathi speaker, ideally at a Maharashtra KVK.
+   - `mobile/src/domain.js` `UNITS`: the tehsil revenue office. **The quietest
+     risk in the codebase.** A bigha is not a fixed area, it differs by state,
+     and a wrong conversion makes every dose and every cost wrong by up to 3x
+     with no error message anywhere. Everything looks normal and is wrong.
+2. Watch a reminder actually appear. Scheduling and the OS alarms are verified;
+   the last hop is not, and this emulator cannot test it.
+3. `मेरा डेटा मिटाएँ` count, and adding a खेत/पशु by hand.
+4. Rehearse tier 3 with a leaf that genuinely lands under 0.60.
+5. **Field accuracy is 46.9% on independent imagery**, 76.1% across all held-out
+   field photographs. Say 46.9% out loud in the pitch; §5 explains why. The fix
+   is Indian field photographs from many different phones and farms, not a
+   bigger backbone: 11,000 new field images moved the same 116 PlantDoc holdout
+   from 37.1% to 37.9%, which is nothing. `BAHI_BACKBONE=large` exists to test
+   the capacity theory rather than assume it.
 6. Not built: in-app community Q&A (`SPEC.md` E2, cut by the blueprint's scope
    lock), regional glossary rows (mechanism complete, zero rows, and the spec
    forbids shipping unvalidated vernacular).
 7. Not integrated: **Bhashini**. Voice is the Android TTS engine. Do not claim
    Bhashini on a slide.
 8. OTP is fake: any 4+ digit code proceeds.
+9. Marathi covers the UI and the vaccine names. `symptom_tree.json` and
+   `treatment_plans.json` stay Hindi and fall back through `L()`, on purpose: a
+   wrong disease name confuses, a wrong dose kills. `strings_mr.json` records
+   that under `_deliberate_gap`.
 
 ---
 
@@ -254,4 +317,20 @@ dashboard as `sync: false`. **Rotate all three after the demo.**
   reasons. Chilli was cut because every "chilli" dataset found was PlantVillage
   bell pepper renamed.
 - **Tier 3 is the pitch, not tier 1.** The app showing no diagnosis below 0.60
-  is the product. Do not lower the threshold to make demos smoother.
+  is the product. Do not lower the threshold to make demos smoother. On
+  PlantDoc it answers one photograph in twenty-six and is right on 92% of those:
+  the model declining what it cannot read is the measurement, not a shortfall.
+- **Every field source is split on its own, and never shuffled.** A donated
+  dataset is one team, one camera, a few sessions. Shuffling puts near-identical
+  frames of the same plant on both sides and the score becomes memory. Cotton
+  read 97.9% that way; a second cotton source dropped it to 93.0%.
+- **Provenance is checked before a dataset is used, not after.** The Kaggle
+  wheat set turned out to hold an Alamy stock photo with the watermark on it and
+  a journal figure of eleven leaves under one label; 4,116 of its images were
+  dropped. A Kaggle set advertising "field visits with farmers" turned out to be
+  100% byte-identical repackaging of data already on disk, and importing it as
+  field imagery would have promoted 5,900 lab photographs into the field pool.
+  Hash a new dataset against `data/raw` before believing its description.
+- **Marathi before Punjabi, Bengali, Telugu or Tamil.** Marathi is Devanagari,
+  so the font already in the APK renders it at no size cost. The others each
+  need another script file, which is a real decision and not a typing exercise.

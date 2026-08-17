@@ -43,6 +43,27 @@ POTATO = {
     "LATEBLT_1": "late_blight",
 }
 
+# The Kaggle wheat set is a merge of a genuine field collection with images
+# scraped off the web, and the two are mixed inside every class. Opening a
+# handful found an Alamy stock photo complete with watermark, and a figure
+# lifted from a journal showing eleven numbered detached leaves under a single
+# "Brown Rust" label, several of which look healthy. Training on that teaches
+# the watermark and the wrong label.
+#
+# The two kinds separate cleanly by resolution: the field photographs are phone
+# originals, 700x945 and up, while the scraped ones are 256x256 thumbnails and
+# small crops. Sampling sixty per class puts the phone-like share at 0% for
+# yellow rust, 17-22% for mildew and brown rust, and 55-72% for septoria and
+# healthy. Every image inspected above this threshold was a real field photo
+# and every one below it was not, so the cut goes here.
+#
+# This is a judgement about provenance, not about the label, which is why it is
+# allowed at all: getting it slightly wrong costs a few training images, where
+# guessing a label would cost a farmer the wrong spray. It is still a heuristic
+# and it is recorded as one in STATUS.md.
+WHEAT_MIN_SIDE = 600
+WHEAT_CLASSES = {"Brown Rust", "Yellow Rust", "Septoria", "Mildew", "Healthy"}
+
 
 def open_zip(path, stats):
     """None if the archive is not a readable zip yet. A half-downloaded file
@@ -140,16 +161,60 @@ def do_cotton(stats):
                     stats["failed"] += 1
 
 
+def do_wheat(stats):
+    """Only the five folders that map onto our wheat classes, and within those
+    only the phone-resolution originals. See WHEAT_MIN_SIDE above for why."""
+    from PIL import Image                      # only this one source needs it
+
+    src = RAW / "wheat_kaggle" / "wheat-plant-diseases.zip"
+    if not src.exists():
+        print("  wheat-plant-diseases.zip missing, skipping")
+        return
+    z = open_zip(src, stats)
+    if z is None:
+        return
+    with z:
+        for name in z.namelist():
+            p = pathlib.PurePosixPath(name)
+            if not name.startswith("data/train/") or p.suffix.lower() not in IMG_EXT:
+                continue
+            cls = p.parts[2]
+            if cls not in WHEAT_CLASSES:
+                stats["skipped"] += 1
+                continue
+            blob = z.read(name)
+            try:
+                w, h = Image.open(io.BytesIO(blob)).size
+            except Exception:
+                stats["skipped"] += 1               # unreadable, not a failure to extract
+                continue
+            if min(w, h) < WHEAT_MIN_SIDE:
+                stats["scraped"] += 1
+                continue
+            out = RAW / "wheat_field" / cls / p.name
+            if out.exists():
+                continue
+            out.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                out.write_bytes(blob)
+                stats["wheat"] += 1
+            except OSError as e:
+                print(f"  FAILED {name}: {e}")
+                stats["failed"] += 1
+    print(f"  dropped {stats['scraped']} below {WHEAT_MIN_SIDE}px (scraped/thumbnails)")
+
+
 def main():
     stats = collections.Counter()
     for label, fn in (("ccmt", do_ccmt),
                       ("potato", lambda s: do_flat(s, "potato_field", POTATO, "potato")),
-                      ("cotton", do_cotton)):
+                      ("cotton", do_cotton),
+                      ("wheat", do_wheat)):
         print(f"{label}:")
         fn(stats)
         print(f"  wrote {stats[label]}")
 
-    print(f"\ntotal written {stats['ccmt'] + stats['potato'] + stats['cotton']}, "
+    print(f"\ntotal written {stats['ccmt'] + stats['potato'] + stats['cotton'] + stats['wheat']}, "
           f"skipped {stats['skipped']}, failed {stats['failed']}")
     if stats["incomplete"]:
         print(f"{stats['incomplete']} archive(s) still downloading, re-run when they finish")

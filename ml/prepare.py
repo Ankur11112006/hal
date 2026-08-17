@@ -125,6 +125,16 @@ SOURCES = [
     # hurts this model is lab-versus-field and these are field. One flat zip per
     # class; ml/extract.py holds the zip-name-to-class mapping.
     ("potato_field", "flat:potato", "field"),
+    # Wheat, and only the part of it that is real. The Kaggle set it comes from
+    # mixes a genuine field collection with images scraped off the web, inside
+    # every class; ml/extract.py keeps the phone-resolution originals and drops
+    # 4,116 thumbnails, an Alamy stock photo and a journal figure among them.
+    #
+    # This matters more than the count suggests. wheat__septoria and
+    # wheat__powdery_mildew had fifty lab images each, the thinnest classes in
+    # the model, and now have 514 and 176 photographs taken in a field.
+    # wheat__stripe_rust gets nothing: every image in that folder was scraped.
+    ("wheat_field", "flat:wheat", "field"),
 ]
 
 IMG_EXT = {".jpg", ".jpeg", ".png", ".bmp"}

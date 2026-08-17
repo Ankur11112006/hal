@@ -7,12 +7,23 @@ export { default as treatments } from '../assets/treatment_plans.json';
 
 import hi from '../assets/strings_hi.json';
 import en from '../assets/strings_en.json';
+import mr from '../assets/strings_mr.json';
 
 // Every language that is actually complete. A language only appears here once
 // its string file exists; the picker reads this, so a half-built language can
 // never be offered. Showing a language and then rendering Hindi is worse than
 // not showing it, and a judge will tap one.
-export const BUNDLES = { hi, en };
+//
+// Marathi came next because it is written in Devanagari, so the Noto Sans
+// Devanagari already in the bundle renders it with no new font and no size
+// cost. Punjabi, Bengali, Telugu and Tamil each need their own script file
+// before they can be offered at all, which is a real decision and not a typing
+// exercise.
+//
+// "Complete" here means all 238 keys exist, which content/validate.py enforces.
+// It does not mean a Marathi speaker has read them. strings_mr.json carries
+// _validated_by: null and says so at the top.
+export const BUNDLES = { hi, en, mr };
 export const READY = Object.keys(BUNDLES);
 
 let lang = 'hi';

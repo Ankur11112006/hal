@@ -176,6 +176,15 @@ def check_strings() -> list[str]:
                 if ph(a) != ph(b):
                     errs.append(f"strings_{lang}.json '{k}': placeholders "
                                 f"{sorted(ph(b))} do not match Hindi {sorted(ph(a))}")
+    # Key parity proves a language file is COMPLETE. It says nothing about
+    # whether the words are right, and a wrong disease name in a language nobody
+    # on the team reads is the quietest way to send a farmer to the wrong spray.
+    # Any file that declares _validated_by: null says so on every run.
+    for lang in sorted(sets):
+        d = load(f"strings_{lang}.json")
+        if "_validated_by" in d and d["_validated_by"] is None:
+            print(f"  WARNING strings_{lang}.json _validated_by is null - "
+                  f"no native speaker has read it, agricultural terms unverified")
     print(f"  {len(sets)} languages, {len(base)} keys each")
     return errs
 

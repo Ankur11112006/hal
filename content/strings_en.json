@@ -172,7 +172,7 @@
   "advisory.needsInternet": "This one needs internet. Everything else works without it.",
   "settings.title": "Settings",
   "settings.language": "Change language",
-  "settings.languageBody": "Hindi and English are ready. The other languages are being built.",
+  "settings.languageBody": "Hindi, English and Marathi are ready. The other languages are being built.",
   "settings.voiceSpeed": "Speaking speed",
   "settings.voiceSlow": "Slow",
   "settings.voiceNormal": "Normal",

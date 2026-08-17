@@ -1,16 +1,16 @@
 {
-  "temperature": 1.2000000000000006,
-  "temperature_fitted_on": "field_cal, 1061 held-out field images",
-  "temperature_if_fitted_on_val": 1.0500000000000005,
-  "val_accuracy": 0.9275502318392581,
-  "val_ece_after_calibration": 0.017028086581245792,
-  "val_ece_before_calibration": 0.005405938537817256,
+  "temperature": 1.650000000000001,
+  "temperature_fitted_on": "field_cal, 1255 held-out field images",
+  "temperature_if_fitted_on_val": 0.9500000000000004,
+  "val_accuracy": 0.927983144991381,
+  "val_ece_after_calibration": 0.07361391540620318,
+  "val_ece_before_calibration": 0.007627841476918256,
   "img_size": 224,
   "classes": 30,
-  "field_accuracy": 0.7710241465445462,
-  "field_n": 1201,
-  "field_ece_after_calibration": 0.037417626053367854,
-  "field_ece_before_calibration": 0.06270331448311613,
+  "field_accuracy": 0.7535410764872521,
+  "field_n": 1412,
+  "field_ece_after_calibration": 0.04157694671883462,
+  "field_ece_before_calibration": 0.06000059699539423,
   "field_classes": [
     "cotton__bacterial_blight",
     "cotton__healthy",
@@ -33,40 +33,76 @@
     "tomato__leaf_mold",
     "tomato__mosaic_virus",
     "tomato__septoria_leaf_spot",
-    "tomato__yellow_leaf_curl"
+    "tomato__yellow_leaf_curl",
+    "wheat__healthy",
+    "wheat__leaf_rust",
+    "wheat__powdery_mildew",
+    "wheat__septoria"
   ],
-  "field_note": "22 of 30 classes have in-the-wild test images (PlantDoc). Classes without field images are reported on the validation split only.",
+  "field_note": "26 of 30 classes have in-the-wild test images. Classes without field images are reported on the validation split only.",
+  "field_accuracy_by_source": {
+    "ccmt": {
+      "n": 255,
+      "accuracy": 0.7843137254901961
+    },
+    "cotton_field": {
+      "n": 143,
+      "accuracy": 0.9790209790209791
+    },
+    "icar": {
+      "n": 55,
+      "accuracy": 0.6727272727272727
+    },
+    "plantdoc_files": {
+      "n": 307,
+      "accuracy": 0.46905537459283386
+    },
+    "potato_field": {
+      "n": 271,
+      "accuracy": 0.9114391143911439
+    },
+    "tomato_village": {
+      "n": 169,
+      "accuracy": 0.8461538461538461
+    },
+    "wheat_field": {
+      "n": 212,
+      "accuracy": 0.7216981132075472
+    }
+  },
+  "field_accuracy_plantdoc": 0.46905537459283386,
+  "field_n_plantdoc": 307,
   "tier1_auto": {
-    "share": 0.5970024979184013,
-    "accuracy": 0.9553695955369595,
-    "n": 717
+    "share": 0.43271954674220964,
+    "accuracy": 0.9754500818330606,
+    "n": 611
   },
   "tier2_vlae": {
-    "share": 0.17318900915903415,
-    "accuracy": 0.6875,
-    "n": 208
+    "share": 0.22521246458923513,
+    "accuracy": 0.7987421383647799,
+    "n": 318
   },
   "tier3_expert": {
-    "share": 0.22980849292256453,
-    "accuracy": 0.35507246376811596,
-    "n": 276
+    "share": 0.34206798866855526,
+    "accuracy": 0.44306418219461696,
+    "n": 483
   },
-  "tier1_precision": 0.9553695955369595,
-  "tier1_false_positive_rate": 0.04463040446304045,
-  "field_treatment_accuracy": 0.8118234804329725,
-  "tier1_treatment_precision": 0.9665271966527197,
-  "field_accuracy_crop_conditioned": 0.7985012489592007,
+  "tier1_precision": 0.9754500818330606,
+  "tier1_false_positive_rate": 0.02454991816693941,
+  "field_treatment_accuracy": 0.7974504249291785,
+  "tier1_treatment_precision": 0.9787234042553191,
+  "field_accuracy_crop_conditioned": 0.7882436260623229,
   "cc_tier1_auto": {
-    "share": 0.6469608659450458,
-    "accuracy": 0.9485199485199485
+    "share": 0.49291784702549574,
+    "accuracy": 0.9655172413793104
   },
   "cc_tier2_vlae": {
-    "share": 0.17568692756036636,
-    "accuracy": 0.6682464454976303
+    "share": 0.23512747875354106,
+    "accuracy": 0.7921686746987951
   },
   "cc_tier3_expert": {
-    "share": 0.17735220649458786,
-    "accuracy": 0.38028169014084506
+    "share": 0.2719546742209632,
+    "accuracy": 0.4635416666666667
   },
   "tflite_bytes": 1976852,
   "tflite_mb": 1.98,

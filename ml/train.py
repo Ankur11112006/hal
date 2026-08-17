@@ -371,8 +371,20 @@ def main():
             per_source = {}
             for s in sorted(set(src)):
                 m = src == s
-                per_source[s] = {"n": int(m.sum()),
-                                 "accuracy": float((fpred[m] == fy[m]).mean())}
+                ok = fpred[m] == fy[m]
+                # The pair that matters. Accuracy alone says how often the model
+                # is right; answered/precision say how often it was willing to
+                # speak and whether it should have been. On PlantDoc it answers
+                # 5.9% of the time at 88.9% precision while scoring 46.9%
+                # overall: it knows it does not know, which is the product.
+                auto = m & (fconf > 0.85)
+                per_source[s] = {
+                    "n": int(m.sum()),
+                    "accuracy": float(ok.mean()),
+                    "answered_share": float(auto.sum() / m.sum()),
+                    "tier1_precision": (float((fpred[auto] == fy[auto]).mean())
+                                        if auto.sum() else None),
+                }
             metrics["field_accuracy_by_source"] = per_source
             pd = per_source.get("plantdoc_files")
             if pd:

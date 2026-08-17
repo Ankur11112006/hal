@@ -136,6 +136,19 @@ SOURCES = [
     # the model, and now have 514 and 176 photographs taken in a field.
     # wheat__stripe_rust gets nothing: every image in that folder was scraped.
     ("wheat_field", "flat:wheat", "field"),
+    # A second, unrelated cotton source: 1,872 images that share not one byte
+    # with the 92,467 we already hold. Cotton previously came from one
+    # institute's field in Gazipur and scored 97.9% on its own held-out
+    # images, which told us nothing except that the model remembers a farm.
+    # Two independent sources is the only way to find out what cotton is
+    # actually worth.
+    #
+    # Only the cotton folders of that archive are here. Its rice and maize
+    # folders are byte-identical repackagings of datasets we already have as
+    # lab imagery, despite the description claiming field collection, and
+    # importing them would have promoted 5,900 lab photographs into the field
+    # pool. ml/extract.py has the numbers.
+    ("cotton_20k", "flat:cotton", "field"),
 ]
 
 IMG_EXT = {".jpg", ".jpeg", ".png", ".bmp"}

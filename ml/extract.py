@@ -64,6 +64,31 @@ POTATO = {
 WHEAT_MIN_SIDE = 600
 WHEAT_CLASSES = {"Brown Rust", "Yellow Rust", "Septoria", "Mildew", "Healthy"}
 
+# The Kaggle "20k Multi-Class Crop Disease" set says it was gathered on field
+# visits with farmers. For rice and maize that is not true: hashing it against
+# what we already had found 100% of sampled Rice Blast, Tungro, Common Rust and
+# Healthy Maize images byte-identical to the Sethy rice set and the maize set we
+# downloaded weeks ago. Importing those as field imagery would have quietly
+# promoted 5,900 lab photographs into the field pool, because dedupe ranks field
+# above lab, and the honest field number would have risen for no reason at all.
+#
+# The cotton folders are the exception: 0% duplicates against 92,467 images we
+# already hold. Cotton otherwise comes from a single institute's field in
+# Gazipur, so a second, unrelated source is worth more here than the count
+# suggests. It is also the only way to find out what cotton really scores.
+#
+# The mapping is explicit rather than resolved from folder names because one of
+# those names is "Leaf Curl" with no crop attached. Opening it shows a cotton
+# leaf, five-lobed and unmistakable, with the vein thickening of the leaf curl
+# virus. Asserting the crop here is honest; letting a bare "leaf curl" fall
+# through labels.py and land on tomato would not be.
+COTTON_20K = {
+    "bacterial_blight in Cotton": "bacterial_blight",
+    "Bacterial Blight in cotton": "bacterial_blight",
+    "Healthy cotton": "healthy",
+    "Leaf Curl": "leaf_curl_virus",
+}
+
 
 def open_zip(path, stats):
     """None if the archive is not a readable zip yet. A half-downloaded file
@@ -204,17 +229,46 @@ def do_wheat(stats):
     print(f"  dropped {stats['scraped']} below {WHEAT_MIN_SIDE}px (scraped/thumbnails)")
 
 
+def do_cotton20k(stats):
+    """Only the cotton folders, and only under names that say which crop they
+    are. See COTTON_20K for why the rest of this archive is left alone."""
+    src = RAW / "multicrop20k" / "20k-multi-class-crop-disease-images.zip"
+    if not src.exists():
+        print("  20k-multi-class-crop-disease-images.zip missing, skipping")
+        return
+    z = open_zip(src, stats)
+    if z is None:
+        return
+    with z:
+        for name in z.namelist():
+            p = pathlib.PurePosixPath(name)
+            if name.endswith("/") or p.suffix.lower() not in IMG_EXT or len(p.parts) < 3:
+                continue
+            cls = COTTON_20K.get(p.parts[1])
+            if cls is None:
+                stats["skipped"] += 1
+                continue
+            # Train/ and Validation/ both land here; the split is ours to make.
+            out = RAW / "cotton_20k" / cls / f"{p.parts[0].lower()}_{p.name}"
+            try:
+                stats["cotton20k"] += write(z, name, out)
+            except OSError as e:
+                print(f"  FAILED {name}: {e}")
+                stats["failed"] += 1
+
+
 def main():
     stats = collections.Counter()
     for label, fn in (("ccmt", do_ccmt),
                       ("potato", lambda s: do_flat(s, "potato_field", POTATO, "potato")),
                       ("cotton", do_cotton),
-                      ("wheat", do_wheat)):
+                      ("wheat", do_wheat),
+                      ("cotton20k", do_cotton20k)):
         print(f"{label}:")
         fn(stats)
         print(f"  wrote {stats[label]}")
 
-    print(f"\ntotal written {stats['ccmt'] + stats['potato'] + stats['cotton'] + stats['wheat']}, "
+    print(f"\ntotal written {stats['ccmt'] + stats['potato'] + stats['cotton'] + stats['wheat'] + stats['cotton20k']}, "
           f"skipped {stats['skipped']}, failed {stats['failed']}")
     if stats["incomplete"]:
         print(f"{stats['incomplete']} archive(s) still downloading, re-run when they finish")

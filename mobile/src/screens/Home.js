@@ -9,7 +9,7 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { C, T, D } from '../theme';
-import { t, L, getLang } from '../content';
+import { t, L, getLang, vaccineName } from '../content';
 import { LANG_NAME } from './Onboarding';
 import {
   Card, PrimaryButton, TimelineRow, OfflineChip, DemoChip, SpeakButton, EmptyState,
@@ -99,7 +99,7 @@ export default function Home({ navigation }) {
               : overdue
                 ? t('vaccine.overdue', { days: Math.abs(v.daysLeft) })
                 : v.daysLeft === 0 ? t('vaccine.dueToday') : t('vaccine.due', { days: v.daysLeft });
-            const title = `${v.animal_name} · ${L(v.data.label) || v.data.vaccine}`;
+            const title = `${v.animal_name} · ${vaccineName(v.data)}`;
             return (
               // Staggered so the three cards arrive one after another. This is
               // the first screen of the demo and the first thing a farmer sees

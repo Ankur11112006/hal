@@ -1,7 +1,8 @@
 // Bundled content. Copied from the repo-root content/ by scripts/sync-assets.mjs.
 // Blueprint 11: pitch copy, vet logic and treatment plans live in JSON so they
 // can be edited the night before a demo without an Android rebuild.
-export { default as schedule } from '../assets/vaccination_schedule.json';
+import schedule from '../assets/vaccination_schedule.json';
+export { schedule };
 export { default as symptomTree } from '../assets/symptom_tree.json';
 export { default as treatments } from '../assets/treatment_plans.json';
 
@@ -61,6 +62,29 @@ export function L(block) {
   if (!block) return '';
   if (typeof block === 'string') return block;
   return block[lang] ?? block.hi ?? block.en ?? '';
+}
+
+/**
+ * The name of a vaccine, in the language being read right now.
+ *
+ * Not from the event row. generateSchedule() copies the label into the event
+ * when it writes it, so a row created while the app was in Hindi carries the
+ * Hindi label for ever: switch to Marathi and the screen says खुरपका-मुँहपका
+ * under a Marathi heading, which is the half-built language this codebase warns
+ * about, arriving through the back door.
+ *
+ * The event also stores the vaccine CODE, which does not change, so the name is
+ * looked up from the schedule at render time and the stored label is only a
+ * fallback for a code the schedule no longer lists.
+ */
+export function vaccineName(data) {
+  if (!data) return '';
+  for (const list of Object.values(schedule.schedules || {})) {
+    for (const v of list) {
+      if (v.vaccine === data.vaccine) return L(v.label) || data.vaccine;
+    }
+  }
+  return L(data.label) || data.vaccine || '';
 }
 
 // The model emits a canonical id; the word the farmer sees is chosen here,

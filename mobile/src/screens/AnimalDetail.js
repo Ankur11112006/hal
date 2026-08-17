@@ -8,7 +8,7 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { C, T, D } from '../theme';
-import { t, L } from '../content';
+import { t, L, vaccineName } from '../content';
 import {
   Card, PrimaryButton, OutlineButton, TimelineRow, SpeakButton, CallButton,
 } from '../components/ui';
@@ -92,7 +92,7 @@ export default function AnimalDetail({ route, navigation }) {
             ? t('vaccine.noRecord')
             : overdue ? t('vaccine.overdue', { days: Math.abs(v.daysLeft) })
               : v.daysLeft === 0 ? t('vaccine.dueToday') : t('vaccine.due', { days: v.daysLeft });
-          const name = L(v.data.label) || v.data.vaccine;
+          const name = vaccineName(v.data);
           return (
             <Card key={v.id} style={overdue ? { borderColor: C.red, borderWidth: 2 } : null}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>

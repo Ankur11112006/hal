@@ -8,7 +8,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { dueVaccines } from './db';
-import { t, L } from './content';
+import { t, L, vaccineName } from './content';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -47,7 +47,7 @@ export async function syncReminders(farmerId) {
   let n = 0;
 
   for (const v of due) {
-    const name = L(v.data.label) || v.data.vaccine;
+    const name = vaccineName(v.data);
     // Fire a week ahead, and again on the day. An overdue one is surfaced at
     // the next 9am rather than silently dropped.
     const dueAt = new Date(v.at).getTime();

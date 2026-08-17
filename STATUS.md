@@ -192,49 +192,79 @@ Three files ship with `_validated_by: null` and a warning at the top.
 
 ## 7. The model, honestly
 
-**31 classes across 6 crops.** Trained on 29,530 images from 7 datasets; tested on
-361 held-out in-the-wild photos that were never trained or calibrated on.
+**30 classes across 6 crops.** Trained on 39,737 images from 11 datasets; tested
+on 1,412 held-out in-the-wild photographs that were never trained or calibrated
+on.
 
 | | |
 |---|---|
-| Validation accuracy | 93.9% |
-| **Field accuracy** | **44.9%** |
-| Field accuracy, crop-conditioned | 53.2% |
-| Field treatment accuracy | 57.9% |
-| **Tier-1 precision** | **82.9%** |
-| **Tier-1 treatment precision** | **97.1%** |
-| Field ECE, before → after field calibration | 0.222 → 0.045 |
-| Size | 1.98 MB float16 |
+| Validation accuracy | 92.8% |
+| Field accuracy | 75.4% |
+| **Field accuracy on independent imagery (PlantDoc)** | **46.9%** |
+| Field accuracy, crop-conditioned | 78.8% |
+| Field treatment accuracy | 79.8% |
+| **Tier-1 precision** | **97.5%** |
+| Tier-1 share (how often it answers at all) | 43.3% |
+| Field ECE, before → after field calibration | 0.113 → 0.042 |
+| Size | 1.98 MB float16, MobileNetV3-Small |
 
-### Three builds, and what each one taught
+### Read the second row, not the first
+
+Field accuracy is 75.4% across the whole test set and 46.9% on PlantDoc alone.
+Both are true and the gap is the point.
+
+| source | n | accuracy | answers | precision when it answers |
+|---|---|---|---|---|
+| cotton, one institute's field | 143 | 97.9% | 74.8% | **100%** |
+| potato, Tanzanian smallholdings | 271 | 91.1% | 69.4% | 99.5% |
+| tomato, Jodhpur and Jaipur | 169 | 84.6% | 37.3% | 98.4% |
+| CCMT, Ghanaian farms | 255 | 78.4% | 33.7% | 100% |
+| wheat field subset | 212 | 72.2% | 65.6% | 92.1% |
+| ICAR India | 55 | 67.3% | 18.2% | 100% |
+| **PlantDoc, web imagery from everywhere** | **307** | **46.9%** | **5.9%** | **88.9%** |
+| all | 1,412 | 75.4% | 43.3% | 97.5% |
+
+A donated field set is one team, one camera and a handful of sessions, so a
+held-out image from it looks far more like the training data than a stranger's
+photograph does. **PlantDoc is the only source that owes nothing to any
+collection the model trained on, and 46.9% is therefore the number to quote.**
+
+The right-hand column is what makes the model shippable anyway. On PlantDoc the
+model volunteers a diagnosis on one photograph in seventeen, and is right on
+89% of those. It knows when it does not know. That is the product, and it is
+now a measurement rather than a claim.
+
+### Four builds, and what each one taught
 
 | build | field acc | tier-1 share | tier-1 precision |
 |---|---|---|---|
 | v1 | 22.5% | 34% | **28.9%** |
 | v2 | 33.3% | 19% | 66.7% |
-| v3 | **44.9%** | 9.7% | **82.9%** |
+| v3 | 44.9% | 9.7% | 82.9% |
+| **v4** | 75.4% (46.9% independent) | **43.3%** | **97.5%** |
 
 v1 answered confidently on a third of field photos and was **wrong 71% of those
-times.** Validation accuracy across all three builds moved 93.2 → 93.9. Every
-number that mattered moved in the field column, and none of it was visible from
-validation.
+times.** v4 answers four and a half times as often as v3 and is wrong once in
+forty instead of once in six.
 
-### Per crop, the most useful table in this document
+Validation accuracy across all four builds moved 93.2 → 92.8, which is to say it
+never moved at all. Every number that mattered moved in the field column, and
+none of it was ever visible from validation.
 
-| crop | field accuracy | n |
-|---|---|---|
-| **maize** | **75.7%** | 111 |
-| rice | 41.7% | 24 |
-| potato | 31.2% | 48 |
-| tomato | 29.8% | 178 |
+### What the new data did and did not do
 
-Same model, same run. Maize had the most in-the-wild training images; tomato had
-the fewest relative to its nine classes. This is the proof that the gap is data,
-not architecture. The demo crop is the strong one, which is worth saying out loud
-rather than hoping nobody asks.
+v4 added roughly 9,000 field photographs across five datasets. Measured on the
+same 116 PlantDoc holdout images before and after: **37.1% → 37.9%.** That is
+inside the noise of a 116-image test.
 
-Two rows a judge could find: `tomato__bacterial_spot` is 0 of 25 on field photos,
-`potato__early_blight` is 3 of 25.
+So the honest reading is that the extra data bought a great deal on imagery that
+resembles it, and close to nothing on imagery that does not. What it did buy,
+decisively, is calibration: the model now declines the photographs it cannot
+read instead of guessing at them, and that is where tier-1 precision came from.
+
+The next real gain is Indian field photographs from many different phones and
+many different farms, not a bigger backbone. `BAHI_BACKBONE=large` exists to
+test that claim rather than to assume it.
 
 ### Bugs found and fixed along the way
 

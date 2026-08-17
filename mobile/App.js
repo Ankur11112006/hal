@@ -129,7 +129,16 @@ export default function App() {
   // before showing any reason to grant it, which is how you get denied.
   useEffect(() => {
     if (!farmer) return;
-    const id = setTimeout(() => syncReminders(farmer.id).catch(() => {}), 2500);
+    const id = setTimeout(() => {
+      // The count and the error were both thrown away, so "are reminders
+      // working?" had no answer short of waiting until 9am and watching the
+      // phone. syncReminders returns how many it queued; a zero here means
+      // permission was refused or nothing is due, and those are different
+      // problems that used to look identical.
+      syncReminders(farmer.id)
+        .then((n) => console.log('[notify] scheduled', n, 'reminders'))
+        .catch((e) => console.warn('[notify] failed:', e?.message || e));
+    }, 2500);
     return () => clearTimeout(id);
   }, [farmer?.id, tick]);
 

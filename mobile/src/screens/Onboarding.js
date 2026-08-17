@@ -7,6 +7,7 @@ import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { C, T, D } from '../theme';
 import { t, setLang, READY, L } from '../content';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PrimaryButton, OutlineButton, SpeakButton } from '../components/ui';
 import { useApp } from '../../App';
 import * as db from '../db';
@@ -91,10 +92,15 @@ export default function Onboarding({ navigation }) {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
           {LANGS.map((l) => (
             <Pressable key={l.code}
-              onPress={() => {
+              onPress={async () => {
                 if (!l.ready) return;               // do not fake it, a judge will tap
                 setLangState(l.code);
                 setLang(l.code);
+                // Persisted here, not only in Settings. setLang() moves a
+                // module variable and nothing more, so the choice made on the
+                // very first screen used to survive exactly as long as the
+                // process did: pick English, reopen the app, get Hindi.
+                try { await AsyncStorage.setItem('bahi.lang', l.code); } catch {}
                 voice.speak(t('onboard.welcome'), l.code);
                 setStep('slides');
               }}
@@ -191,7 +197,7 @@ export default function Onboarding({ navigation }) {
           onPress={async () => {
             setBusy(true);
             try {
-              const { farmer_id } = await seedDemo();
+              const { farmer_id } = await seedDemo(lang);
               setFarmer(await db.farmer(farmer_id));
             } catch (e) {
               // An unhandled rejection here is invisible in a release build:

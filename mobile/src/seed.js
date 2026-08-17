@@ -15,12 +15,18 @@ import { toHectares } from './domain';
 
 const F = 'demo-ramesh';
 
-export async function seedDemo() {
+/**
+ * `lang` is whatever the user just chose on the first screen. It used to be
+ * hardcoded 'hi' here, so a judge who picked English and then tapped the demo
+ * button got a Hindi app back on the next launch: App.js falls back to the
+ * farmer row's language, and the farmer row said Hindi no matter what.
+ */
+export async function seedDemo(lang = 'hi') {
   await resetDemo();
 
   await addFarmer({
     id: F, phone: '9000000000', name: 'रमेश वर्मा', village: 'बाराबंकी',
-    pincode: '225001', state: 'UP', lang: 'hi', gender: 'male',
+    pincode: '225001', state: 'UP', lang, gender: 'male',
     does: 'dono', is_demo: 1,
   });
 

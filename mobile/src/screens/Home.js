@@ -13,6 +13,7 @@ import { t, L, getLang } from '../content';
 import { LANG_NAME } from './Onboarding';
 import {
   Card, PrimaryButton, TimelineRow, OfflineChip, DemoChip, SpeakButton, EmptyState,
+  Shimmer, FadeIn,
 } from '../components/ui';
 import { useApp } from '../../App';
 import * as db from '../db';
@@ -77,12 +78,21 @@ export default function Home({ navigation }) {
         )}
 
         <Text style={[T.label, { marginTop: 8, marginBottom: 8 }]}>{t('home.todayImportant')}</Text>
+        {/* Shaped like the cards that are coming, rather than the word
+            "loading". This is a read from SQLite so it is usually quick, but on
+            a cold start the notification dialog can steal focus and stretch it,
+            and a farmer should never be looking at a blank screen wondering
+            whether the app knows about their animals. */}
         {!loaded ? (
-          <Card><Text style={T.bodySoft}>{t('common.loading')}</Text></Card>
+          <Card>
+            <Shimmer width="62%" height={16} style={{ marginBottom: 12 }} />
+            <Shimmer width="45%" height={13} style={{ marginBottom: 16 }} />
+            <Shimmer width="100%" height={44} radius={12} />
+          </Card>
         ) : due.length === 0 ? (
           <Card><Text style={T.bodySoft}>{t('home.nothingUrgent')}</Text></Card>
         ) : (
-          due.slice(0, 3).map((v) => {
+          due.slice(0, 3).map((v, i) => {
             const overdue = v.overdue && !v.noRecord;
             const line = v.noRecord
               ? t('vaccine.noRecord')
@@ -91,7 +101,12 @@ export default function Home({ navigation }) {
                 : v.daysLeft === 0 ? t('vaccine.dueToday') : t('vaccine.due', { days: v.daysLeft });
             const title = `${v.animal_name} · ${L(v.data.label) || v.data.vaccine}`;
             return (
-              <Card key={v.id} style={{ borderColor: overdue ? C.red : C.amber, borderWidth: 2,
+              // Staggered so the three cards arrive one after another. This is
+              // the first screen of the demo and the first thing a farmer sees
+              // each morning; movement here reads as the app looking things up
+              // for them rather than a page that was already sitting there.
+              <FadeIn key={v.id} delay={i * 70}>
+              <Card style={{ borderColor: overdue ? C.red : C.amber, borderWidth: 2,
                                         backgroundColor: overdue ? C.redSoft : C.amberSoft }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Text style={[T.cardTitle, { flex: 1 }]}>{title}</Text>
@@ -106,6 +121,7 @@ export default function Home({ navigation }) {
                   style={{ marginTop: 12 }}
                   onPress={() => navigation.navigate('AnimalDetail', { id: v.animal_id })} />
               </Card>
+              </FadeIn>
             );
           })
         )}

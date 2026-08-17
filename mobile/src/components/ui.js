@@ -7,9 +7,10 @@
 //   4 colour never carries meaning alone -> TierCard prints the tier WORD
 //   5 no empty state without an action  -> EmptyState
 //   7 offline is a state, not an error  -> OfflineChip is green
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, Pressable, ScrollView, ActivityIndicator, Linking, StyleSheet,
+  Animated, Easing,
 } from 'react-native';
 import { C, T, D, TIER_STYLE, HELPLINE } from '../theme';
 import { t, L } from '../content';
@@ -37,22 +38,47 @@ export function Card({ children, style, onPress }) {
   return <Wrap onPress={onPress} style={[s.card, style]}>{children}</Wrap>;
 }
 
+/**
+ * Press feedback: the control gives a little under the thumb and springs back.
+ *
+ * Opacity alone was not enough. Half these buttons kick off something that
+ * takes a second or two (a sync, a scan, a question to the server), and with no
+ * physical response the farmer presses again, and again. Movement is the
+ * cheapest way to say "I heard you".
+ */
+function usePressScale(to = 0.96) {
+  const v = useRef(new Animated.Value(1)).current;
+  const spring = (toValue) => Animated.spring(v, {
+    toValue, useNativeDriver: true, speed: 40, bounciness: 6,
+  }).start();
+  return {
+    scale: v,
+    onPressIn: () => spring(to),
+    onPressOut: () => spring(1),
+  };
+}
+
 export function PrimaryButton({ label, onPress, disabled, tone = 'green', style }) {
   const bg = { green: C.green, red: C.red, amber: C.amber }[tone] || C.green;
+  const press = usePressScale();
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      style={({ pressed }) => [
-        s.primary,
-        { backgroundColor: bg, opacity: disabled ? 0.38 : pressed ? 0.85 : 1 },
-        style,
-      ]}
-    >
-      <Text style={[T.label, { color: '#fff', textAlign: 'center' }]}>{label}</Text>
-    </Pressable>
+    <Animated.View style={{ transform: [{ scale: press.scale }] }}>
+      <Pressable
+        onPress={onPress}
+        onPressIn={press.onPressIn}
+        onPressOut={press.onPressOut}
+        disabled={disabled}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        style={({ pressed }) => [
+          s.primary,
+          { backgroundColor: bg, opacity: disabled ? 0.38 : pressed ? 0.85 : 1 },
+          style,
+        ]}
+      >
+        <Text style={[T.label, { color: '#fff', textAlign: 'center' }]}>{label}</Text>
+      </Pressable>
+    </Animated.View>
   );
 }
 
@@ -191,6 +217,78 @@ export function Loading({ label }) {
       <ActivityIndicator color={C.green} size="large" />
       <Text style={[T.bodySoft, { marginTop: 12 }]}>{label || t('common.loading')}</Text>
     </View>
+  );
+}
+
+// ---------------------------------------------------------------- waiting
+// All of this uses React Native's own Animated. No animation library was added
+// and none is needed: everything below is one opacity value on a timing loop,
+// and useNativeDriver keeps it off the JS thread so a slow phone still runs it
+// smoothly while the app is busy decoding a photograph.
+
+/** A grey bar that breathes. The unit the skeleton is built from. */
+export function Shimmer({ width = '100%', height = 14, radius = 7, style }) {
+  const v = useRef(new Animated.Value(0.35)).current;
+  useEffect(() => {
+    const loop = Animated.loop(Animated.sequence([
+      Animated.timing(v, { toValue: 0.85, duration: 700, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      Animated.timing(v, { toValue: 0.35, duration: 700, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+    ]));
+    loop.start();
+    return () => loop.stop();
+  }, [v]);
+  return (
+    <Animated.View style={[
+      { width, height, borderRadius: radius, backgroundColor: C.outline, opacity: v }, style]} />
+  );
+}
+
+/**
+ * The shape of the answer, drawn before the answer arrives.
+ *
+ * The advisory can take forty-five seconds: a sleeping Render instance takes
+ * about fifty to wake on its own. For all of that the screen used to show one
+ * spinner and the word "सोच रहे हैं", which on a slow connection is
+ * indistinguishable from an app that has died. Showing the shape of what is
+ * coming reads as progress even though nothing is measurable, and it tells the
+ * farmer what to expect: a few lines of advice, then how much and when.
+ */
+export function AnswerSkeleton() {
+  return (
+    <View style={{ paddingVertical: 8 }}>
+      <Shimmer width="92%" style={{ marginBottom: 10 }} />
+      <Shimmer width="100%" style={{ marginBottom: 10 }} />
+      <Shimmer width="74%" style={{ marginBottom: 22 }} />
+      {[0, 1].map((i) => (
+        <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
+          <Shimmer width={68} height={12} />
+          <Shimmer width={150} height={12} style={{ marginLeft: 16 }} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/**
+ * Fades and lifts its children in once. Used where content appears after a
+ * read from SQLite, so a card arrives rather than blinking into existence.
+ * `delay` staggers a list without any per-item bookkeeping at the call site.
+ */
+export function FadeIn({ children, delay = 0, style }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const a = Animated.timing(v, {
+      toValue: 1, duration: 260, delay, easing: Easing.out(Easing.quad), useNativeDriver: true,
+    });
+    a.start();
+    return () => a.stop();
+  }, [v, delay]);
+  return (
+    <Animated.View style={[
+      { opacity: v, transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }] },
+      style]}>
+      {children}
+    </Animated.View>
   );
 }
 

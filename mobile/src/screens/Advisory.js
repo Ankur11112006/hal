@@ -10,7 +10,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
 import { C, T, D } from '../theme';
 import { t, getLang } from '../content';
-import { Card, PrimaryButton, OutlineButton, Row, SpeakButton, Loading, CallButton } from '../components/ui';
+import { Card, PrimaryButton, OutlineButton, Row, SpeakButton, AnswerSkeleton, CallButton } from '../components/ui';
 import { useApp } from '../../App';
 import * as api from '../api';
 import * as db from '../db';
@@ -107,7 +107,13 @@ export default function Advisory({ navigation }) {
             <>
               <Text style={[T.caption, { marginBottom: 4 }]}>{t('advisory.youSaid')}</Text>
               <Text style={[T.body, { marginBottom: 20 }]}>{q}</Text>
-              <Loading label={t('advisory.thinking')} />
+              {/* The wait here can be forty-five seconds, because a sleeping
+                  Render instance takes about fifty to wake. A lone spinner for
+                  that long looks like an app that has hung. The skeleton draws
+                  the shape of the answer that is coming, so the screen is doing
+                  something and the farmer knows what to expect. */}
+              <Text style={[T.caption, { marginBottom: 10 }]}>{t('advisory.thinking')}</Text>
+              <AnswerSkeleton />
             </>
           )}
 

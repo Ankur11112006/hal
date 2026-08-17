@@ -3,7 +3,8 @@
   "_register": "ALWAYS the तुम्ही form, never तू. Same rule as the Hindi file: the app is talking to an adult stranger.",
   "_vocabulary": "The word a Maharashtra farmer says, not the word a dictionary gives. शेत not खेत, जनावर not पशु, लस not टीका, फवारणी not छिड़काव, करपा not झुलसा, लाळ्या खुरकूत for FMD. No developer words: no स्लाइड, no नेटवर्क (say इंटरनेट), no मोड.",
   "_validated_by": null,
-  "_validation_warning": "NOT reviewed by a Marathi speaker. Agricultural and veterinary terms carry real risk: a wrong disease name sends a farmer to the wrong spray. Get a Maharashtra KVK officer or a Marathi-speaking agronomist to read this file before it goes in front of anyone. The app offers Marathi only because content/validate.py confirms all 241 keys exist, which proves the file is complete, not that it is right.",
+  "_validation_warning": "NOT reviewed by a Marathi speaker. Agricultural and veterinary terms carry real risk: a wrong disease name sends a farmer to the wrong spray. Get a Maharashtra KVK officer or a Marathi-speaking agronomist to read this file before it goes in front of anyone. The app offers Marathi only because content/validate.py confirms all 238 keys exist, which proves the file is complete, not that it is right.",
+  "_deliberate_gap": "The UI is Marathi. Vaccine names in vaccination_schedule.json are Marathi. symptom_tree.json (73 strings of vet logic) and treatment_plans.json (119 strings of chemical names and doses) are NOT, and fall back to Hindi through L(). That is on purpose and it is the safer half of the trade: a wrong disease NAME confuses a farmer, a wrong DOSE poisons a crop or an animal, and nobody here reads Marathi well enough to be trusted with a dose. Translate those two files only with the KVK officer in the room, not before.",
 
   "app.name": "हल",
   "app.tagline": "शेतीची प्रत्येक गोष्ट, एकत्र",

@@ -74,8 +74,8 @@ What is still open is listed honestly, because that is the point of the file.
 | **Sync** | ✅ ran, **after four fixes** | 34 events on the server; `/vaccine-due` agrees with the home card to the day |
 | ~~Gemini advisory~~ | ✅ verified | §3a, plus end to end from the phone in both languages |
 | ~~Open-Meteo weather~~ | ✅ verified | Same live run |
-| **Local notifications** | 🟡 open | The permission dialog appears and is granted. No reminder has been observed firing |
-| **Airplane-mode queue** | 🟡 open | Never tested. The retry path is now correct on paper and has never been watched offline |
+| **Local notifications** | 🟡 mostly | `[notify] scheduled 13 reminders`, and `dumpsys alarm` shows 13 matching `RTC_WAKEUP` alarms registered with Android for 9am. The last hop, Android posting the banner when the alarm fires, is unverified: the emulator is a Play Store image so the clock cannot be advanced |
+| **Airplane-mode queue** | ✅ ran | Full round trip with airplane mode on: offline chip, a scan that ran entirely on-device to tier 3, an advisory that queued as "इंटरनेट आते ही जवाब मिल जाएगा". Airplane mode off, `[sync] sent 2 events`, both confirmed on the server with the Devanagari intact |
 | **Add a खेत or पशु by hand** | 🟡 open | Only the seeded rows have been exercised |
 | **Voice / TTS** | 🟢 low | `expo-speech`, standard API |
 

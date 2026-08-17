@@ -1,7 +1,7 @@
 # HAL: honest status
 
-*15 August 2026, updated 16 August after two device-testing passes. Written to be
-useful before a demo, not to be flattering.*
+*15 August 2026, updated 17 August after two device-testing passes and four
+model rebuilds. Written to be useful before a demo, not to be flattering.*
 
 The short version: **it runs on a device now, and running it is what found the
 bugs.** The model is real and measured. The backend is real, tested and
@@ -14,8 +14,12 @@ answered "koi record nahi mila" about a farm with two years of history while the
 home screen, two centimetres above it, showed that history. Four separate causes,
 each hiding the next. See §7.
 
-Everything in §3 that is still marked unproven is still unproven. Field accuracy
-is still 44.9%.
+The second one that matters: **a headline number that jumped is usually a test
+set that moved.** Field accuracy read 77% for an afternoon before the check that
+showed it was measuring memory of a single farm. The number to quote is 46.9%,
+and §7 explains why.
+
+Everything in §3 that is still marked unproven is still unproven.
 
 ---
 
@@ -25,11 +29,11 @@ is still 44.9%.
 |---|---|---|---|
 | `ml/` dataset prep + training | 4 | 1,011 | run end to end, many times |
 | `backend/` FastAPI | 4 | 862 | runs, 9 assertions pass |
-| `mobile/` Expo app | 23 | 3,000 | compiles, **never executed** |
-| `content/` shared JSON | 4 | 759 | validated by script, **not by an expert** |
+| `mobile/` Expo app | 23 | 3,200 | walked by hand on a device |
+| `content/` shared JSON | 5 | 1,000 | validated by script, **not by an expert** |
 | `artifacts/` trained model | 5 | - | 1.98 MB float16 TFLite |
 
-Data on disk: 15 GB raw across 7 datasets, 686 MB prepared (35,055 images).
+Data on disk: 40 GB raw across 12 datasets, 900 MB prepared (50,345 images).
 
 ---
 
@@ -39,7 +43,7 @@ These four run on demand and all pass:
 
 | Check | What it actually proves |
 |---|---|
-| `python ml/labels.py` | 31-class taxonomy is consistent; 107 folder aliases resolve; 17 refusals stay refused; crop masks partition the label space |
+| `python ml/labels.py` | 31-class taxonomy is consistent; 107 folder aliases resolve; 34 refusals stay refused; crop masks partition the label space |
 | `python content/validate.py` | every symptom-tree node is reachable and terminates; no dangling ids; every urgent outcome needs a vet; every trained class has a treatment card; every vaccine has an interval |
 | `python backend/test_api.py` | timeline returns crop + animal from one query; FMD due date arithmetic is right; brucella is refused for an adult cow; re-sending a sync batch writes nothing; profile upsert is idempotent; Devanagari and romanized queries retrieve the same doc; escalation returns a real helpline |
 | `node mobile/src/domain.test.mjs` | bigha differs by state and round-trips; unknown state/unit throws instead of guessing; vaccine plan, breeding dates, symptom walks, softmax masking |
@@ -116,8 +120,8 @@ to spike it before any UI. It was spiked last instead. It works.
 
 | APK | size | ABIs | model inside |
 |---|---|---|---|
-| `dist/bahi-arm64.apk` | **50 MB** | arm64-v8a | md5 identical to `artifacts/crop_model.tflite` |
-| `dist/bahi-universal.apk` | 142 MB | all four | same |
+| `dist/hal-arm64.apk` | **51 MB** | arm64-v8a | md5 identical to `artifacts/crop_model.tflite` |
+| (universal build) | 142 MB | all four | same, not shipped |
 
 Verified by unzipping the APK, not by trusting the build log:
 
@@ -192,37 +196,44 @@ Three files ship with `_validated_by: null` and a warning at the top.
 
 ## 7. The model, honestly
 
-**30 classes across 6 crops.** Trained on 39,737 images from 11 datasets; tested
-on 1,412 held-out in-the-wild photographs that were never trained or calibrated
+**30 classes across 6 crops.** Trained on 41,933 images from 12 datasets; tested
+on 1,606 held-out in-the-wild photographs that were never trained or calibrated
 on.
 
 | | |
 |---|---|
-| Validation accuracy | 92.8% |
-| Field accuracy | 75.4% |
+| Validation accuracy | 93.1% |
+| Field accuracy | 76.1% |
 | **Field accuracy on independent imagery (PlantDoc)** | **46.9%** |
-| Field accuracy, crop-conditioned | 78.8% |
-| Field treatment accuracy | 79.8% |
-| **Tier-1 precision** | **97.5%** |
-| Tier-1 share (how often it answers at all) | 43.3% |
-| Field ECE, before → after field calibration | 0.113 → 0.042 |
+| Field accuracy, crop-conditioned | 80.6% |
+| Field treatment accuracy | 80.1% |
+| **Tier-1 precision** | **97.9%** |
+| Tier-1 share (how often it answers at all) | 45.2% |
+| Field ECE, before to after field calibration | 0.071 to 0.036 |
 | Size | 1.98 MB float16, MobileNetV3-Small |
 
 ### Read the second row, not the first
 
-Field accuracy is 75.4% across the whole test set and 46.9% on PlantDoc alone.
+Field accuracy is 76.1% across the whole test set and 46.9% on PlantDoc alone.
 Both are true and the gap is the point.
 
 | source | n | accuracy | answers | precision when it answers |
 |---|---|---|---|---|
-| cotton, one institute's field | 143 | 97.9% | 74.8% | **100%** |
-| potato, Tanzanian smallholdings | 271 | 91.1% | 69.4% | 99.5% |
-| tomato, Jodhpur and Jaipur | 169 | 84.6% | 37.3% | 98.4% |
-| CCMT, Ghanaian farms | 255 | 78.4% | 33.7% | 100% |
-| wheat field subset | 212 | 72.2% | 65.6% | 92.1% |
-| ICAR India | 55 | 67.3% | 18.2% | 100% |
-| **PlantDoc, web imagery from everywhere** | **307** | **46.9%** | **5.9%** | **88.9%** |
-| all | 1,412 | 75.4% | 43.3% | 97.5% |
+| cotton, one institute's field | 143 | 93.0% | 60.1% | **100%** |
+| potato, Tanzanian smallholdings | 271 | 91.9% | 72.0% | 99.5% |
+| cotton, a second unrelated survey | 194 | 87.6% | 60.8% | 99.2% |
+| tomato, Jodhpur and Jaipur | 169 | 87.6% | 42.6% | 98.6% |
+| CCMT, Ghanaian farms | 255 | 74.5% | 37.6% | 99.0% |
+| wheat field subset | 212 | 73.1% | 62.7% | 93.2% |
+| ICAR India | 55 | 60.0% | 25.5% | 92.9% |
+| **PlantDoc, web imagery from everywhere** | **307** | **46.9%** | **3.9%** | **91.7%** |
+| all | 1,606 | 76.1% | 45.2% | 97.9% |
+
+The two cotton rows are the proof. Cotton came from one institute's field in
+Gazipur and scored 97.9% on images held out of it. Adding a second, unrelated
+cotton survey dropped that row to 93.0% and put the new one at 87.6%. **The
+number went down, and that is what a real measurement looks like.** Every
+single-source row here should be read as an upper bound.
 
 A donated field set is one team, one camera and a handful of sessions, so a
 held-out image from it looks far more like the training data than a stranger's
@@ -230,8 +241,8 @@ photograph does. **PlantDoc is the only source that owes nothing to any
 collection the model trained on, and 46.9% is therefore the number to quote.**
 
 The right-hand column is what makes the model shippable anyway. On PlantDoc the
-model volunteers a diagnosis on one photograph in seventeen, and is right on
-89% of those. It knows when it does not know. That is the product, and it is
+model volunteers a diagnosis on one photograph in twenty-six, and is right on
+92% of those. It knows when it does not know. That is the product, and it is
 now a measurement rather than a claim.
 
 ### Four builds, and what each one taught
@@ -241,7 +252,7 @@ now a measurement rather than a claim.
 | v1 | 22.5% | 34% | **28.9%** |
 | v2 | 33.3% | 19% | 66.7% |
 | v3 | 44.9% | 9.7% | 82.9% |
-| **v4** | 75.4% (46.9% independent) | **43.3%** | **97.5%** |
+| **v4** | 76.1% (46.9% independent) | **45.2%** | **97.9%** |
 
 v1 answered confidently on a third of field photos and was **wrong 71% of those
 times.** v4 answers four and a half times as often as v3 and is wrong once in
@@ -253,7 +264,7 @@ none of it was ever visible from validation.
 
 ### What the new data did and did not do
 
-v4 added roughly 9,000 field photographs across five datasets. Measured on the
+v4 added roughly 11,000 field photographs across six datasets. Measured on the
 same 116 PlantDoc holdout images before and after: **37.1% → 37.9%.** That is
 inside the noise of a 116-image test.
 

@@ -99,21 +99,21 @@ BAHI_REUSE=1 python ml/train.py   # skip training, redo eval + export only
 
 ### Model card
 
-Field numbers are on 1,412 held-out in-the-wild photographs from seven
+Field numbers are on 1,606 held-out in-the-wild photographs from eight
 collections, covering 26 classes. Nothing in that set was trained or calibrated
 on.
 
 | | |
 |---|---|
-| Held-out validation accuracy | 92.8% |
-| Field accuracy, all sources | 75.4% |
+| Held-out validation accuracy | 93.1% |
+| Field accuracy, all sources | 76.1% |
 | **Field accuracy, independent imagery only** | **46.9%** |
-| Field accuracy, crop-conditioned | 78.8% |
-| **Field treatment accuracy** (right spray, whatever the label) | **79.7%** |
-| **Tier-1 precision** (when it answers, is it right) | **97.5%** |
-| **Tier-1 treatment precision** (when it answers, is the spray right) | **97.9%** |
-| Tier-1 share (how often it answers at all) | 43.3% |
-| Field ECE, before / after field calibration | 0.060 → **0.042** |
+| Field accuracy, crop-conditioned | 80.6% |
+| **Field treatment accuracy** (right spray, whatever the label) | **80.1%** |
+| **Tier-1 precision** (when it answers, is it right) | **97.9%** |
+| **Tier-1 treatment precision** (when it answers, is the spray right) | **98.1%** |
+| Tier-1 share (how often it answers at all) | 45.2% |
+| Field ECE, before / after field calibration | 0.071 → **0.036** |
 | Model size | **1.98 MB** float16 TFLite, MobileNetV3-Small |
 | TFLite vs float32 agreement | **1.00** |
 
@@ -125,7 +125,7 @@ is what makes the rest of the pitch credible.
 
 ### Two field numbers, and why both are printed
 
-75.4% is across every held-out field photograph. 46.9% is across PlantDoc alone.
+76.1% is across every held-out field photograph. 46.9% is across PlantDoc alone.
 
 A donated field dataset is usually one team, one camera and a handful of
 sessions, so holding images out of it does not hold out much: the test photo
@@ -135,16 +135,24 @@ anything in training, and it is the closest thing here to a stranger's phone.
 
 | source | n | accuracy | answers | precision when it answers |
 |---|---|---|---|---|
-| cotton, one institute's field | 143 | 97.9% | 74.8% | **100%** |
-| potato, Tanzanian smallholdings | 271 | 91.1% | 69.4% | 99.5% |
-| tomato, Jodhpur and Jaipur | 169 | 84.6% | 37.3% | 98.4% |
-| CCMT, Ghanaian farms | 255 | 78.4% | 33.7% | 100% |
-| wheat field subset | 212 | 72.2% | 65.6% | 92.1% |
-| ICAR India | 55 | 67.3% | 18.2% | 100% |
-| **PlantDoc, web imagery** | **307** | **46.9%** | **5.9%** | **88.9%** |
+| cotton, one institute's field | 143 | 93.0% | 60.1% | **100%** |
+| potato, Tanzanian smallholdings | 271 | 91.9% | 72.0% | 99.5% |
+| cotton, a second unrelated survey | 194 | 87.6% | 60.8% | 99.2% |
+| tomato, Jodhpur and Jaipur | 169 | 87.6% | 42.6% | 98.6% |
+| CCMT, Ghanaian farms | 255 | 74.5% | 37.6% | 99.0% |
+| wheat field subset | 212 | 73.1% | 62.7% | 93.2% |
+| ICAR India | 55 | 60.0% | 25.5% | 92.9% |
+| **PlantDoc, web imagery** | **307** | **46.9%** | **3.9%** | **91.7%** |
 
 Quote 46.9%. Anyone who has trained one of these will ask about exactly this,
 and having the breakdown ready is worth more than the higher number.
+
+The two cotton rows are the cleanest illustration of why. Cotton used to come
+from one institute's field in Gazipur and scored 97.9% on images held out of
+it, which measured memory of a farm. Adding a second, unrelated cotton survey
+dropped that row to 93.0% and put the new one at 87.6%. **The number went down
+and that was the point.** Any single-source score in this table should be read
+as an upper bound on what a stranger's phone would get.
 
 ### Read these three numbers together, or none of them
 
@@ -152,19 +160,19 @@ and having the breakdown ready is worth more than the higher number.
 pathogen from a photograph unlike anything it trained on. On its own it sounds
 unusable.
 
-**97.5% tier-1 precision** is what the farmer experiences. The app only puts a
+**97.9% tier-1 precision** is what the farmer experiences. The app only puts a
 diagnosis on screen above 0.85 confidence. On familiar-looking photographs it
-crosses that line about 70% of the time and is essentially never wrong; on
-PlantDoc it crosses it on one photograph in seventeen. The model declines the
+crosses that line 60 to 70% of the time and is essentially never wrong; on
+PlantDoc it crosses it on one photograph in twenty-six. The model declines the
 ones it cannot read.
 
 **Several classes share a treatment** (early blight, septoria and gray leaf spot
 all get mancozeb 2.5 g/l), so a wrong label is often still the right action, and
 the action is the only thing the farmer buys: tier-1 treatment precision is
-97.9%.
+98.1%.
 
-**The remainder is not failure, it is the design.** 22.5% of field photographs
-route to "being verified" and 34.2% to "we cannot tell, call the Kisan Call
+**The remainder is not failure, it is the design.** 24.0% of field photographs
+route to "being verified" and 30.8% to "we cannot tell, call the Kisan Call
 Centre". Every one of those ends at a real dialable number.
 
 ### How the numbers got here
@@ -174,7 +182,7 @@ Centre". Every one of those ends at a real dialable number.
 | v1 | 22.5% | 34% | **28.9%** | all field images held out of training |
 | v2 | 33.3% | 19% | 66.7% | PlantDoc train half added to training |
 | v3 | 44.9% | 9.7% | 82.9% | + ICAR Indian field data, 3x field oversampling, temperature fitted on field data |
-| **v4** | 75.4% (46.9% independent) | **43.3%** | **97.5%** | + 5 field datasets, background-attacking augmentation, source-aware splits |
+| **v4** | 76.1% (46.9% independent) | **45.2%** | **97.9%** | + 6 field datasets, background-attacking augmentation, source-aware splits |
 
 v1 is the cautionary tale: it answered confidently on a third of field photos and
 was wrong 71% of those times. v4 answers four and a half times as often as v3 and

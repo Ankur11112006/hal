@@ -1,16 +1,17 @@
 {
+  "backbone": "small",
   "temperature": 1.650000000000001,
-  "temperature_fitted_on": "field_cal, 1255 held-out field images",
+  "temperature_fitted_on": "field_cal, 1445 held-out field images",
   "temperature_if_fitted_on_val": 0.9500000000000004,
-  "val_accuracy": 0.927983144991381,
-  "val_ece_after_calibration": 0.07361391540620318,
-  "val_ece_before_calibration": 0.007627841476918256,
+  "val_accuracy": 0.9305243445692883,
+  "val_ece_after_calibration": 0.07774295983522124,
+  "val_ece_before_calibration": 0.0073125748403286735,
   "img_size": 224,
   "classes": 30,
-  "field_accuracy": 0.7535410764872521,
-  "field_n": 1412,
-  "field_ece_after_calibration": 0.04157694671883462,
-  "field_ece_before_calibration": 0.06000059699539423,
+  "field_accuracy": 0.7608966376089664,
+  "field_n": 1606,
+  "field_ece_after_calibration": 0.03640972178053588,
+  "field_ece_before_calibration": 0.07092711445440542,
   "field_classes": [
     "cotton__bacterial_blight",
     "cotton__healthy",
@@ -43,66 +44,86 @@
   "field_accuracy_by_source": {
     "ccmt": {
       "n": 255,
-      "accuracy": 0.7843137254901961
+      "accuracy": 0.7450980392156863,
+      "answered_share": 0.3764705882352941,
+      "tier1_precision": 0.9895833333333334
+    },
+    "cotton_20k": {
+      "n": 194,
+      "accuracy": 0.8762886597938144,
+      "answered_share": 0.6082474226804123,
+      "tier1_precision": 0.9915254237288136
     },
     "cotton_field": {
       "n": 143,
-      "accuracy": 0.9790209790209791
+      "accuracy": 0.9300699300699301,
+      "answered_share": 0.6013986013986014,
+      "tier1_precision": 1.0
     },
     "icar": {
       "n": 55,
-      "accuracy": 0.6727272727272727
+      "accuracy": 0.6,
+      "answered_share": 0.2545454545454545,
+      "tier1_precision": 0.9285714285714286
     },
     "plantdoc_files": {
       "n": 307,
-      "accuracy": 0.46905537459283386
+      "accuracy": 0.46905537459283386,
+      "answered_share": 0.03908794788273615,
+      "tier1_precision": 0.9166666666666666
     },
     "potato_field": {
       "n": 271,
-      "accuracy": 0.9114391143911439
+      "accuracy": 0.9188191881918819,
+      "answered_share": 0.7195571955719557,
+      "tier1_precision": 0.9948717948717949
     },
     "tomato_village": {
       "n": 169,
-      "accuracy": 0.8461538461538461
+      "accuracy": 0.8757396449704142,
+      "answered_share": 0.4260355029585799,
+      "tier1_precision": 0.9861111111111112
     },
     "wheat_field": {
       "n": 212,
-      "accuracy": 0.7216981132075472
+      "accuracy": 0.7311320754716981,
+      "answered_share": 0.6273584905660378,
+      "tier1_precision": 0.9323308270676691
     }
   },
   "field_accuracy_plantdoc": 0.46905537459283386,
   "field_n_plantdoc": 307,
   "tier1_auto": {
-    "share": 0.43271954674220964,
-    "accuracy": 0.9754500818330606,
-    "n": 611
+    "share": 0.4520547945205479,
+    "accuracy": 0.9793388429752066,
+    "n": 726
   },
   "tier2_vlae": {
-    "share": 0.22521246458923513,
-    "accuracy": 0.7987421383647799,
-    "n": 318
+    "share": 0.23972602739726026,
+    "accuracy": 0.787012987012987,
+    "n": 385
   },
   "tier3_expert": {
-    "share": 0.34206798866855526,
-    "accuracy": 0.44306418219461696,
-    "n": 483
+    "share": 0.3082191780821918,
+    "accuracy": 0.4202020202020202,
+    "n": 495
   },
-  "tier1_precision": 0.9754500818330606,
-  "tier1_false_positive_rate": 0.02454991816693941,
-  "field_treatment_accuracy": 0.7974504249291785,
-  "tier1_treatment_precision": 0.9787234042553191,
-  "field_accuracy_crop_conditioned": 0.7882436260623229,
+  "tier1_precision": 0.9793388429752066,
+  "tier1_false_positive_rate": 0.02066115702479343,
+  "field_treatment_accuracy": 0.8013698630136986,
+  "tier1_treatment_precision": 0.9807162534435262,
+  "field_accuracy_crop_conditioned": 0.8063511830635118,
   "cc_tier1_auto": {
-    "share": 0.49291784702549574,
-    "accuracy": 0.9655172413793104
+    "share": 0.5367372353673724,
+    "accuracy": 0.9675174013921114
   },
   "cc_tier2_vlae": {
-    "share": 0.23512747875354106,
-    "accuracy": 0.7921686746987951
+    "share": 0.23910336239103364,
+    "accuracy": 0.7890625
   },
   "cc_tier3_expert": {
-    "share": 0.2719546742209632,
-    "accuracy": 0.4635416666666667
+    "share": 0.22415940224159403,
+    "accuracy": 0.4388888888888889
   },
   "tflite_bytes": 1976852,
   "tflite_mb": 1.98,

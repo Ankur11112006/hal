@@ -16,7 +16,7 @@ backend/    FastAPI: RAG advisory, sync, vaccination, escalation
 mobile/     Expo app: offline-first, on-device inference
 content/    shared JSON: symptom tree, vaccine schedule, treatments, strings
 artifacts/  trained model output (crop_model.tflite, metrics.json)
-data/       downloaded + prepared datasets (gitignored, ~12 GB)
+data/       downloaded + prepared datasets (gitignored, ~55 GB)
 ```
 
 `content/` is the single source of truth for anything a farmer reads. The
@@ -52,7 +52,7 @@ cd mobile/android && JAVA_HOME=/path/to/jdk-17 ./gradlew assembleRelease -Preact
 
 Output lands in `mobile/android/app/build/outputs/apk/release/`. Dropping the
 `-P` flag builds all four ABIs and triples the size to 142 MB; arm64-v8a alone
-covers every phone since roughly 2016 and comes to 50 MB.
+covers every phone since roughly 2016 and comes to 51 MB.
 
 Testing on an **emulator** needs its own build, `-PreactNativeArchitectures=x86_64`.
 The arm64 APK looks like it should work there, because `adb install` reports
@@ -99,7 +99,7 @@ catch a broken import.
 
 ```bash
 python ml/prepare.py    # merge + dedupe + resize -> data/prepared
-python ml/train.py      # train, calibrate, export INT8 tflite -> artifacts/
+python ml/train.py      # train, calibrate, export float16 tflite -> artifacts/
 BAHI_REUSE=1 python ml/train.py   # skip training, redo eval + export only
 ```
 

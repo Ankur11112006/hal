@@ -37,7 +37,22 @@ export const uid = () =>
 const today = () => new Date().toISOString().slice(0, 10);
 
 export async function open() {
-  if (db) return db;
+  // The cached handle can be dead while still being non-null: installing over a
+  // running app leaves the native database closed and every query afterwards
+  // fails with "NativeDatabase.prepareAsync has been rejected, caused by
+  // NullPointerException". The screen then renders with no cards and no error,
+  // which is what a farmer would see if a presenter sideloaded a new build mid
+  // demo. One trivial query proves the handle is alive; SQLite is in-process so
+  // it costs microseconds, and it is far cheaper than a blank home screen.
+  if (db) {
+    try {
+      await db.getFirstAsync('SELECT 1');
+      return db;
+    } catch (e) {
+      console.warn('[db] handle was dead, reopening:', e?.message || e);
+      db = null;
+    }
+  }
   db = await SQLite.openDatabaseAsync('hal.db');
   await db.execAsync(SCHEMA);
   // CREATE TABLE IF NOT EXISTS does nothing to a table that already exists, so

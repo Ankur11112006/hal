@@ -150,7 +150,12 @@ export default function App() {
           if (r.sent) console.log('[sync] sent', r.sent, 'events');
         } catch (e) {
           api.noteSyncError(e);
-          console.warn('[sync] failed:', e.status || 'offline', e.message, e.body || '');
+          // Not every failure here is an API failure. flush() reads plots and
+          // animals out of SQLite first, so a dead database surfaced as
+          // "[sync] failed: offline" with a NullPointerException attached,
+          // which sent me looking at the network for a bug that was on disk.
+          const where = e.status ? `HTTP ${e.status}` : e.offline ? 'offline' : 'local';
+          console.warn('[sync] failed:', where, e.message, e.body || '');
         }
       }
     };

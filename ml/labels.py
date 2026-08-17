@@ -193,6 +193,16 @@ REFUSED = {
     "rice_insect_pests_06_rice_skipper": "not in the class list",
     "rice_insect_pests_07_white_stem_borer": "not in the class list",
     "rice_insect_pests_08_yellow_stem_borer": "not in the class list",
+    # Tomato-Village folders outside the class list. Named here rather than left
+    # to fall through, because three of them are tempting and all three are
+    # wrong: spotted wilt is a real tomato virus but it is not either of the two
+    # viruses we model, and a nutrient deficiency is not a disease at all. The
+    # app would tell a farmer to spray a fungicide at a magnesium shortage.
+    "spotted_wilt_virus": "TSWV is neither yellow leaf curl nor mosaic virus",
+    "leaf_miner": "insect pest not in the class list",
+    "magnesium_deficiency": "a nutrient deficiency, not a disease",
+    "nitrogen_deficiency": "a nutrient deficiency, not a disease",
+    "pottassium_deficiency": "a nutrient deficiency, not a disease",
 }
 
 
@@ -256,6 +266,16 @@ def _self_check():
     assert resolve("Maize_Disease_02_turcicum_leaf_blight") == "maize__northern_leaf_blight"
     assert resolve("Rice_Disease_01_Bacterial_leaf_blight") == "rice__bacterial_leaf_blight"
     assert resolve("Maize_Disease_01_maydis_leaf_blight") is None, "southern != northern blight"
+
+    # Tomato-Village: bare folder names that only mean anything with the hint.
+    # Without it "Late_blight" is as much potato as tomato.
+    assert resolve("Late_blight", crop_hint="tomato") == "tomato__late_blight"
+    assert resolve("Early_blight", crop_hint="tomato") == "tomato__early_blight"
+    assert resolve("Healthy", crop_hint="tomato") == "tomato__healthy"
+    assert resolve("Late_blight") is None, "a bare disease name must not resolve"
+    for folder in ("Spotted Wilt Virus", "Leaf Miner", "Magnesium Deficiency",
+                   "Nitrogen Deficiency", "Pottassium Deficiency"):
+        assert resolve(folder, crop_hint="tomato") is None, folder
     print(f"labels ok: {len(LABELS)} classes / {len(CROPS)} crops, "
           f"{len(ALIASES)} aliases, {len(REFUSED)} explicit refusals")
 

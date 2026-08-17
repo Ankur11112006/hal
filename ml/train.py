@@ -75,6 +75,19 @@ def has_split(split):
 
 # Augmentation mimics the real input: a shaky photo taken at noon on a cheap
 # phone, not a lab scan on a white background. SPEC.md 4.1 step 3.
+#
+# The bottom four layers exist for one measured reason. 93.9% on validation
+# against 44.9% on field photographs is not a capacity problem, it is the model
+# having learned that a plain background means it is safe to be confident:
+# nearly every training image is a detached leaf on a lab bench. These attack
+# that shortcut directly.
+#
+#   RandomErasing   punches out a patch, so no single region can carry the call
+#   RandomGrayscale drops colour entirely 15% of the time, forcing the lesion's
+#                   shape and texture to matter rather than the global palette
+#   Saturation/Hue  midday sun in a field is nothing like studio lighting
+#
+# Everything here is a stock Keras 3 layer. Do not hand-roll these.
 AUG = tf.keras.Sequential([
     tf.keras.layers.RandomFlip("horizontal"),
     tf.keras.layers.RandomRotation(0.15),
@@ -82,6 +95,10 @@ AUG = tf.keras.Sequential([
     tf.keras.layers.RandomTranslation(0.1, 0.1),
     tf.keras.layers.RandomBrightness(0.25, value_range=(0, 255)),
     tf.keras.layers.RandomContrast(0.25),
+    tf.keras.layers.RandomSaturation(factor=(0.4, 0.6), value_range=(0, 255)),
+    tf.keras.layers.RandomHue(factor=0.06, value_range=(0, 255)),
+    tf.keras.layers.RandomGrayscale(factor=0.15),
+    tf.keras.layers.RandomErasing(factor=0.35, scale=(0.02, 0.2), value_range=(0, 255)),
 ], name="augment")
 
 

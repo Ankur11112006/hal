@@ -47,6 +47,14 @@ SEED = 1337
 # the confident-but-wrong rate this whole design exists to suppress.
 FIELD_OVERSAMPLE = 3
 
+# Ceiling on field images per class, applied before the train/cal/test split.
+# One donated dataset can be enormous: the Tanzanian potato set alone is 58,709
+# photographs against roughly 850 for all of ICAR's Indian rice and maize. Left
+# uncapped it would supply most of the field test set and "field accuracy"
+# would quietly become "potato accuracy". 900 is well above what any class had
+# before and keeps the headline number a fair average across crops.
+MAX_FIELD_PER_CLASS = 900
+
 # How the field pool is divided. `cal` never trains and never appears in the
 # reported number: it exists only to fit the temperature. Calibrating on the
 # lab-heavy val split is what left the model overconfident on real photos.
@@ -84,6 +92,13 @@ SOURCES = [
     # Its test half stays held out, so the reported field number is still honest.
     ("plantdoc_files/train", "flat", "field"),
     ("plantdoc_files/test", "flat", "field_holdout"),
+    # Tomato-Village (Gehlot et al., Multimedia Systems 2023): tomato shot in
+    # farmers' fields in Jodhpur and Jaipur. Tomato was the worst crop in the
+    # model by a wide margin, 29.8% field accuracy, for the simple reason that
+    # every tomato image we had came from PlantVillage's lab bench. Three of its
+    # eight folders map onto our taxonomy; the rest are refused in labels.py
+    # rather than guessed at.
+    ("tomato_village/Variant-a(Multiclass Classification)", "split_dirs:tomato", "field"),
 ]
 
 IMG_EXT = {".jpg", ".jpeg", ".png", ".bmp"}
@@ -127,10 +142,15 @@ def collect() -> tuple[list, collections.Counter]:
                     else:
                         dropped[f"{rel} :: {crop.name}/{d.name}"] += sum(1 for _ in images_in(d))
 
-        elif layout == "split_dirs":
+        elif layout == "split_dirs" or layout.startswith("split_dirs:"):
+            # The hint is not optional for single-crop sources. Tomato-Village
+            # names its folders "Late_blight" and "Healthy" with no crop in the
+            # name, and potato has a late blight too, so resolving those without
+            # a hint would file real tomato photographs under potato.
+            hint = layout.split(":", 1)[1] if ":" in layout else None
             for split in sorted(x for x in root.iterdir() if x.is_dir()):
                 for d in sorted(x for x in split.iterdir() if x.is_dir()):
-                    lab = L.resolve(d.name)
+                    lab = L.resolve(d.name, crop_hint=hint)
                     if lab:
                         found += [(p, lab, kind) for p in images_in(d)]
                     else:
@@ -202,6 +222,7 @@ def main():
         # can never leak into training no matter what happens below.
         field = b["field"][:]
         random.shuffle(field)
+        field = field[:MAX_FIELD_PER_CLASS]
         n_tr = int(len(field) * FIELD_SPLIT["train"])
         n_cal = int(len(field) * FIELD_SPLIT["cal"])
         f_train, f_cal, f_test = field[:n_tr], field[n_tr:n_tr + n_cal], field[n_tr + n_cal:]
@@ -215,8 +236,16 @@ def main():
 
         kept.append(lab)
         status = "ok"
+        # Field images survive the cap, lab images fill what is left. Capping a
+        # shuffled mixture threw away the scarce in-the-wild photographs by pure
+        # chance, and they are the only reason the model works on a real one.
+        # The pool is shuffled again afterwards so the val split stays random:
+        # taking val off the front of a field-first list would put every field
+        # image in validation and leave training with nothing but lab benches.
+        random.shuffle(f_train)
+        random.shuffle(b["lab"])
+        pool = (f_train + b["lab"])[:MAX_PER_CLASS]
         random.shuffle(pool)
-        pool = pool[:MAX_PER_CLASS]
         if len(pool) == MAX_PER_CLASS:
             status = f"capped {MAX_PER_CLASS}"
         cut = max(1, int(len(pool) * VAL_FRACTION))

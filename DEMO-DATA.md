@@ -86,32 +86,47 @@ built account it is better to leave FMD untouched: an animal with no record show
 as needing a check, and the advisory will mention it.
 
 > The seeded Ramesh account handles this properly by backdating the FMD dose to
-> 2 Dec 2025, which the 180-day interval turns into "76 days overdue" on demo
-> day. You cannot backdate from the UI, which is exactly why the seed exists.
+> 2 Dec 2025, which the 180-day interval turns into an overdue count that grows
+> by one every day: it read 76 days when the seed was written and 78 on 17
+> August. Check the screen before quoting a number on a slide. You cannot
+> backdate from the UI, which is exactly why the seed exists.
 
 ---
 
 ## Test photos
 
-`dist/test-photos/` has five real field photographs pulled from the held-out
-test set, so they are images the model has never been trained on:
+`dist/test-photos/` has six real field photographs, all from
+`data/prepared/field_test`, so nothing here was trained on or calibrated on.
+`ml/pick_demo_photos.py` rebuilds the folder and chooses them on purpose to span
+all three tiers, because all three are the product. Run it after any retrain: the
+confidences it prints are what the phone will show.
 
-| File | What it is | Expect |
+| File | What it is | Tier |
 |---|---|---|
-| `maize__northern_leaf_blight.jpg` | maize blight | the strongest class, likely tier 1 |
-| `maize__common_rust.jpg` | maize rust | usually tier 1 or 2 |
-| `maize__healthy.jpg` | healthy maize | should say the crop looks fine |
-| `tomato__late_blight.jpg` | tomato late blight | tomato is the weak crop, may refuse |
-| `potato__early_blight.jpg` | potato early blight | often confused with late blight |
+| `1-maize-blight.jpg` | maize northern leaf blight | 1 |
+| `2-wheat-rust.jpg` | wheat leaf rust | 1 |
+| `3-maize-healthy.jpg` | healthy maize | 1 |
+| `4-tomato-blight.jpg` | tomato late blight | 1 |
+| `5-maize-rust-verify.jpg` | maize common rust | 2, goes to a KVK expert |
+| `6-maize-rust-expert.jpg` | maize common rust | 3, refuses outright |
 
 Copy them to the phone and use **फ़ोन से फ़ोटो चुनें** on the camera screen.
 
-Pick the plot chip before scanning. With the plot selected the model only
-considers that crop's classes, which measurably raises accuracy. Scanning a maize
-photo with no plot selected is a harder problem and a fair demonstration of why
-the record matters.
+### The three to show, verified on the emulator on 17 August
 
-**Rehearse a refusal.** Tier 3 is the highest-scoring moment in the whole demo,
-and it needs a photo the model genuinely cannot place. The tomato and potato
-files are the likeliest to produce one. Find which of your photos lands under 60%
-before you are on stage, and keep it.
+| Show | File | What appears |
+|---|---|---|
+| healthy | `3-maize-healthy.jpg` | मक्का ठीक है, **100%**, "दवा की ज़रूरत नहीं है" and no treatment card |
+| diseased | `1-maize-blight.jpg` | मक्का का झुलसा रोग, **92%**, मैंकोज़ेब 75% WP, 2.5 g per litre, spray before tomorrow's rain, ₹380 against ₹3000 saved |
+| refusal | `6-maize-rust-expert.jpg` | हम पक्का नहीं बता सकते. **No disease and no percentage on screen**, only किसान कॉल सेंटर 1800-180-1551 and दूसरी फ़ोटो |
+
+Those three numbers came out of the app with **no plot chip selected**. Picking
+the plot chip first masks the softmax to that crop's classes and raises
+confidence, which is worth showing on the blight photo as a separate beat. Do not
+pick it before the refusal: conditioning can lift that photo out of tier 3 and
+you lose the best moment in the demo.
+
+> **Driving the demo over `adb`?** Every `screencap` you leave under `/sdcard/`
+> becomes a new tile in the system photo picker and shifts the whole grid, so a
+> tap that hit the right photo a minute ago now hits its neighbour. Write
+> screenshots to `/data/local/tmp/` instead, which MediaStore does not scan.

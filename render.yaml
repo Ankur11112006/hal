@@ -4,7 +4,8 @@
 # Then set GEMINI_API_KEY in the dashboard (it is sync:false, so Render will
 # prompt for it and it never touches the repo).
 
-# The service is still called bahi-backend. Renaming it here does not rename the
+# The service is still called bahi-backend, on purpose, even though the GitHub
+# repo was renamed to hal on 17 August. Renaming it here does not rename the
 # Render service, it creates a SECOND one on a different URL, and the URL is
 # compiled into the APK. The name is invisible to users; the working URL is not.
 services:

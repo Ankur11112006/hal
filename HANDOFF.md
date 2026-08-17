@@ -33,13 +33,21 @@ D:\SIH AgriVision\
   data/          15 GB of datasets (gitignored)
 ```
 
-Repo: `https://github.com/Ankur11112006/bahi` (private, master).
+Repo: `https://github.com/Ankur11112006/hal` (private, master).
 Backend: `https://bahi-backend.onrender.com` (live, free tier).
 
-> The GitHub repo and the Render service are still named `bahi`. Renaming the
-> Render service in `render.yaml` creates a **second** service on a different
-> URL, and that URL is compiled into the APK as the default. The name is
-> invisible to users; the working URL is not. Leave it.
+> **The GitHub repo was renamed from `bahi` to `hal` on 17 August. The Render
+> service was not, and must not be.** Renaming the service in `render.yaml` does
+> not rename it, it creates a **second** service on a different URL, and that URL
+> is compiled into the APK as the default. So `bahi-backend.onrender.com` keeping
+> the old name is deliberate, not a leftover anyone should tidy up. The service
+> name is invisible to users; the working URL is not.
+>
+> The same reasoning covers the two other places `bahi` survives on purpose: the
+> `BAHI_*` environment variables (one of them is set in the Render dashboard) and
+> the `bahi.*` AsyncStorage keys. Renaming the keys makes every phone already
+> carrying the app forget its language, server address and boot id on the next
+> upgrade, in exchange for a string nobody sees.
 
 ---
 
@@ -117,6 +125,15 @@ Copy-Item "app\build\outputs\apk\release\app-release.apk" "..\..\dist\hal-arm64.
 flag builds all four ABIs and triples the size to 142 MB, which is a bad number
 next to a pitch about cheap phones.
 
+> **Do not try the arm64 APK on an x86_64 emulator.** `adb install` reports
+> Success and `ro.product.cpu.abilist` advertises `arm64-v8a`, so it looks
+> supported. It is not: Android selects the arm64 lib dir, SoLoader then probes
+> `base.apk!/lib/x86_64` because the libs ship uncompressed, finds nothing, and
+> the process dies before the first screen with
+> `SoLoaderDSONotFoundError: couldn't find DSO to load: libreactnative.so`.
+> Build with `-PreactNativeArchitectures=x86_64` instead. `dist/hal-x86_64.apk`
+> is the current emulator build, `dist/hal-arm64.apk` the phone one.
+
 Driving the emulator:
 
 ```powershell
@@ -164,6 +181,20 @@ Walked by hand on an x86_64 emulator, release build, with logcat open.
   off: `[sync] sent 2 events`, both on the server afterwards with the Devanagari
   intact. The tier-3 scan stored `name: null`, so it does not even record a
   guess it would not show.
+- **All three tiers walked on 17 August**, x86_64 release build, from the seeded
+  Ramesh account (`[sync] sent 32 events`, `[notify] scheduled 13 reminders`), no
+  plot chip selected, so none of these got crop conditioning:
+  - `1-maize-blight.jpg` → मक्का का झुलसा रोग, **92%**, tier 1, with the
+    मैंकोज़ेब dose, the "spray before tomorrow's rain" timing, ₹380 and ₹3000.
+  - `3-maize-healthy.jpg` → मक्का ठीक है, **100%**, and no treatment offered.
+  - `6-maize-rust-expert.jpg` → हम पक्का नहीं बता सकते. **No diagnosis and no
+    percentage on screen at all**, just Kisan Call Centre 1800-180-1551 and
+    दूसरी फ़ोटो. That closes open item 4 from the previous handoff.
+  - Screenshots kept in `dist/demo-shots/`.
+- **The model inside the APK is the trained artifact, checked rather than
+  assumed.** The app loads
+  `ExponentAsset-233f91b66d881e5172228b4ff9e94df5.tflite`, and that hex string is
+  the MD5 of `artifacts/crop_model.tflite`.
 - **Reminders reach the OS.** `[notify] scheduled 13 reminders`, and
   `adb shell dumpsys alarm | grep in.hal.app` shows 13 matching `RTC_WAKEUP`
   alarms set for 9am. Android is holding them, not the JS.
@@ -273,7 +304,9 @@ things deliberately left out.
 2. Watch a reminder actually appear. Scheduling and the OS alarms are verified;
    the last hop is not, and this emulator cannot test it.
 3. `मेरा डेटा मिटाएँ` count, and adding a खेत/पशु by hand.
-4. Rehearse tier 3 with a leaf that genuinely lands under 0.60.
+4. **Done, 17 August.** `6-maize-rust-expert.jpg` genuinely lands under 0.60 and
+   the app shows no diagnosis. Re-run `ml/pick_demo_photos.py` after any retrain,
+   because the confidences it prints are what the phone will show.
 5. **Field accuracy is 46.9% on independent imagery**, 76.1% across all held-out
    field photographs. Say 46.9% out loud in the pitch; §5 explains why. The fix
    is Indian field photographs from many different phones and farms, not a

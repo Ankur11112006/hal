@@ -1,0 +1,1353 @@
+<title>हल · HAL Dossier</title>
+
+<style>
+  :root {
+    --ground:      #FAF8F3;
+    --surface:     #FFFFFF;
+    --surface-2:   #F1EEE6;
+    --ink:         #171512;
+    --ink-soft:    #4B4740;
+    --ink-faint:   #7A756B;
+    --rule:        #D6D3CB;
+    --rule-soft:   #E6E2D9;
+
+    --certain:     #1B5E20;
+    --certain-bg:  #DCEFD8;
+    --checking:    #B26A00;
+    --checking-bg: #FFF3DC;
+    --refuse:      #B3261E;
+    --refuse-bg:   #FCEBEA;
+    --spark:       #D84315;
+
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Devanagari", "Nirmala UI", "Noto Sans", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
+
+    --measure: 68ch;
+    --step: clamp(1.4rem, 1.1rem + 1.2vw, 2.2rem);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #12140F;
+      --surface:     #191C15;
+      --surface-2:   #21251C;
+      --ink:         #EDEAE1;
+      --ink-soft:    #B4AEA1;
+      --ink-faint:   #857F72;
+      --rule:        #343A2C;
+      --rule-soft:   #262B20;
+
+      --certain:     #7BC47F;
+      --certain-bg:  #1D2E1C;
+      --checking:    #E0A040;
+      --checking-bg: #322616;
+      --refuse:      #E97B72;
+      --refuse-bg:   #33201E;
+      --spark:       #FF7043;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #12140F;
+    --surface:     #191C15;
+    --surface-2:   #21251C;
+    --ink:         #EDEAE1;
+    --ink-soft:    #B4AEA1;
+    --ink-faint:   #857F72;
+    --rule:        #343A2C;
+    --rule-soft:   #262B20;
+
+    --certain:     #7BC47F;
+    --certain-bg:  #1D2E1C;
+    --checking:    #E0A040;
+    --checking-bg: #322616;
+    --refuse:      #E97B72;
+    --refuse-bg:   #33201E;
+    --spark:       #FF7043;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px 120px;
+  }
+
+  @media (min-width: 1000px) {
+    .page { grid-template-columns: 210px minmax(0, 1fr); gap: 56px; padding-left: 32px; }
+  }
+
+  /* ---------------------------------------------------------- masthead */
+  .masthead {
+    grid-column: 1 / -1;
+    border-bottom: 2px solid var(--ink);
+    padding: 72px 0 28px;
+    margin-bottom: 56px;
+  }
+  .wordmark {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .wordmark h1 {
+    font-size: clamp(2.6rem, 2rem + 3vw, 4.2rem);
+    line-height: 1;
+    margin: 0;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+  }
+  .wordmark .latin {
+    font-family: var(--font-mono);
+    font-size: clamp(1.1rem, 0.9rem + 0.8vw, 1.5rem);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .tagline {
+    margin: 18px 0 0;
+    font-size: clamp(1.05rem, 1rem + 0.4vw, 1.3rem);
+    color: var(--ink-soft);
+    max-width: 46ch;
+  }
+  .masthead-meta {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .masthead-meta b { color: var(--ink); font-weight: 500; }
+
+  /* ---------------------------------------------------------- index */
+  .index { display: none; }
+  @media (min-width: 1000px) {
+    .index {
+      display: block;
+      position: sticky;
+      top: 32px;
+      align-self: start;
+      max-height: calc(100vh - 64px);
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      letter-spacing: 0.04em;
+    }
+    .index ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; }
+    .index a {
+      color: var(--ink-faint);
+      text-decoration: none;
+      display: grid;
+      grid-template-columns: 2.2em 1fr;
+      gap: 4px;
+    }
+    .index a:hover, .index a:focus-visible { color: var(--ink); }
+    .index a span { color: var(--rule); }
+    .index a:hover span { color: var(--certain); }
+  }
+
+  main { min-width: 0; }
+
+  /* ---------------------------------------------------------- sections */
+  section { margin-bottom: 88px; scroll-margin-top: 24px; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .eyebrow::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  h2 {
+    font-size: var(--step);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 22px;
+    text-wrap: balance;
+    font-weight: 700;
+  }
+  h3 {
+    font-size: 1.18rem;
+    line-height: 1.3;
+    margin: 40px 0 12px;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  h4 {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 32px 0 10px;
+    font-weight: 500;
+  }
+
+  p, li { max-width: var(--measure); }
+  p { margin: 0 0 18px; }
+  ul, ol { padding-left: 22px; margin: 0 0 18px; }
+  li { margin-bottom: 9px; }
+
+  strong { font-weight: 650; }
+  em { font-style: normal; color: var(--ink-soft); }
+
+  .lead {
+    font-size: 1.16rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 58ch;
+  }
+
+  code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
+  code {
+    background: var(--surface-2);
+    padding: 0.12em 0.4em;
+    border-radius: 3px;
+  }
+
+  .dv { font-size: 1.03em; }
+
+  /* ---------------------------------------------------------- callouts */
+  /* The findings the build turns on. Set as display statements under a full
+     rule, echoing the section eyebrow, rather than as another left-barred
+     block: the page already uses a left rule for the nested farmer aside, and
+     two different meanings behind the same mark is one too many. */
+  .claim {
+    border-top: 1px solid var(--ink);
+    padding-top: 16px;
+    margin: 34px 0;
+    font-size: 1.28rem;
+    line-height: 1.4;
+    letter-spacing: -0.015em;
+    max-width: 54ch;
+    text-wrap: balance;
+    font-weight: 600;
+  }
+  .claim .dv {
+    display: block;
+    margin-top: 10px;
+    color: var(--ink-soft);
+    font-size: 0.78em;
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: 0;
+  }
+
+  .note {
+    background: var(--surface-2);
+    border-radius: 4px;
+    padding: 18px 20px;
+    margin: 26px 0;
+    font-size: 0.95rem;
+    max-width: var(--measure);
+  }
+  .note p:last-child { margin-bottom: 0; }
+  .note h4 { margin-top: 0; }
+
+  /* ---------------------------------------------------------- tiers */
+  .tiers { display: grid; gap: 14px; margin: 28px 0 34px; }
+  @media (min-width: 720px) { .tiers { grid-template-columns: repeat(3, 1fr); } }
+  .tier {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 18px 18px 20px;
+    background: var(--surface);
+  }
+  .tier.t1 { --tc: var(--certain); --lo: 85%; --hi: 100%; }
+  .tier.t2 { --tc: var(--checking); --lo: 60%; --hi: 85%; }
+  .tier.t3 { --tc: var(--refuse); --lo: 0%; --hi: 60%; }
+
+  /* The confidence axis, 0 to 1, with this tier's slice filled. The width of
+     the fill is the information: tier 1 owns the narrowest band on the scale
+     and that is the point of the whole design. */
+  .tier .axis {
+    position: relative;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--surface-2);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .tier .axis::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--lo);
+    right: calc(100% - var(--hi));
+    background: var(--tc);
+  }
+  .tier .band {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tc);
+    margin-bottom: 8px;
+  }
+  .tier .headline {
+    font-size: 1.5rem;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .tier p { font-size: 0.92rem; margin: 8px 0 0; color: var(--ink-soft); max-width: none; }
+  .tier .says { color: var(--ink); font-weight: 600; }
+
+  /* ---------------------------------------------------------- metrics */
+  .metrics {
+    display: grid;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 28px 0 34px;
+  }
+  @media (min-width: 560px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 860px) { .metrics { grid-template-columns: repeat(4, 1fr); } }
+  .metric { background: var(--surface); padding: 18px 18px 20px; }
+  .metric .k {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+    min-height: 2.4em;
+  }
+  .metric .v {
+    font-family: var(--font-mono);
+    font-size: 1.85rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .metric .d { font-size: 0.82rem; color: var(--ink-soft); margin-top: 8px; }
+  .metric.hero .v { color: var(--certain); }
+
+  /* ---------------------------------------------------------- tables */
+  .scroller {
+    overflow-x: auto;
+    margin: 26px 0 32px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--surface);
+  }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td {
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 500;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--rule);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num, th.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td b { font-weight: 650; }
+  .ours td { background: var(--certain-bg); }
+  .ours td:first-child { font-weight: 650; }
+
+  /* ---------------------------------------------------------- figures */
+  figure { margin: 34px 0; }
+  figure svg { display: block; width: 100%; height: auto; max-width: 100%; }
+  .figframe {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--surface);
+    padding: 22px 18px;
+    overflow-x: auto;
+  }
+  figcaption {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin-top: 12px;
+    max-width: 62ch;
+  }
+  figcaption b { color: var(--ink); font-weight: 600; }
+
+  /* ---------------------------------------------------------- features */
+  .feature {
+    border-top: 1px solid var(--rule);
+    padding: 26px 0 8px;
+  }
+  .feature-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+  .feature-head h3 { margin: 0; }
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid var(--rule);
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+  .chip.live { color: var(--certain); border-color: var(--certain); }
+  .chip.partial { color: var(--checking); border-color: var(--checking); }
+  .chip.next { color: var(--ink-faint); }
+  .forfarmer {
+    margin: 12px 0 0;
+    padding-left: 16px;
+    border-left: 2px solid var(--rule);
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    max-width: 60ch;
+  }
+  .forfarmer b { color: var(--ink); }
+
+  /* ---------------------------------------------------------- phases */
+  .phase {
+    display: grid;
+    gap: 4px 22px;
+    padding: 24px 0;
+    border-top: 1px solid var(--rule);
+  }
+  @media (min-width: 720px) { .phase { grid-template-columns: 190px minmax(0, 1fr); } }
+  .phase .when {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .phase .when b { display: block; color: var(--ink); font-size: 0.95rem; letter-spacing: 0; text-transform: none; margin-bottom: 3px; }
+  .phase.now .when b { color: var(--certain); }
+  .phase h3 { margin: 0 0 8px; font-size: 1.05rem; }
+  .phase ul { margin-bottom: 0; }
+
+  /* ---------------------------------------------------------- sources */
+  .srcgrid { font-size: 0.9rem; }
+  .srcgrid td:last-child { color: var(--ink-soft); }
+
+  footer {
+    grid-column: 1 / -1;
+    border-top: 2px solid var(--ink);
+    padding-top: 22px;
+    margin-top: 40px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  a { color: inherit; }
+  a:focus-visible, .index a:focus-visible {
+    outline: 2px solid var(--spark);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="wordmark">
+      <h1 class="dv">हल</h1>
+      <span class="latin">HAL</span>
+    </div>
+    <p class="tagline dv">खेती की हर बात, एक साथ &nbsp;·&nbsp; Every part of farming, together.</p>
+    <div class="masthead-meta">
+      <span>Smart India Hackathon &nbsp;<b>Problem Statement 1</b></span>
+      <span>Unified AI Agri-Vision Platform</span>
+      <span>Crop Advisory &amp; Livestock Management</span>
+      <span>Build state &nbsp;<b>v4 · running on device</b></span>
+    </div>
+  </header>
+
+  <nav class="index" aria-label="Contents">
+    <ol>
+      <li><a href="#ps"><span>01</span> The problem</a></li>
+      <li><a href="#idea"><span>02</span> The idea</a></li>
+      <li><a href="#built"><span>03</span> What exists</a></li>
+      <li><a href="#features"><span>04</span> Features</a></li>
+      <li><a href="#tech"><span>05</span> Under the hood</a></li>
+      <li><a href="#model"><span>06</span> The model</a></li>
+      <li><a href="#why"><span>07</span> Why it works</a></li>
+      <li><a href="#phases"><span>08</span> Roadmap</a></li>
+      <li><a href="#sources"><span>09</span> Sources</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <!-- ============================================ 01 -->
+    <section id="ps">
+      <div class="eyebrow">01 &nbsp;/&nbsp; The problem</div>
+      <h2>A farmer's crops and animals are one business. Every app treats them as two.</h2>
+
+      <p class="lead">Problem Statement 1 asks for four things in one platform: crop disease
+      identification, livestock monitoring, historical farm records, and actionable advisory
+      services, with an interface that works in a rural environment.</p>
+
+      <p>Read closely, the hard word in that sentence is <strong>unified</strong>. Each of the four
+      pieces already exists somewhere. Plantix diagnoses crops. Bharat Pashudhan has tagged 29.6 of
+      India's 30.5 crore bovines. Kisan e-Mitra answers scheme questions by voice in eleven
+      languages. Agmarknet publishes mandi prices. None of them holds two of those facts at the same
+      time, and so none of them can produce a sentence that requires both.</p>
+
+      <p>That matters because a smallholding is not four separate businesses. The maize stover is the
+      cattle fodder. The money for the vaccine comes from the wheat sale. A cow that stops eating in
+      the same week the crop is sprayed is not a coincidence a crop app can notice.</p>
+
+      <h3>What the field actually tells us</h3>
+
+      <p>Three findings shaped every decision in this build, and each one points away from the
+      obvious answer.</p>
+
+      <div class="claim">
+        Accuracy is not the bottleneck. Trust is.
+        <span class="dv">Disease-detection apps with 95% lab accuracy have shown under 10% field
+        adoption. Ama Krushi reached 7 million farmers in Odisha with plain voice calls, no computer
+        vision at all, and returned $9 to $15 of farmer benefit for every $1 spent.</span>
+      </div>
+
+      <p>The consequence is uncomfortable for a hackathon: <strong>an 85%-accurate system that
+      admits doubt beats a 95%-accurate one that never does.</strong> A confident wrong diagnosis
+      costs a farmer a spray, a season, and their willingness to open the app again.</p>
+
+      <div class="claim">
+        Apps alone do not reach the farmers who need them most.
+        <span class="dv">Kisan Suvidha has roughly 3 lakh users; mKisan's SMS service has 5 crore
+        registrations. 51.6% of rural women aged 15 and over do not own a mobile phone at all, in a
+        workforce that is 64.3% women.</span>
+      </div>
+
+      <p>So voice is the primary interface, not an accessibility afterthought, and every dead end in
+      the app terminates at a human being with a phone number, not at an error screen.</p>
+
+      <div class="claim">
+        Nobody has unified crop and livestock.
+        <span class="dv">This is the gap, and it is a structural one, not a feature one.</span>
+      </div>
+    </section>
+
+    <!-- ============================================ 02 -->
+    <section id="idea">
+      <div class="eyebrow">02 &nbsp;/&nbsp; The idea</div>
+      <h2>One record. One table. Everything else falls out of that.</h2>
+
+      <p class="lead">HAL keeps a farmer's crops and animals in a single append-only event log, so
+      the advice they receive can see both halves of their farm at once.</p>
+
+      <p>This sounds like a database detail. It is the entire product. Every differentiating feature
+      in this document is a query over that one table, and no competitor can add these features
+      without rebuilding their data model from the ground up.</p>
+
+      <figure>
+        <div class="figframe">
+          <svg viewBox="0 0 860 400" role="img" aria-label="Two architectures compared. On the left, separate crop and livestock apps each have their own store and can only answer questions inside their own half. On the right, HAL writes both crop and animal events into one table, so a single query can join a crop fact to an animal fact and produce an answer neither app could reach.">
+            <defs>
+              <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+              </marker>
+              <marker id="ar-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0,0 10,5 0,10" fill="#1B5E20"/>
+              </marker>
+            </defs>
+
+            <text x="16" y="22" font-family="ui-monospace, monospace" font-size="12" fill="currentColor" opacity="0.6" letter-spacing="1.5">HOW IT IS DONE TODAY</text>
+            <text x="470" y="22" font-family="ui-monospace, monospace" font-size="12" fill="#1B5E20" letter-spacing="1.5">HAL</text>
+            <line x1="440" y1="10" x2="440" y2="390" stroke="currentColor" stroke-width="1" opacity="0.2" stroke-dasharray="3 5"/>
+
+            <!-- left: two silos -->
+            <rect x="16" y="46" width="180" height="52" rx="3" fill="none" stroke="currentColor" opacity="0.75"/>
+            <text x="106" y="70" text-anchor="middle" font-size="13" fill="currentColor">Crop app</text>
+            <text x="106" y="88" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6">photo, diagnosis</text>
+
+            <rect x="228" y="46" width="180" height="52" rx="3" fill="none" stroke="currentColor" opacity="0.75"/>
+            <text x="318" y="70" text-anchor="middle" font-size="13" fill="currentColor">Livestock app</text>
+            <text x="318" y="88" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6">tag, vaccine</text>
+
+            <line x1="106" y1="98" x2="106" y2="140" stroke="currentColor" opacity="0.75" marker-end="url(#ar)"/>
+            <line x1="318" y1="98" x2="318" y2="140" stroke="currentColor" opacity="0.75" marker-end="url(#ar)"/>
+
+            <rect x="16" y="140" width="180" height="44" rx="3" fill="currentColor" opacity="0.07"/>
+            <rect x="16" y="140" width="180" height="44" rx="3" fill="none" stroke="currentColor" opacity="0.5"/>
+            <text x="106" y="167" text-anchor="middle" font-size="12" font-family="ui-monospace, monospace" fill="currentColor">crop store</text>
+
+            <rect x="228" y="140" width="180" height="44" rx="3" fill="currentColor" opacity="0.07"/>
+            <rect x="228" y="140" width="180" height="44" rx="3" fill="none" stroke="currentColor" opacity="0.5"/>
+            <text x="318" y="167" text-anchor="middle" font-size="12" font-family="ui-monospace, monospace" fill="currentColor">animal store</text>
+
+            <line x1="196" y1="162" x2="228" y2="162" stroke="currentColor" stroke-width="1" opacity="0.35" stroke-dasharray="4 4"/>
+            <text x="212" y="205" text-anchor="middle" font-size="18" fill="currentColor" opacity="0.45">no join</text>
+
+            <rect x="16" y="248" width="392" height="86" rx="3" fill="none" stroke="currentColor" opacity="0.35" stroke-dasharray="4 4"/>
+            <text x="212" y="278" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">Best available answer</text>
+            <text x="212" y="302" text-anchor="middle" font-size="13" fill="currentColor">&#8220;Spray mancozeb on the maize.&#8221;</text>
+            <text x="212" y="322" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6">The cow is invisible to this app.</text>
+
+            <!-- right: one table -->
+            <rect x="470" y="46" width="170" height="52" rx="3" fill="none" stroke="currentColor" opacity="0.75"/>
+            <text x="555" y="70" text-anchor="middle" font-size="13" fill="currentColor">Crop events</text>
+            <text x="555" y="88" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6">sowing, spray, scan</text>
+
+            <rect x="668" y="46" width="176" height="52" rx="3" fill="none" stroke="currentColor" opacity="0.75"/>
+            <text x="756" y="70" text-anchor="middle" font-size="13" fill="currentColor">Animal events</text>
+            <text x="756" y="88" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6">vaccine, calving</text>
+
+            <line x1="555" y1="98" x2="600" y2="138" stroke="#1B5E20" stroke-width="1.6" marker-end="url(#ar-hi)"/>
+            <line x1="756" y1="98" x2="712" y2="138" stroke="#1B5E20" stroke-width="1.6" marker-end="url(#ar-hi)"/>
+
+            <rect x="470" y="140" width="374" height="52" rx="3" fill="#1B5E20" opacity="0.1"/>
+            <rect x="470" y="140" width="374" height="52" rx="3" fill="none" stroke="#1B5E20" stroke-width="1.6"/>
+            <text x="657" y="163" text-anchor="middle" font-size="13" font-family="ui-monospace, monospace" fill="#1B5E20">one event table</text>
+            <text x="657" y="181" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.7">farmer_id · plot_id · animal_id · type · at</text>
+
+            <line x1="657" y1="192" x2="657" y2="244" stroke="#1B5E20" stroke-width="1.6" marker-end="url(#ar-hi)"/>
+            <text x="668" y="222" font-size="11" font-family="ui-monospace, monospace" fill="#1B5E20">one query</text>
+
+            <rect x="470" y="248" width="374" height="86" rx="3" fill="none" stroke="#1B5E20" stroke-width="1.6"/>
+            <text x="657" y="272" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">Answer that needs both halves</text>
+            <text x="657" y="296" text-anchor="middle" font-size="13" fill="currentColor">&#8220;Spray the maize before tomorrow&#8217;s rain,</text>
+            <text x="657" y="315" text-anchor="middle" font-size="13" fill="currentColor">and Gauri&#8217;s vaccine is 78 days late.&#8221;</text>
+
+            <text x="16" y="372" font-size="11" font-family="ui-monospace, monospace" fill="currentColor" opacity="0.55">Splitting the table removes the join, and the join is the product.</text>
+          </svg>
+        </div>
+        <figcaption><b>The moat is one design decision.</b> Competitors are not missing a feature,
+        they are missing the join. Adding cross-domain advice to a crop-only app means rebuilding its
+        data model, not shipping a screen.</figcaption>
+      </figure>
+
+      <h3>How the idea covers all four asks</h3>
+
+      <div class="scroller">
+        <table>
+          <thead>
+            <tr><th>The problem statement asks for</th><th>HAL answers with</th><th>Made possible by</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><b>Crop disease identification</b></td><td>On-device photo diagnosis, 30 classes across 6 crops, with a confidence gate that refuses to guess</td><td>TFLite model in the APK, no server needed</td></tr>
+            <tr><td><b>Livestock monitoring</b></td><td>Vaccination calendar, symptom triage to a vet, breeding and heat dates</td><td>Date arithmetic over the same event table</td></tr>
+            <tr><td><b>Historical farm records</b></td><td>One merged timeline: crop rows and animal rows interleaved, past and upcoming</td><td>The single event table, sorted by date</td></tr>
+            <tr><td><b>Actionable advisory</b></td><td>Ask anything by voice; the answer reads the farmer's own timeline, both halves, plus live weather</td><td>Retrieval over vetted documents, with the farm's history in the query</td></tr>
+            <tr><td><b>Rural-ready interface</b></td><td>Voice first, three languages, 56px targets, works with the network off</td><td>Local-first writes, on-device model, queued sync</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================ 03 -->
+    <section id="built">
+      <div class="eyebrow">03 &nbsp;/&nbsp; What exists</div>
+      <h2>This is a working application, not a prototype deck.</h2>
+
+      <p class="lead">The model is trained and measured. The backend is deployed. The Android app
+      has been walked by hand, screen by screen, including a full round trip with the network
+      switched off.</p>
+
+      <div class="metrics">
+        <div class="metric hero">
+          <div class="k">When it answers,<br>it is right</div>
+          <div class="v">97.9%</div>
+          <div class="d">Tier-1 precision on 1,606 held-out field photographs</div>
+        </div>
+        <div class="metric">
+          <div class="k">Model on the phone</div>
+          <div class="v">1.98<span style="font-size:0.55em"> MB</span></div>
+          <div class="d">float16 TFLite, runs with no network</div>
+        </div>
+        <div class="metric">
+          <div class="k">Classes across six crops</div>
+          <div class="v">30</div>
+          <div class="d">rice, wheat, maize, tomato, potato, cotton</div>
+        </div>
+        <div class="metric">
+          <div class="k">Languages complete</div>
+          <div class="v">3</div>
+          <div class="d">Hindi, English, Marathi &mdash; 238 strings each</div>
+        </div>
+      </div>
+
+      <h4>Verified by hand on a device</h4>
+      <ul>
+        <li>Photograph a leaf, get a diagnosis, dose, timing and cost, <strong>with the network
+        off</strong>. The model runs inside the phone.</li>
+        <li>The merged ledger, crop and animal rows in one feed, with past and upcoming zones.</li>
+        <li>Livestock symptom triage: two questions to milk fever, an urgent action, and a tap to
+        the national veterinary helpline.</li>
+        <li>Cross-domain advisory answering from the farmer's own record, in the farmer's language.</li>
+        <li>Full airplane-mode round trip: work offline, queue, reconnect, everything syncs.</li>
+        <li>Thirteen vaccine reminders registered with Android's alarm service, not just the app.</li>
+      </ul>
+
+      <div class="note">
+        <h4>Honest about the edges</h4>
+        <p>Three content files carry doses and veterinary logic that a Krishi Vigyan Kendra officer
+        should sign off before a real farmer follows them, and the app says so in its own validation
+        output on every build. The Marathi translation is complete but has not been read by a native
+        speaker. Neither is hidden; both are tracked as blocking items for field deployment rather
+        than for the demo.</p>
+      </div>
+    </section>
+
+    <!-- ============================================ 04 -->
+    <section id="features">
+      <div class="eyebrow">04 &nbsp;/&nbsp; Features</div>
+      <h2>What each part does, and what it changes for the person holding the phone.</h2>
+
+      <div class="feature">
+        <div class="feature-head">
+          <h3>Photograph a leaf, name the disease</h3>
+          <span class="chip live">Live</span>
+        </div>
+        <p>The farmer points the camera at a leaf. A MobileNetV3 classifier inside the APK returns a
+        disease, a severity, and a confidence. If a plot is selected, the model is restricted to that
+        crop's diseases before it decides, which removes roughly a third of the ways it can be wrong.</p>
+        <p class="forfarmer"><b>What changes:</b> a diagnosis in about two seconds, in the field,
+        with no signal and no data charge. The alternative today is a photo sent to a WhatsApp group
+        and an answer that may never come.</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-head">
+          <h3>The app refuses to guess</h3>
+          <span class="chip live">Live</span>
+        </div>
+        <p>Every diagnosis passes a calibrated confidence gate with three outcomes. This is the
+        single most important design decision in the product, and it is the one most likely to be
+        mistaken for a weakness.</p>
+
+        <div class="tiers">
+          <div class="tier t1">
+            <div class="axis" aria-hidden="true"></div>
+            <div class="band">Above 0.85 &nbsp;·&nbsp; certain</div>
+            <div class="headline">97.9%</div>
+            <p class="says">Names the disease, shows the dose.</p>
+            <p>Right 97.9% of the times it speaks. Includes chemical, quantity per litre, timing, and
+            the rupee cost against the rupee loss avoided.</p>
+          </div>
+          <div class="tier t2">
+            <div class="axis" aria-hidden="true"></div>
+            <div class="band">0.60 to 0.85 &nbsp;·&nbsp; checking</div>
+            <div class="headline">24.0%</div>
+            <p class="says">Names it, withholds the dose.</p>
+            <p>Routed to a KVK expert with a case number. The farmer sees what it might be, and that
+            a human is looking, but never a dose nobody has confirmed.</p>
+          </div>
+          <div class="tier t3">
+            <div class="axis" aria-hidden="true"></div>
+            <div class="band">Below 0.60 &nbsp;·&nbsp; will not guess</div>
+            <div class="headline">30.8%</div>
+            <p class="says">Says nothing at all.</p>
+            <p>No disease name, not even a suggestion. A real phone number instead: Kisan Call
+            Centre 1800-180-1551, or 1962 for animals.</p>
+          </div>
+        </div>
+
+        <p class="forfarmer"><b>What changes:</b> the farmer can believe the app. On the hardest
+        photographs we test against, it volunteers an answer on one image in twenty-six, and is right
+        on 92% of those. It knows what it does not know, and that is measurable, not a claim.</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-head">
+          <h3>Vaccination calendar that arrives before the date</h3>
+          <span class="chip live">Live</span>
+        </div>
+        <p>Enter an animal once. The app derives the entire schedule from its species and age, then
+        schedules Android alarms that fire whether or not the app is open, whether or not there is
+        signal. Recorded doses and missing records are treated as different things: a dose that
+        expired is a fact, a row that was never written is only an inference, and the app says so in
+        different words.</p>
+        <p class="forfarmer"><b>What changes:</b> the vaccine is already free and the government
+        already administers it. The only thing standing between the farmer and it is knowing the
+        date. This is the highest impact-to-effort feature in the entire application, and it is date
+        arithmetic.</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-head">
+          <h3>Two questions to a diagnosis, for an animal</h3>
+          <span class="chip live">Live</span>
+        </div>
+        <p>A rule tree written with veterinary triage logic, not a model. &#8220;Can she stand?&#8221;
+        &#8220;Has she calved in the last three days?&#8221; Two taps to milk fever, with the caveat
+        &#8220;we are not certain&#8221; kept on screen, an urgent instruction, and a call button.</p>
+        <p class="forfarmer"><b>What changes:</b> India has roughly 41,000 veterinarians for about
+        53.58 crore livestock. Hours matter in hypocalcaemia. The app cannot be the vet; it can be
+        the thing that makes the farmer call one tonight instead of tomorrow.</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-head">
+          <h3>One ledger for the whole farm</h3>
+          <span class="chip live">Live</span>
+        </div>
+        <p>Sowing, irrigation, spray, harvest, expense, vaccination, calving, disease scan: all of it
+        in one feed, split into what is coming, what is today, and what has passed. Nothing here is
+        typed twice; every row is a byproduct of something the farmer already did in the app.</p>
+        <p class="forfarmer"><b>What changes:</b> the farmer ends a season with a record they never
+        sat down to write. That record is what makes next season's advice specific instead of
+        generic.</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-head">
+          <h3>Ask anything, out loud</h3>
+          <span class="chip live">Live</span>
+        </div>
+        <p>The farmer speaks or types a question. Before answering, the app sends its own timeline up
+        with the question, so the model is answering about this farm and not about farming. Retrieval
+        runs over a vetted corpus of ICAR and DAHD documents; anything outside it escalates to the
+        Kisan Call Centre rather than being invented.</p>
+        <p class="forfarmer"><b>What changes:</b> ask &#8220;what should I do now?&#8221; with no crop
+        and no disease named, and get an answer about your maize and your cow in the same
+        paragraph, citing the institution it came from.</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-head">
+          <h3>Everything important works with the network off</h3>
+          <span class="chip live">Live</span>
+        </div>
+        <p>Diagnosis, symptom triage, the ledger and the reminders are all local. Writes land in the
+        phone's database first and always. When a connection returns, an append-only queue drains by
+        itself; because events cannot conflict, there is no sync engine to go wrong.</p>
+        <p class="forfarmer"><b>What changes:</b> the app is usable standing in a field, which is
+        where the leaf is.</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-head">
+          <h3>The farmer's own language, including the words they actually use</h3>
+          <span class="chip live">Live</span>
+        </div>
+        <p>Hindi, English and Marathi, complete and validated for parity on every build. The Marathi
+        is deliberately the farmer's vocabulary rather than the dictionary's: <span class="dv">शेत</span>
+        not खेत, <span class="dv">जनावर</span> not पशु, <span class="dv">लाळ्या खुरकूत</span> for foot
+        and mouth disease. Languages whose translations do not exist are shown as
+        <span class="dv">जल्द आएगी</span> rather than silently rendering Hindi.</p>
+        <p class="forfarmer"><b>What changes:</b> the app speaks the farmer's language before it
+        asks them for anything. That is the cheapest trust signal available and it is on the first
+        screen.</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-head">
+          <h3>Village outbreak view</h3>
+          <span class="chip partial">Built, needs density</span>
+        </div>
+        <p>Confirmed diagnoses aggregate by pincode and week. When several farmers in one area report
+        the same disease, that is a signal worth pushing back out.</p>
+        <p class="forfarmer"><b>What changes:</b> one farmer's scan becomes a neighbour's early
+        warning. This is a <code>GROUP BY</code>, and it only works because the diagnoses are honest
+        enough to aggregate.</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-head">
+          <h3>Weather-triggered advice, not a weekly newsletter</h3>
+          <span class="chip live">Live</span>
+        </div>
+        <p>The app speaks when something crosses a threshold. Rain tomorrow and an unsprayed
+        infection today produces one alert; nothing happening produces silence.</p>
+        <p class="forfarmer"><b>What changes:</b> an empty home screen is a feature. Alert fatigue is
+        what kills every generic SMS advisory service ever run.</p>
+      </div>
+    </section>
+
+    <!-- ============================================ 05 -->
+    <section id="tech">
+      <div class="eyebrow">05 &nbsp;/&nbsp; Under the hood</div>
+      <h2>Local-first by construction, not by configuration.</h2>
+
+      <p class="lead">The phone is the source of truth. The server holds a synced copy, the retrieval
+      corpus, and the language model call. If the server disappears, the farmer loses the advisory
+      and keeps everything else.</p>
+
+      <figure>
+        <div class="figframe">
+          <svg viewBox="0 0 860 330" role="img" aria-label="Data flow. A scan is decoded and classified entirely on the phone and written to local SQLite before any network call. A background heartbeat checks server health every thirty seconds and drains an append-only queue when reachable. The health response carries a boot id, and when that id changes the phone re-sends its whole log, because the free-tier server database is wiped on redeploy.">
+            <defs>
+              <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0,0 10,5 0,10" fill="currentColor"/>
+              </marker>
+              <marker id="ar2-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0,0 10,5 0,10" fill="#1B5E20"/>
+              </marker>
+            </defs>
+
+            <rect x="12" y="34" width="404" height="266" rx="4" fill="currentColor" opacity="0.04"/>
+            <rect x="12" y="34" width="404" height="266" rx="4" fill="none" stroke="currentColor" opacity="0.3" stroke-dasharray="4 4"/>
+            <text x="26" y="24" font-family="ui-monospace, monospace" font-size="12" letter-spacing="1.5" fill="currentColor" opacity="0.65">ON THE PHONE &#8212; WORKS WITH NO NETWORK</text>
+
+            <rect x="34" y="56" width="150" height="42" rx="3" fill="var(--surface)" stroke="currentColor" opacity="0.8"/>
+            <text x="109" y="82" text-anchor="middle" font-size="12.5" fill="currentColor">Camera / gallery</text>
+
+            <line x1="184" y1="77" x2="242" y2="77" stroke="currentColor" marker-end="url(#ar2)"/>
+
+            <rect x="242" y="56" width="150" height="42" rx="3" fill="var(--surface)" stroke="currentColor" opacity="0.8"/>
+            <text x="317" y="76" text-anchor="middle" font-size="12.5" fill="currentColor">TFLite model</text>
+            <text x="317" y="91" text-anchor="middle" font-size="10.5" font-family="ui-monospace, monospace" fill="currentColor" opacity="0.6">1.98 MB</text>
+
+            <line x1="317" y1="98" x2="317" y2="130" stroke="currentColor" marker-end="url(#ar2)"/>
+            <text x="327" y="118" font-size="10.5" fill="currentColor" opacity="0.7">softmax / T</text>
+
+            <rect x="242" y="130" width="150" height="40" rx="3" fill="var(--surface)" stroke="currentColor" opacity="0.8"/>
+            <text x="317" y="155" text-anchor="middle" font-size="12.5" fill="currentColor">confidence gate</text>
+
+            <line x1="242" y1="150" x2="196" y2="150" stroke="currentColor" marker-end="url(#ar2)"/>
+            <text x="176" y="146" text-anchor="end" font-size="10.5" fill="currentColor" opacity="0.7">3 tiers</text>
+
+            <rect x="34" y="196" width="358" height="46" rx="3" fill="#1B5E20" opacity="0.1"/>
+            <rect x="34" y="196" width="358" height="46" rx="3" fill="none" stroke="#1B5E20" stroke-width="1.6"/>
+            <text x="213" y="216" text-anchor="middle" font-size="12.5" font-family="ui-monospace, monospace" fill="#1B5E20">SQLite &#183; one event table</text>
+            <text x="213" y="233" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.7">written before any network call, always</text>
+
+            <line x1="317" y1="170" x2="317" y2="194" stroke="#1B5E20" stroke-width="1.6" marker-end="url(#ar2-hi)"/>
+
+            <rect x="34" y="256" width="358" height="30" rx="3" fill="none" stroke="currentColor" opacity="0.5"/>
+            <text x="213" y="276" text-anchor="middle" font-size="11.5" fill="currentColor" opacity="0.85">queue &#183; rows where synced = 0</text>
+            <line x1="213" y1="242" x2="213" y2="254" stroke="currentColor" opacity="0.6" marker-end="url(#ar2)"/>
+
+            <!-- server side -->
+            <text x="470" y="24" font-family="ui-monospace, monospace" font-size="12" letter-spacing="1.5" fill="currentColor" opacity="0.65">SERVER &#8212; OPTIONAL</text>
+            <rect x="470" y="34" width="378" height="266" rx="4" fill="none" stroke="currentColor" opacity="0.3" stroke-dasharray="4 4"/>
+
+            <rect x="494" y="60" width="330" height="38" rx="3" fill="var(--surface)" stroke="currentColor" opacity="0.8"/>
+            <text x="659" y="84" text-anchor="middle" font-size="12.5" fill="currentColor">/health &#8212; every 30 seconds</text>
+
+            <rect x="494" y="122" width="330" height="38" rx="3" fill="var(--surface)" stroke="currentColor" opacity="0.8"/>
+            <text x="659" y="146" text-anchor="middle" font-size="12.5" fill="currentColor">/sync &#8212; per-row, names rejects</text>
+
+            <rect x="494" y="184" width="330" height="58" rx="3" fill="var(--surface)" stroke="currentColor" opacity="0.8"/>
+            <text x="659" y="206" text-anchor="middle" font-size="12.5" fill="currentColor">/advise &#8212; retrieval over ICAR, DAHD</text>
+            <text x="659" y="224" text-anchor="middle" font-size="10.5" fill="currentColor" opacity="0.65">the farm's timeline goes up with the question</text>
+
+            <line x1="416" y1="79" x2="492" y2="79" stroke="currentColor" opacity="0.75" marker-end="url(#ar2)"/>
+            <line x1="416" y1="271" x2="450" y2="271" stroke="currentColor" opacity="0.75"/>
+            <path d="M450 271 L450 141 L492 141" fill="none" stroke="currentColor" opacity="0.75" marker-end="url(#ar2)"/>
+            <text x="424" y="264" font-size="10.5" font-family="ui-monospace, monospace" fill="currentColor" opacity="0.7">drain</text>
+
+            <path d="M492 92 L462 92 L462 106 L436 106" fill="none" stroke="#1B5E20" stroke-width="1.6" marker-end="url(#ar2-hi)"/>
+            <text x="500" y="112" font-size="10.5" font-family="ui-monospace, monospace" fill="#1B5E20">boot_id changed &#8594; re-send everything</text>
+
+            <text x="470" y="286" font-size="10.5" fill="currentColor" opacity="0.6">Free tier wipes its database on redeploy. The phone repairs it.</text>
+          </svg>
+        </div>
+        <figcaption><b>Nothing the farmer needs in the field depends on the server.</b> The
+        <code>boot_id</code> edge exists because a free-tier database is erased on every deploy; the
+        phone notices an unfamiliar server and re-sends its whole log unprompted.</figcaption>
+      </figure>
+
+      <h3>Stack, and why each piece</h3>
+
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Layer</th><th>Choice</th><th>Why this one</th></tr></thead>
+          <tbody>
+            <tr><td>App</td><td class="mono">React Native · Expo SDK 57</td><td>One codebase, native TFLite through Nitro Modules, builds locally with no cloud queue</td></tr>
+            <tr><td>On-device model</td><td class="mono">react-native-fast-tflite</td><td>Inference inside the phone. No round trip, no data cost, no signal required</td></tr>
+            <tr><td>Local store</td><td class="mono">expo-sqlite</td><td>Append-only events. Writes never wait on a network</td></tr>
+            <tr><td>Backend</td><td class="mono">FastAPI · SQLite</td><td>Ten endpoints. The heavy work already happened on the phone</td></tr>
+            <tr><td>Advisory</td><td class="mono">TF-IDF retrieval + Gemini</td><td>Nothing fine-tuned. Answers are grounded in retrieved documents or they escalate</td></tr>
+            <tr><td>Speech</td><td class="mono">Android TTS</td><td>Works on hall wifi, and on no wifi. Asks the device which voices exist and falls back rather than going silent</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Decisions that look small and are not</h3>
+      <ul>
+        <li><strong>Area is stored in hectares, always.</strong> A bigha is not a fixed quantity in
+        India. Hard-coding one conversion would make every dose and every cost silently wrong by up
+        to three times, with no error anywhere.</li>
+        <li><strong>Nothing the app can derive is asked of the farmer.</strong> Soil type comes from
+        GPS, not from a dropdown.</li>
+        <li><strong>No daily logging of anything.</strong> A record the farmer has to maintain is a
+        record that stops after a week. Every row is a byproduct of an action they already took.</li>
+        <li><strong>Confidence thresholds live in one file.</strong> Recalibrating the model must
+        never require touching a screen.</li>
+        <li><strong>No sync engine.</strong> Append-only events cannot conflict, so a flag and a
+        batch POST is the entire feature.</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ 06 -->
+    <section id="model">
+      <div class="eyebrow">06 &nbsp;/&nbsp; The model</div>
+      <h2>Trained on 41,933 images, and measured two different ways on purpose.</h2>
+
+      <p class="lead">One model is trained. Everything else in the application is rules, date
+      arithmetic, SQL, or a retrieval call, because those are more reliable and a hackathon has
+      finite hours.</p>
+
+      <h3>How it was trained</h3>
+      <ol>
+        <li><strong>Twelve datasets merged into one taxonomy of 30 classes.</strong> Source folders
+        that do not map are dropped and printed, never guessed. Thirty-four folder names are refused
+        by name with a written reason, because each one looks mappable and is not.</li>
+        <li><strong>Content-hash deduplication with field images ranked first.</strong> Public
+        datasets quietly repackage each other; without this, held-out photographs end up in
+        training.</li>
+        <li><strong>MobileNetV3-Small, ImageNet weights.</strong> Six epochs training the head, then
+        six more with the top third of the backbone unfrozen at a tenth of the learning rate.</li>
+        <li><strong>Augmentation aimed at one specific failure.</strong> Random erasing, grayscale,
+        saturation and hue, on top of the usual geometry. The model had learned that a plain
+        background means it is safe to be confident, because almost every lab image is a detached
+        leaf on a bench.</li>
+        <li><strong>Temperature scaling fitted on held-out field images</strong>, never on the
+        validation split. Calibrating on studio imagery produces a gate tuned for photographs the app
+        will never see.</li>
+        <li><strong>Exported to float16 TFLite.</strong> INT8 was built, measured, and rejected: it
+        changed 7 of 30 predictions. float16 agrees with the float model exactly and still fits in
+        1.98 MB.</li>
+      </ol>
+
+      <h3>Two field numbers, and why both are printed</h3>
+
+      <p>A donated field dataset is usually one team, one camera and a handful of sessions. Holding
+      images out of it does not hold out much, because the test photograph was taken minutes later in
+      the same row. So the model is scored twice.</p>
+
+      <div class="scroller">
+        <table>
+          <thead>
+            <tr>
+              <th>Test source</th><th class="num">Images</th><th class="num">Accuracy</th>
+              <th class="num">Answers</th><th class="num">Precision when it answers</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Cotton, one institute's field</td><td class="num">143</td><td class="num">93.0%</td><td class="num">60.1%</td><td class="num">100%</td></tr>
+            <tr><td>Potato, Tanzanian smallholdings</td><td class="num">271</td><td class="num">91.9%</td><td class="num">72.0%</td><td class="num">99.5%</td></tr>
+            <tr><td>Cotton, a second unrelated survey</td><td class="num">194</td><td class="num">87.6%</td><td class="num">60.8%</td><td class="num">99.2%</td></tr>
+            <tr><td>Tomato, Jodhpur and Jaipur fields</td><td class="num">169</td><td class="num">87.6%</td><td class="num">42.6%</td><td class="num">98.6%</td></tr>
+            <tr><td>CCMT, Ghanaian farms</td><td class="num">255</td><td class="num">74.5%</td><td class="num">37.6%</td><td class="num">99.0%</td></tr>
+            <tr><td>Wheat field subset</td><td class="num">212</td><td class="num">73.1%</td><td class="num">62.7%</td><td class="num">93.2%</td></tr>
+            <tr><td>ICAR India</td><td class="num">55</td><td class="num">60.0%</td><td class="num">25.5%</td><td class="num">92.9%</td></tr>
+            <tr class="ours"><td>PlantDoc &mdash; web imagery, no shared collection</td><td class="num">307</td><td class="num"><b>46.9%</b></td><td class="num"><b>3.9%</b></td><td class="num"><b>91.7%</b></td></tr>
+            <tr><td><b>All held-out field imagery</b></td><td class="num"><b>1,606</b></td><td class="num"><b>76.1%</b></td><td class="num"><b>45.2%</b></td><td class="num"><b>97.9%</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Quote 46.9%.</strong> PlantDoc is scraped from across the open web, shares no
+      collection with anything in training, and is the closest thing available to a stranger's phone.
+      Anyone who has trained one of these models will ask precisely this question, and having the
+      breakdown ready is worth more than the larger number.</p>
+
+      <p>The two cotton rows show why. Cotton originally came from a single institute's field and
+      scored 97.9% on images held out of it. Adding a second, unrelated cotton survey dropped that
+      row to 93.0% and put the new one at 87.6%. <strong>The number went down, and that is what a
+      real measurement looks like.</strong></p>
+
+      <div class="note">
+        <h4>Read the right-hand column</h4>
+        <p>On PlantDoc the model scores 46.9% and volunteers an answer on <strong>one photograph in
+        twenty-six</strong>, and is right on 92% of those. On ordinary field photographs it answers
+        60 to 70% of the time and is right essentially always. The gate is not a safety net bolted
+        on afterwards; it is the product, and the numbers show it doing exactly what it was designed
+        to do.</p>
+      </div>
+
+      <h3>What four rebuilds taught us</h3>
+
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Build</th><th class="num">Field accuracy</th><th class="num">Answers</th><th class="num">Precision</th><th>What changed</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">v1</td><td class="num">22.5%</td><td class="num">34%</td><td class="num">28.9%</td><td>All field images held out of training</td></tr>
+            <tr><td class="mono">v2</td><td class="num">33.3%</td><td class="num">19%</td><td class="num">66.7%</td><td>In-the-wild imagery added to the training mix</td></tr>
+            <tr><td class="mono">v3</td><td class="num">44.9%</td><td class="num">9.7%</td><td class="num">82.9%</td><td>ICAR Indian field data, field oversampling, calibration fitted on field images</td></tr>
+            <tr class="ours"><td class="mono">v4</td><td class="num">76.1%</td><td class="num">45.2%</td><td class="num">97.9%</td><td>Six more field datasets, background-attacking augmentation, source-aware splits</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>v1 is the cautionary tale: it answered confidently on a third of field photographs and was
+      <strong>wrong 71% of those times</strong>. v4 answers four and a half times as often as v3 and
+      is wrong once in forty-eight instead of once in six. Validation accuracy across all four builds
+      moved from 93.2% to 93.1%, which is to say it never moved at all. Everything that mattered
+      happened in the field column, and none of it was ever visible from validation.</p>
+    </section>
+
+    <!-- ============================================ 07 -->
+    <section id="why">
+      <div class="eyebrow">07 &nbsp;/&nbsp; Why it works</div>
+      <h2>Every mechanism here has already worked in the field. None of them together.</h2>
+
+      <p class="lead">This is not a bet on an untested idea. It is a bet that four separately proven
+      interventions are worth more in one record than in four apps.</p>
+
+      <div class="scroller">
+        <table>
+          <thead><tr><th>The mechanism</th><th>Where it has already worked</th><th>Measured result</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><b>Timely, specific crop advice</b></td>
+              <td>Ama Krushi, Odisha &mdash; 7 million farmers, voice calls only</td>
+              <td>10% less severe crop loss; $9&ndash;15 returned per $1 spent</td>
+            </tr>
+            <tr>
+              <td><b>Livestock advisory to smallholders</b></td>
+              <td>iCow, Kenya &mdash; SMS dairy guidance</td>
+              <td>+13% milk, +29% milk income, +22% household income</td>
+            </tr>
+            <tr>
+              <td><b>A trusted human in the loop</b></td>
+              <td>Digital Green &mdash; local mediator plus video</td>
+              <td>44% adoption against 11% conventional, at $3.70 against $38.18 per adoption</td>
+            </tr>
+            <tr>
+              <td><b>On-device disease diagnosis</b></td>
+              <td>PlantVillage Nuru &mdash; offline classifier</td>
+              <td>Works; documented field adoption of only 14.1%, which is the gap honesty targets</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>What HAL adds on top</h3>
+
+      <div class="scroller">
+        <table>
+          <thead><tr><th>Platform</th><th>What it does well</th><th>What it structurally cannot do</th></tr></thead>
+          <tbody>
+            <tr><td><b>Plantix</b></td><td>Most-downloaded crop diagnosis app, 100M+ queries</td><td>Crop only. No animals, no records. Monetised on agri-input sales, so the advice has a conflict</td></tr>
+            <tr><td><b>PlantVillage Nuru</b></td><td>Offline on-device diagnosis</td><td>Crop only, few crops, and no record of the farm</td></tr>
+            <tr><td><b>Bharat Pashudhan</b></td><td>29.6 of 30.5 crore bovines tagged</td><td>Built for paravets and AI technicians, not farmers. No disease help, no advisory</td></tr>
+            <tr><td><b>Kisan e-Mitra</b></td><td>Voice chatbot, 11 languages, 93 lakh queries</td><td>Scheme Q&amp;A only. Cannot see a photograph</td></tr>
+            <tr><td><b>Ama Krushi</b></td><td>7M farmers, proven impact</td><td>One-way. The farmer cannot ask. Crop only</td></tr>
+            <tr><td><b>iCow</b></td><td>Proven dairy income gains</td><td>Dairy only. No crops</td></tr>
+            <tr><td><b>eNAM / Agmarknet</b></td><td>Mandi prices</td><td>Price only</td></tr>
+            <tr class="ours"><td>HAL</td><td>Crop and livestock in one record, on-device diagnosis that refuses to guess, advisory that reads the farm's own history</td><td>Needs a KVK sign-off on doses before real deployment, and more Indian field imagery to raise the independent number</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="claim">
+        No existing platform can produce this sentence, because none of them holds both facts.
+        <span class="dv">&#8220;Spray the maize before tomorrow's rain, and Gauri's foot-and-mouth
+        vaccine was due 78 days ago.&#8221;</span>
+      </div>
+
+      <h3>The adoption argument, in one line</h3>
+      <p>Every proven intervention above shares one property: the farmer believed it. Nuru's 14.1%
+      adoption and Ama Krushi's 7 million users are the same lesson read from both ends. HAL spends
+      its engineering on the believing, not on the last few points of accuracy, and the confidence
+      gate is where that money went.</p>
+    </section>
+
+    <!-- ============================================ 08 -->
+    <section id="phases">
+      <div class="eyebrow">08 &nbsp;/&nbsp; Roadmap</div>
+      <h2>Where it is, and what each next stage unlocks.</h2>
+
+      <div class="phase now">
+        <div class="when"><b>Now</b>v4 · shipped</div>
+        <div>
+          <h3>A working application with an honest model</h3>
+          <ul>
+            <li>30 classes, 6 crops, on-device, 1.98 MB, tier-1 precision 97.9%</li>
+            <li>Vaccination calendar, symptom triage, merged ledger, cross-domain advisory</li>
+            <li>Hindi, English, Marathi; full offline round trip verified on a device</li>
+            <li>Backend deployed; the phone repairs the server's record by itself after a wipe</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="when"><b>Next</b>Weeks 1&ndash;4</div>
+        <div>
+          <h3>Make it safe to put in a real farmer's hands</h3>
+          <ul>
+            <li><strong>KVK sign-off</strong> on doses, veterinary triage, and state land-unit
+            conversions. Every one of these files already prints a warning until it is signed</li>
+            <li>Native review of the Marathi, then Punjabi, Bengali and Telugu, which need their own
+            script fonts bundled</li>
+            <li>Mandi price feed showing <strong>net realisable price</strong>, the headline minus
+            transport, which is the number the farmer actually receives</li>
+            <li>Field pilot with one KVK: 30 farmers, one district, real photographs</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="when"><b>Then</b>Months 2&ndash;6</div>
+        <div>
+          <h3>The data flywheel starts turning</h3>
+          <ul>
+            <li>Expert-confirmed tier-2 cases become labelled Indian field training data. <strong>Every
+            escalation the app makes improves the model that caused it</strong></li>
+            <li>Independent accuracy rises because the training distribution finally matches the
+            phones in use, not because the backbone got bigger</li>
+            <li>Village outbreak map goes live once diagnosis density supports it</li>
+            <li>In-app community Q&amp;A: answered threads become searchable, so one question is
+            answered once instead of fifty times</li>
+            <li>VLAE network &mdash; the village-level agri entrepreneur as the human channel for
+            farmers the app cannot reach directly</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="when"><b>Later</b>Months 6&ndash;18</div>
+        <div>
+          <h3>From advisory to farm operating system</h3>
+          <ul>
+            <li>Year-on-year comparison and a farm income statement, both already latent in the
+            ledger and needing only a second season of data</li>
+            <li>Bhashini integration for genuinely multilingual voice across 22 languages</li>
+            <li>Government scheme matching against the farm's own record, so eligibility is computed
+            rather than searched</li>
+            <li>Insurance claim assistance under PMFBY, where the timeline is the evidence</li>
+            <li>Warehouse receipt financing and KCC pre-approval, where the ledger becomes a credit
+            history for a farmer who has never had one</li>
+            <li>Satellite plot health, drone services, and export linkage as partnerships rather than
+            in-house builds</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="note">
+        <h4>Deliberately not on this roadmap</h4>
+        <p>Muzzle biometric identification was cut after being costed: a farmer with three animals
+        already knows which cow is which, and muzzle ID solves an institutional traceability problem,
+        not a marginal farmer's problem. Sensors and collars are rejected on the same grounds at
+        &#8377;10,000&ndash;15,000 per animal for hardware designed for 500-cow dairies. Rejecting
+        both is part of the pitch, not a gap in it.</p>
+      </div>
+    </section>
+
+    <!-- ============================================ 09 -->
+    <section id="sources">
+      <div class="eyebrow">09 &nbsp;/&nbsp; Sources</div>
+      <h2>Every number in this document, and where it came from.</h2>
+
+      <p class="lead">Figures we could not verify were dropped rather than rounded into place. The
+      list of what we refused to cite is at the bottom, and it is deliberately part of the record.</p>
+
+      <h4>Evidence for the approach</h4>
+      <div class="scroller">
+        <table class="srcgrid">
+          <thead><tr><th>Claim</th><th>Value</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td>Ama Krushi reach</td><td class="num">~7 million farmers, $0.18/farmer/year</td><td>PxD / Government of Odisha RCT</td></tr>
+            <tr><td>Ama Krushi impact</td><td class="num">10% less severe crop loss</td><td>Same RCT</td></tr>
+            <tr><td>Ama Krushi return</td><td class="num">$9&ndash;15 per $1 spent</td><td>Same RCT</td></tr>
+            <tr><td>iCow Kenya</td><td class="num">+13% milk, +29% milk income, +22% household income</td><td>ILRI (Marwa &amp; Mburu)</td></tr>
+            <tr><td>Digital Green adoption</td><td class="num">44% vs 11%; $3.70 vs $38.18 per adoption</td><td>Digital Green evidence review</td></tr>
+            <tr><td>PlantVillage Nuru adoption</td><td class="num">14.1% in field studies</td><td>Published field evaluation</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>The context we are building into</h4>
+      <div class="scroller">
+        <table class="srcgrid">
+          <thead><tr><th>Claim</th><th>Value</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td>Agricultural extension ratio</td><td class="num">1 worker : 1,162 holdings</td><td>Indian extension literature</td></tr>
+            <tr><td>Veterinarians available</td><td class="num">~41,000 for ~53.58 crore livestock</td><td>DAHD</td></tr>
+            <tr><td>Women in the agricultural workforce</td><td class="num">64.3%</td><td>Labour statistics</td></tr>
+            <tr><td>Rural women without a phone</td><td class="num">51.6% of women aged 15+</td><td>NSO</td></tr>
+            <tr><td>Farmer share of consumer price</td><td class="num">28% potato, 33% onion, 49% rice</td><td>RBI study, 16 states, 9,400 respondents</td></tr>
+            <tr><td>Bovines tagged</td><td class="num">29.6 of 30.5 crore</td><td>Bharat Pashudhan / NDLM</td></tr>
+            <tr><td>AgriStack Farmer IDs</td><td class="num">7.63 crore generated</td><td>DAHD</td></tr>
+            <tr><td>IMD AI monsoon forecast</td><td class="num">1 km block level, 4 weeks ahead</td><td>IMD, launched 11 May 2026</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Training data</h4>
+      <p>Twelve datasets, merged under one taxonomy. Every image used is under CC BY 4.0, CC0, or an
+      equivalent open licence, and each source is attributed in <code>ml/prepare.py</code> beside the
+      reason it was included.</p>
+      <div class="scroller">
+        <table class="srcgrid">
+          <thead><tr><th>Dataset</th><th>Contribution</th><th>Licence</th></tr></thead>
+          <tbody>
+            <tr><td>ICAR / DARE via AIKosh</td><td>Rice and maize photographed in Indian fields</td><td>Government open data</td></tr>
+            <tr><td>PlantDoc</td><td>In-the-wild web imagery; its test half is our independent benchmark and never trains</td><td>Open research dataset</td></tr>
+            <tr><td>Tomato-Village (Gehlot et al., 2023)</td><td>1,616 tomato photographs from farms in Jodhpur and Jaipur</td><td>Open research dataset</td></tr>
+            <tr><td>CCMT (Mendeley)</td><td>Maize and tomato on Ghanaian smallholdings, real backgrounds</td><td>CC BY 4.0</td></tr>
+            <tr><td>SAR-CLD-2024 (Mendeley)</td><td>Cotton, National Cotton Research Institute field, Gazipur</td><td>CC BY 4.0</td></tr>
+            <tr><td>Irish Potato Leaf Dataset (Zenodo)</td><td>Smartphone photographs from Tanzanian smallholdings, pathologist-verified</td><td>CC BY 4.0</td></tr>
+            <tr><td>PlantVillage and derivatives</td><td>Laboratory imagery, the bulk of the class coverage</td><td>Open research datasets</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Advisory corpus</h4>
+      <p>The retrieval corpus is drawn from ICAR Package of Practices, DAHD and NDDB veterinary
+      guidance, and the National Animal Disease Control Programme schedules. Every answer the app
+      gives names the document it came from; anything outside the corpus escalates to the Kisan Call
+      Centre rather than being generated.</p>
+
+      <h4>What we refused to cite</h4>
+      <ul>
+        <li>A widely repeated &#8220;98.2% on a 10,516-image dataset from 18 farms&#8221; figure for
+        lumpy skin disease. We could not verify it; the 98.2% figures we could trace belong to
+        skin-cancer and lung-cancer ensemble papers.</li>
+        <li>Any unit economics &mdash; customer acquisition cost, lifetime value, break-even. We have
+        no basis for them, so they do not appear.</li>
+        <li>&#8220;Farmers get 45% of the mandi price.&#8221; The RBI figures above are the verifiable
+        version and we use those instead.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer>
+    <span>हल · HAL &nbsp;&mdash;&nbsp; Smart India Hackathon, Problem Statement 1</span>
+    <span>Build v4 &nbsp;·&nbsp; 30 classes &nbsp;·&nbsp; 1.98 MB on device</span>
+  </footer>
+
+</div>

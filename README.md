@@ -54,6 +54,14 @@ Output lands in `mobile/android/app/build/outputs/apk/release/`. Dropping the
 `-P` flag builds all four ABIs and triples the size to 142 MB; arm64-v8a alone
 covers every phone since roughly 2016 and comes to 50 MB.
 
+Testing on an **emulator** needs its own build, `-PreactNativeArchitectures=x86_64`.
+The arm64 APK looks like it should work there, because `adb install` reports
+Success and the emulator advertises `arm64-v8a` in `ro.product.cpu.abilist`, but
+it dies before the first screen with
+`SoLoaderDSONotFoundError: couldn't find DSO to load: libreactnative.so`: Android
+picks the arm64 lib directory while SoLoader probes `base.apk!/lib/x86_64`,
+because the libraries ship uncompressed.
+
 Release is signed with the debug keystore, which installs fine and is not
 publishable. Generate a real keystore before any store upload.
 

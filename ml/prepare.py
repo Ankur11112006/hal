@@ -99,6 +99,19 @@ SOURCES = [
     # eight folders map onto our taxonomy; the rest are refused in labels.py
     # rather than guessed at.
     ("tomato_village/Variant-a(Multiclass Classification)", "split_dirs:tomato", "field"),
+    # CCMT (Mendeley, CC BY 4.0): smallholder farms in Ghana, photographed
+    # against real backgrounds rather than a bench. Not India, but the domain
+    # gap this model suffers from is lab-versus-field, not India-versus-
+    # elsewhere, and these are field. Five of its twenty-three folders map;
+    # cashew and cassava are not crops we know and seven other folders are
+    # refused by name in labels.py, "leaf blight" above all, which is ambiguous
+    # under both maize and tomato between two classes we do model.
+    # Its "leaf curl" maps to yellow leaf curl on the existing alias: the
+    # begomoviruses behind it in West Africa and India differ, but the symptom,
+    # the vector and the advice the app gives are the same.
+    # ml/extract_ccmt.py unpacks only Raw Data. The archive's augmented copy is
+    # rotations of these same photos and train.py augments on the fly.
+    ("ccmt", "crop_nested", "field"),
 ]
 
 IMG_EXT = {".jpg", ".jpeg", ".png", ".bmp"}

@@ -203,6 +203,26 @@ REFUSED = {
     "magnesium_deficiency": "a nutrient deficiency, not a disease",
     "nitrogen_deficiency": "a nutrient deficiency, not a disease",
     "pottassium_deficiency": "a nutrient deficiency, not a disease",
+    # CCMT folders. "leaf blight" is the dangerous one: it appears under BOTH
+    # maize and tomato, and under each it is ambiguous between two classes we
+    # actually model. Maize could be northern or southern; tomato could be
+    # early or late, which carry different sprays. 2,307 images sit behind that
+    # one name and none of them are worth a wrong dose.
+    "leaf_blight": "ambiguous under every crop that uses the name",
+    "leaf_spot": "ambiguous: gray leaf spot or something else",
+    "verticulium_wilt": "not in the class list (their spelling of verticillium)",
+    "verticillium_wilt": "not in the class list",
+    "streak_virus": "maize streak virus is not in the class list",
+    "leaf_beetle": "insect pest not in the class list",
+    "grasshoper": "insect pest not in the class list (their spelling)",
+    # Cotton field-survey folders outside the class list. Leaf reddening is the
+    # tempting one and the worst to guess at: it is usually a potassium or
+    # magnesium shortage, sometimes just cold, and the app would answer a
+    # nutrient problem with a bactericide.
+    "leaf_reddening": "usually a nutrient shortage, not a pathogen",
+    "herbicide_growth_damage": "chemical injury, not a disease",
+    "leaf_hopper_jassids": "insect pest not in the class list",
+    "leaf_variegation": "not in the class list",
 }
 
 
@@ -276,6 +296,28 @@ def _self_check():
     for folder in ("Spotted Wilt Virus", "Leaf Miner", "Magnesium Deficiency",
                    "Nitrogen Deficiency", "Pottassium Deficiency"):
         assert resolve(folder, crop_hint="tomato") is None, folder
+
+    # CCMT: five folders map, seven do not, and the crop hint decides.
+    assert resolve("fall armyworm", crop_hint="Maize") == "maize__fall_armyworm"
+    assert resolve("septoria leaf spot", crop_hint="Tomato") == "tomato__septoria_leaf_spot"
+    assert resolve("healthy", crop_hint="Maize") == "maize__healthy"
+    for crop in ("Maize", "Tomato"):
+        assert resolve("leaf blight", crop_hint=crop) is None, f"{crop} leaf blight is ambiguous"
+    for folder in ("grasshoper", "leaf beetle", "leaf spot", "streak virus"):
+        assert resolve(folder, crop_hint="Maize") is None, folder
+    assert resolve("verticulium wilt", crop_hint="Tomato") is None
+    # cashew and cassava are not crops this model knows, so nothing under them resolves
+    for folder in ("anthracnose", "healthy", "mosaic", "green mite"):
+        assert resolve(folder, crop_hint="Cashew") is None, folder
+        assert resolve(folder, crop_hint="Cassava") is None, folder
+
+    # Cotton field survey: all three of our cotton classes, and four refusals.
+    assert resolve("Bacterial Blight", crop_hint="cotton") == "cotton__bacterial_blight"
+    assert resolve("Curl Virus", crop_hint="cotton") == "cotton__leaf_curl_virus"
+    assert resolve("Healthy Leaf", crop_hint="cotton") == "cotton__healthy"
+    for folder in ("Leaf Reddening", "Herbicide Growth Damage",
+                   "Leaf Hopper Jassids", "Leaf Variegation"):
+        assert resolve(folder, crop_hint="cotton") is None, folder
     print(f"labels ok: {len(LABELS)} classes / {len(CROPS)} crops, "
           f"{len(ALIASES)} aliases, {len(REFUSED)} explicit refusals")
 
